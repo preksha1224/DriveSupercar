@@ -3,6 +3,7 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, AbstractContro
 import { AuthService } from '../../services/auth.service';
 import { Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { first } from 'rxjs';
 
 @Component({
   selector: 'app-registration',
@@ -16,7 +17,7 @@ export class RegistrationComponent implements OnInit {
   loading = false;
   submitted = false;
   error = '';
-  roles = ['user', 'car_owner'];
+  roles = ['customer', 'car_owner'];
   showPassword = false;
   showConfirmPassword = false;
 
@@ -33,7 +34,7 @@ export class RegistrationComponent implements OnInit {
       phoneNumber: ['', [Validators.required, Validators.pattern(/^\d{10}$/)]],
       password: ['', [Validators.required, Validators.minLength(6), Validators.maxLength(50), this.passwordStrengthValidator]],
       confirmPassword: ['', Validators.required],
-      role: ['user', Validators.required]
+      role: ['customer', Validators.required]
     }, {
       validators: this.passwordMatchValidator
     });
@@ -86,11 +87,11 @@ export class RegistrationComponent implements OnInit {
     this.error = '';
 
     const userData = {
-      firstName: this.f['firstName'].value.trim(),
-      lastName: this.f['lastName'].value.trim(),
+      first_name: this.f['firstName'].value.trim(),
+      last_name: this.f['lastName'].value.trim(),
       username: this.f['username'].value.trim(),
       email: this.f['email'].value.trim().toLowerCase(),
-      phoneNumber: this.f['phoneNumber'].value,
+      phone: this.f['phoneNumber'].value,
       password: this.f['password'].value,
       role: this.f['role'].value
     };
@@ -98,8 +99,9 @@ export class RegistrationComponent implements OnInit {
     this.authService.register(userData)
       .subscribe({
         next: (response) => {
-          // this.authService.setAuthToken(response.token, response.user);
-          this.router.navigate(['/']);
+          if (response.success) {
+            this.router.navigate(['/user/login']);
+          }
         },
         error: (error) => {
           this.error = error.error?.message || 'Registration failed. Please try again.';

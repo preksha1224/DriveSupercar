@@ -2,6 +2,12 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable } from 'rxjs';
 
+interface RegisterResponse {
+  success: boolean;
+  message: string;
+  user: any;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -17,8 +23,8 @@ export class AuthService {
     return this.http.post('/auth/login', { username:email, password });
   }
 
-  register(userData: any): Observable<any> {
-    return this.http.post('/api/auth/register', userData);
+  register(userData: any): Observable<RegisterResponse> {
+    return this.http.post<RegisterResponse>('/auth/registration', userData);
   }
 
   logout(): void {
@@ -34,6 +40,11 @@ export class AuthService {
     }else {
       return false;
     }
+  }
+
+  setAuthToken(token: string, user: any): void {
+    localStorage.setItem('authToken', token);
+    localStorage.setItem('user', JSON.stringify(user));
   }
 
 }
