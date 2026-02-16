@@ -1,150 +1,211 @@
-<div class="registration-container">
-  <div class="registration-card">
-    <h2>Create Account</h2>
-    <form [formGroup]="registrationForm" (ngSubmit)="onSubmit()">
-      <div class="form-row">
-        <div class="form-group">
-          <label for="firstName">First Name</label>
-          <input
-            type="text"
-            id="firstName"
-            formControlName="firstName"
-            class="form-control"
-            [class.is-invalid]="submitted && f['firstName'].errors"
-          />
-          <div *ngIf="submitted && f['firstName'].errors" class="invalid-feedback">
-            <small *ngIf="f['firstName'].errors['required']">First name is required</small>
-            <small *ngIf="f['firstName'].errors['minlength']">First name must be at least 2 characters</small>
-            <small *ngIf="f['firstName'].errors['pattern']">First name can only contain letters</small>
-          </div>
+<div class="registration-wrapper">
+  <div class="registration-container">
+    <!-- Left Side - Image -->
+    <div class="image-section">
+      <div class="logo-section text-center mb-4">
+        <div class="brand-logo-main">
+          <span class="logo-text">Elite<span class="logo-accent">Drive</span></span>
+          <div class="logo-underline"></div>
         </div>
+        <p class="logo-subtitle text-uppercase letter-spacing-2 mt-2">Premium Car Rental</p>
+      </div>
+      <div class="car-image-container">
+        <img src="images/AUDISERIES 5.png" alt="BMW 5 Series" class="car-img img-fluid">
+      </div>
+      <div class="decorative-dots">
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+      </div>
+    </div>
 
-        <div class="form-group">
-          <label for="lastName">Last Name</label>
-          <input
-            type="text"
-            id="lastName"
-            formControlName="lastName"
-            class="form-control"
-            [class.is-invalid]="submitted && f['lastName'].errors"
-          />
-          <div *ngIf="submitted && f['lastName'].errors" class="invalid-feedback">
-            <small *ngIf="f['lastName'].errors['required']">Last name is required</small>
-            <small *ngIf="f['lastName'].errors['minlength']">Last name must be at least 2 characters</small>
-            <small *ngIf="f['lastName'].errors['pattern']">Last name can only contain letters</small>
-          </div>
-        </div>
+    <!-- Right Side - Form -->
+    <div class="form-section">
+      <div class="form-header">
+        <h1>Create Account</h1>
+        <p>Join our community and start your journey</p>
       </div>
 
-      <div class="form-row">
-        <div class="form-group">
-          <label for="username">Username</label>
-          <input
-            type="text"
-            id="username"
-            formControlName="username"
-            class="form-control"
-            [class.is-invalid]="submitted && f['username'].errors"
-          />
-          <div *ngIf="submitted && f['username'].errors" class="invalid-feedback">
-            <small *ngIf="f['username'].errors['required']">Username is required</small>
-            <small *ngIf="f['username'].errors['minlength']">Username must be at least 3 characters</small>
-            <small *ngIf="f['username'].errors['maxlength']">Username cannot exceed 20 characters</small>
-            <small *ngIf="f['username'].errors['pattern']">Username can only contain letters, numbers, and underscores</small>
+      <form [formGroup]="registrationForm" (ngSubmit)="onSubmit()" class="registration-form">
+        <!-- Error Alert -->
+        <div *ngIf="error" class="alert alert-error">
+          <span class="alert-icon">⚠️</span>
+          {{ error }}
+        </div>
+
+        <!-- Name Row -->
+        <div class="form-row">
+          <div class="form-group">
+            <label for="firstName">First Name</label>
+            <input
+              type="text"
+              id="firstName"
+              formControlName="firstName"
+              class="form-control"
+              [class.is-invalid]="submitted && f['firstName'].errors"
+              placeholder="John"
+            />
+            <div *ngIf="submitted && f['firstName'].errors" class="error-message">
+              <span *ngIf="f['firstName'].errors['required']">First name is required</span>
+              <span *ngIf="f['firstName'].errors['minlength']">Minimum 2 characters</span>
+              <span *ngIf="f['firstName'].errors['pattern']">Only letters allowed</span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="lastName">Last Name</label>
+            <input
+              type="text"
+              id="lastName"
+              formControlName="lastName"
+              class="form-control"
+              [class.is-invalid]="submitted && f['lastName'].errors"
+              placeholder="Doe"
+            />
+            <div *ngIf="submitted && f['lastName'].errors" class="error-message">
+              <span *ngIf="f['lastName'].errors['required']">Last name is required</span>
+              <span *ngIf="f['lastName'].errors['minlength']">Minimum 2 characters</span>
+              <span *ngIf="f['lastName'].errors['pattern']">Only letters allowed</span>
+            </div>
           </div>
         </div>
 
+        <!-- Email -->
         <div class="form-group">
-          <label for="phoneNumber">Phone Number</label>
+          <label for="email">Email Address</label>
           <input
-            type="tel"
-            id="phoneNumber"
-            formControlName="phoneNumber"
+            type="email"
+            id="email"
+            formControlName="email"
             class="form-control"
-            placeholder="1234567890"
-            [class.is-invalid]="submitted && f['phoneNumber'].errors"
+            [class.is-invalid]="submitted && f['email'].errors"
+            placeholder="john@example.com"
           />
-          <div *ngIf="submitted && f['phoneNumber'].errors" class="invalid-feedback">
-            <small *ngIf="f['phoneNumber'].errors['required']">Phone number is required</small>
-            <small *ngIf="f['phoneNumber'].errors['pattern']">Phone number must be exactly 10 digits</small>
+          <div *ngIf="submitted && f['email'].errors" class="error-message">
+            <span *ngIf="f['email'].errors['required']">Email is required</span>
+            <span *ngIf="f['email'].errors['email']">Enter a valid email</span>
           </div>
         </div>
-      </div>
 
-      <div class="form-group">
-        <label for="email">Email</label>
-        <input
-          type="email"
-          id="email"
-          formControlName="email"
-          class="form-control"
-          [class.is-invalid]="submitted && f['email'].errors"
-        />
-        <div *ngIf="submitted && f['email'].errors" class="invalid-feedback">
-          <small *ngIf="f['email'].errors['required']">Email is required</small>
-          <small *ngIf="f['email'].errors['email']">Please enter a valid email address</small>
+        <!-- Username & Phone Row -->
+        <div class="form-row">
+          <div class="form-group">
+            <label for="username">Username</label>
+            <input
+              type="text"
+              id="username"
+              formControlName="username"
+              class="form-control"
+              [class.is-invalid]="submitted && f['username'].errors"
+              placeholder="john_doe"
+            />
+            <div *ngIf="submitted && f['username'].errors" class="error-message">
+              <span *ngIf="f['username'].errors['required']">Username is required</span>
+              <span *ngIf="f['username'].errors['minlength']">Minimum 3 characters</span>
+              <span *ngIf="f['username'].errors['maxlength']">Maximum 20 characters</span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="phoneNumber">Phone Number</label>
+            <input
+              type="tel"
+              id="phoneNumber"
+              formControlName="phoneNumber"
+              class="form-control"
+              [class.is-invalid]="submitted && f['phoneNumber'].errors"
+              placeholder="9876543210"
+            />
+            <div *ngIf="submitted && f['phoneNumber'].errors" class="error-message">
+              <span *ngIf="f['phoneNumber'].errors['required']">Phone is required</span>
+              <span *ngIf="f['phoneNumber'].errors['pattern']">Must be 10 digits</span>
+            </div>
+          </div>
         </div>
-      </div>
 
-      <div class="form-group">
-        <label for="role">Role</label>
-        <select
-          id="role"
-          formControlName="role"
-          class="form-control"
-          [class.is-invalid]="submitted && f['role'].errors"
+        <!-- Role -->
+        <div class="form-group">
+          <label for="role">Account Type</label>
+          <select
+            id="role"
+            formControlName="role"
+            class="form-control"
+            [class.is-invalid]="submitted && f['role'].errors"
+          >
+            <option value="user">User</option>
+            <option value="car_owner">Car Owner</option>
+          </select>
+        </div>
+
+        <!-- Password -->
+        <div class="form-group">
+          <label for="password">Password</label>
+          <div class="password-input-wrapper">
+            <input
+              [type]="showPassword ? 'text' : 'password'"
+              id="password"
+              formControlName="password"
+              class="form-control"
+              [class.is-invalid]="submitted && f['password'].errors"
+              placeholder="••••••••"
+            />
+            <button
+              type="button"
+              class="password-toggle"
+              (click)="togglePasswordVisibility()"
+              tabindex="-1"
+            >
+              {{ showPassword ? '👁️' : '👁️‍🗨️' }}
+            </button>
+          </div>
+          <div *ngIf="submitted && f['password'].errors" class="error-message">
+            <span *ngIf="f['password'].errors['required']">Password is required</span>
+            <span *ngIf="f['password'].errors['minlength']">Minimum 6 characters</span>
+            <span *ngIf="f['password'].errors['weakPassword']">Use uppercase, lowercase, number & symbol</span>
+          </div>
+        </div>
+
+        <!-- Confirm Password -->
+        <div class="form-group">
+          <label for="confirmPassword">Confirm Password</label>
+          <div class="password-input-wrapper">
+            <input
+              [type]="showConfirmPassword ? 'text' : 'password'"
+              id="confirmPassword"
+              formControlName="confirmPassword"
+              class="form-control"
+              [class.is-invalid]="submitted && (f['confirmPassword'].errors || registrationForm.errors?.['passwordMismatch'])"
+              placeholder="••••••••"
+            />
+            <button
+              type="button"
+              class="password-toggle"
+              (click)="toggleConfirmPasswordVisibility()"
+              tabindex="-1"
+            >
+              {{ showConfirmPassword ? '👁️' : '👁️‍🗨️' }}
+            </button>
+          </div>
+          <div *ngIf="submitted && (f['confirmPassword'].errors || registrationForm.errors?.['passwordMismatch'])" class="error-message">
+            <span *ngIf="registrationForm.errors?.['passwordMismatch']">Passwords do not match</span>
+          </div>
+        </div>
+
+        <!-- Submit Button -->
+        <button
+          type="submit"
+          class="btn btn-primary"
+          [disabled]="loading"
         >
-          <option [value]="'user'">User</option>
-          <option [value]="'car_owner'">Car Owner</option>
-        </select>
-        <div *ngIf="submitted && f['role'].errors" class="invalid-feedback">
-          <small>Role is required</small>
+          {{ loading ? 'Creating Account...' : 'Create Account' }}
+        </button>
+
+        <!-- Login Link -->
+        <div class="form-footer">
+          <p>Already have an account? <a routerLink="/auth/login">Sign in</a></p>
         </div>
-      </div>
-
-      <div class="form-group">
-        <label for="password">Password</label>
-        <input
-          type="password"
-          id="password"
-          formControlName="password"
-          class="form-control"
-          [class.is-invalid]="submitted && f['password'].errors"
-        />
-        <div *ngIf="submitted && f['password'].errors" class="invalid-feedback">
-          <small *ngIf="f['password'].errors['required']">Password is required</small>
-          <small *ngIf="f['password'].errors['minlength']">Password must be at least 6 characters</small>
-          <small *ngIf="f['password'].errors['maxlength']">Password cannot exceed 50 characters</small>
-          <small *ngIf="f['password'].errors['weakPassword']">Password must contain uppercase, lowercase, number, and special character</small>
-        </div>
-        <small class="form-text text-muted" *ngIf="!submitted">Password must include uppercase, lowercase, number, and special character</small>
-      </div>
-
-      <div class="form-group">
-        <label for="confirmPassword">Confirm Password</label>
-        <input
-          type="password"
-          id="confirmPassword"
-          formControlName="confirmPassword"
-          class="form-control"
-          [class.is-invalid]="submitted && (f['confirmPassword'].errors || registrationForm.errors?.['passwordMismatch'])"
-        />
-        <div *ngIf="submitted && (f['confirmPassword']?.errors || registrationForm.errors?.['passwordMismatch'])" class="invalid-feedback">
-          <small *ngIf="f['confirmPassword']?.errors?.['required']">Please confirm your password</small>
-          <small *ngIf="registrationForm.errors?.['passwordMismatch']">Passwords do not match</small>
-        </div>
-      </div>
-
-      <div *ngIf="error" class="alert alert-danger">{{ error }}</div>
-
-      <button type="submit" class="btn btn-primary" [disabled]="loading">
-        <span *ngIf="loading" class="spinner"></span>
-        {{ loading ? 'Registering...' : 'Register' }}
-      </button>
-    </form>
-
-    <p class="text-center">
-      Already have an account? <a routerLink="/auth/login">Login here</a>
-    </p>
+      </form>
+    </div>
   </div>
 </div>

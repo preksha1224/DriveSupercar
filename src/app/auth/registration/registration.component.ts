@@ -7,7 +7,7 @@ import { CommonModule } from '@angular/common';
 @Component({
   selector: 'app-registration',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule,RouterLink],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink],
   templateUrl: './registration.component.html',
   styleUrls: ['./registration.component.scss']
 })
@@ -17,6 +17,8 @@ export class RegistrationComponent implements OnInit {
   submitted = false;
   error = '';
   roles = ['user', 'car_owner'];
+  showPassword = false;
+  showConfirmPassword = false;
 
   constructor(
     private formBuilder: FormBuilder,
@@ -45,7 +47,6 @@ export class RegistrationComponent implements OnInit {
     return this.registrationForm.controls;
   }
 
-  // Custom validator for password strength
   passwordStrengthValidator(control: AbstractControl): ValidationErrors | null {
     const password = control.value;
     if (!password) return null;
@@ -59,11 +60,18 @@ export class RegistrationComponent implements OnInit {
     return !passwordValid ? { weakPassword: true } : null;
   }
 
-  // Custom validator for password match
   passwordMatchValidator(group: FormGroup): { [key: string]: any } | null {
     const password = group.get('password')?.value;
     const confirmPassword = group.get('confirmPassword')?.value;
     return password === confirmPassword ? null : { passwordMismatch: true };
+  }
+
+  togglePasswordVisibility(): void {
+    this.showPassword = !this.showPassword;
+  }
+
+  toggleConfirmPasswordVisibility(): void {
+    this.showConfirmPassword = !this.showConfirmPassword;
   }
 
   onSubmit(): void {
