@@ -10,19 +10,20 @@ import { SuccessAudiComponent } from './cars/success-audi.component';
 import { SuccessBmwComponent } from './cars/success-bmw.component';
 import { LoginComponent } from './auth/login/login.component';
 import { RegistrationComponent } from './auth/registration/registration.component';
+import { AuthGuard } from './auth/guards/auth.guard';
 
 export const routes: Routes = [
-	{ path: '', component: CarChoiceComponent },
+	{ path: '', component: CarChoiceComponent, canActivate: [AuthGuard] },
 	{ path: 'bmw', component: BmwSelectionComponent },
 	{ path: 'audi', component: AudiSelectionComponent },
-	{ path: 'book-audi', component: BookAudiComponent },
-	{ path: 'book-bmw', component: BookBmwComponent },
-	{ path: 'verify-audi', component: VerifyAudiDetailsComponent },
-	{ path: 'verify-bmw', component: VerifyBmwDetailsComponent },
-	{ path: 'success-audi', component: SuccessAudiComponent },
-	{ path: 'success-bmw', component: SuccessBmwComponent },
+	{ path: 'book-audi', component: BookAudiComponent, canActivate: [AuthGuard] },
+	{ path: 'book-bmw', component: BookBmwComponent, canActivate: [AuthGuard] },
+	{ path: 'verify-audi', component: VerifyAudiDetailsComponent, canActivate: [AuthGuard] },
+	{ path: 'verify-bmw', component: VerifyBmwDetailsComponent, canActivate: [AuthGuard] },
+	{ path: 'success-audi', component: SuccessAudiComponent, canActivate: [AuthGuard] },
+	{ path: 'success-bmw', component: SuccessBmwComponent, canActivate: [AuthGuard] },
 	{
-		path: 'auth',
+		path: 'user',
 		children: [
 			{ path: 'login', component: LoginComponent },
 			{ path: 'registration', component: RegistrationComponent }

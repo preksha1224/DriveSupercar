@@ -98,7 +98,7 @@ export class RegistrationComponent implements OnInit {
     this.authService.register(userData)
       .subscribe({
         next: (response) => {
-          this.authService.setAuthToken(response.token, response.user);
+          // this.authService.setAuthToken(response.token, response.user);
           this.router.navigate(['/']);
         },
         error: (error) => {

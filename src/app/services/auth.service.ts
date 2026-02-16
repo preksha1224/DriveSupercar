@@ -11,12 +11,10 @@ export class AuthService {
   private isAuthenticatedSubject = new BehaviorSubject<boolean>(false);
   public isAuthenticated$ = this.isAuthenticatedSubject.asObservable();
 
-  constructor(private http: HttpClient) {
-    this.checkAuth();
-  }
+  constructor(private http: HttpClient) {}
 
   login(email: string, password: string): Observable<any> {
-    return this.http.post('/api/auth/login', { email, password });
+    return this.http.post('/auth/login', { username:email, password });
   }
 
   register(userData: any): Observable<any> {
@@ -29,14 +27,13 @@ export class AuthService {
     this.isAuthenticatedSubject.next(false);
   }
 
-  private checkAuth(): void {
-    const token = localStorage.getItem('authToken');
-    this.isAuthenticatedSubject.next(!!token);
+  isLoggedIn(): boolean { 
+    const user = localStorage.getItem('user');
+    if (user) {
+      return true;
+    }else {
+      return false;
+    }
   }
 
-  setAuthToken(token: string, user: any): void {
-    localStorage.setItem('authToken', token);
-    this.currentUserSubject.next(user);
-    this.isAuthenticatedSubject.next(true);
-  }
 }

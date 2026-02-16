@@ -43,12 +43,15 @@ export class LoginComponent {
     this.authService.login(this.f['email'].value, this.f['password'].value)
       .subscribe({
         next: (response) => {
-          this.authService.setAuthToken(response.token, response.user);
+          localStorage.setItem('user', JSON.stringify(response.user));
           this.router.navigate(['/']);
         },
         error: (error) => {
+          console.error('Login error:', error);
           this.error = error.error?.message || 'Login failed';
+          console.log('Login error message:', this.error);
           this.loading = false;
+          console.log('Login:', this.loading);
         }
       });
   }
