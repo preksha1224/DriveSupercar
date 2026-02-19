@@ -1,0 +1,40 @@
+<div class="verify-page audi-theme animate-fade-in" [class.light-mode]="!themeService.isDarkTheme()">
+  <div class="container h-100 d-flex justify-content-center align-items-center py-5">
+    <div class="verify-card p-5 rounded-4 shadow-lg text-center position-relative">
+      
+      <div class="brand-logo mb-4">
+        <span class="logo-text">Elite<span class="logo-accent">Drive</span></span>
+      </div>
+
+      <h2 class="display-6 fw-bold mb-5 premium-title">Verify Details</h2>
+
+      <div class="details-content mb-5">
+        <h3 class="car-name mb-4">{{ bookingDetails.carName }}</h3>
+
+        <div class="detail-row d-flex align-items-center justify-content-between mb-3 p-3 rounded-3">
+          <span class="detail-label text-start">Duration :</span>
+          <div class="detail-value-box px-4 py-2 rounded-2">
+            {{ bookingDetails.duration }}
+          </div>
+        </div>
+
+        <div class="detail-row d-flex align-items-center justify-content-between mb-4 p-3 rounded-3">
+          <span class="detail-label text-start">Slot :</span>
+          <div class="detail-value-box px-4 py-2 rounded-2">
+            {{ bookingDetails.timeSlot }}
+          </div>
+        </div>
+      </div>
+
+      <div class="actions d-flex gap-3 justify-content-center mt-5">
+        <button (click)="onAdd()" class="btn btn-confirm px-5 py-2 fw-bold text-uppercase">
+          Pay Now
+        </button>
+        <a routerLink="/" class="btn btn-cancel px-5 py-2 fw-bold text-uppercase">
+          Cancel
+        </a>
+      </div>
+
+    </div>
+  </div>
+</div>

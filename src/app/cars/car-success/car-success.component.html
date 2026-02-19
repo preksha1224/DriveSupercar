@@ -1,0 +1,49 @@
+<div class="success-page audi-theme animate-fade-in" [class.light-mode]="!themeService.isDarkTheme()">
+  <div class="container h-100 d-flex justify-content-center align-items-center py-5">
+    <div class="success-card p-5 rounded-4 shadow-lg text-center position-relative">
+      
+      <!-- Success Icon -->
+      <div class="success-icon-container mb-4">
+        <div class="success-icon">
+          <i class="bi bi-check-lg"></i>
+        </div>
+      </div>
+
+      <h2 class="display-6 fw-bold mb-5 premium-title">Successfully Done slot booked</h2>
+
+      <div class="details-grid text-start">
+        <div class="detail-item">
+          <span class="label">Name :</span>
+          <span class="value">{{ details.name || 'XXXX' }}</span>
+        </div>
+        <div class="detail-item">
+          <span class="label">Email :</span>
+          <span class="value">{{ details.email || 'XXXX' }}</span>
+        </div>
+        <div class="detail-item">
+          <span class="label">Age :</span>
+          <span class="value">{{ details.age || 'XXXX' }}</span>
+        </div>
+        <div class="detail-item">
+          <span class="label">License number:</span>
+          <span class="value">{{ details.licenseNumber || 'XXXX' }}</span>
+        </div>
+        <div class="detail-item">
+          <span class="label">Duration :</span>
+          <span class="value">{{ details.duration || 'XXXX' }}</span>
+        </div>
+        <div class="detail-item">
+          <span class="label">Time Slot :</span>
+          <span class="value">{{ details.timeSlot || 'XXXX' }}</span>
+        </div>
+      </div>
+<!-- 
+      <div class="actions mt-5">
+        <button (click)="goToHome()" class="btn btn-home px-5 py-2 fw-bold text-uppercase">
+          Back to Home
+        </button>
+      </div> -->
+
+    </div>
+  </div>
+</div>

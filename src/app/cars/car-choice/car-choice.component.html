@@ -1,0 +1,66 @@
+
+
+
+<div class="choice-container py-5" [class.light-mode]="!themeService.isDarkTheme()">
+  <div class="container position-relative">
+    <div class="theme-switch-wrapper">
+      <button 
+        class="theme-toggle-btn" 
+        (click)="themeService.toggleTheme()" 
+        [attr.aria-label]="themeService.isDarkTheme() ? 'Switch to Light Mode' : 'Switch to Dark Mode'"
+        [title]="themeService.isDarkTheme() ? 'Switch to Light Mode' : 'Switch to Dark Mode'"
+      >
+        <i class="bi" [class.bi-sun-fill]="themeService.isDarkTheme()" [class.bi-moon-stars-fill]="!themeService.isDarkTheme()"></i>
+      </button>
+    </div>
+
+    <!-- Premium Logo Section -->
+    <div class="logo-section text-center mb-4">
+      <div class="brand-logo-main">
+        <span class="logo-text">Elite<span class="logo-accent">Drive</span></span>
+        <div class="logo-underline"></div>
+      </div>
+      <p class="logo-subtitle text-uppercase letter-spacing-2 mt-2">Premium Car Rental</p>
+    </div>
+
+    <div class="container text-center mb-5 mt-4">
+      <h2 class="display-6 fw-bold mb-3" [class.text-white]="themeService.isDarkTheme()" [class.text-dark]="!themeService.isDarkTheme()">Choose Your Luxury Ride</h2>
+    </div>
+  </div>
+
+  <div class="container position-relative">
+    <!-- Middle Separator Line -->
+    <div class="divider-line d-none d-md-block"></div>
+
+    <div class="row g-5 justify-content-center align-items-stretch" role="radiogroup" aria-label="Select Car Brand">
+      <div class="col-12 col-md-5">
+        <div
+          #bmwRadio
+          class="brand-wrapper"
+          role="radio"
+          [attr.aria-checked]="selectedBrand() === 'bmw' ? 'true' : 'false'"
+          tabindex="0"
+          (click)="select('bmw')"
+          (keydown)="onKeydown($event, 'bmw')"
+          aria-label="BMW"
+        >
+          <app-bmw-card />
+        </div>
+      </div>
+      <div class="col-12 col-md-5">
+        <div
+          #audiRadio
+          class="brand-wrapper"
+          role="radio"
+          [attr.aria-checked]="selectedBrand() === 'audi' ? 'true' : 'false'"
+          tabindex="0"
+          (click)="select('audi')"
+          (keydown)="onKeydown($event, 'audi')"
+          aria-label="AUDI"
+        >
+          <app-car-card />
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

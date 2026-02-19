@@ -1,0 +1,170 @@
+<div
+  class="booking-page audi-theme animate-fade-in"
+  [class.light-mode]="!themeService.isDarkTheme()"
+>
+  <div class="container py-5">
+    <div class="mb-4">
+      <a
+        routerLink="/audi"
+        class="btn back-btn rounded-pill px-4 py-2"
+        [class.light-mode]="!themeService.isDarkTheme()"
+      >
+        <i class="bi bi-arrow-left me-2"></i> Back to Selection
+      </a>
+    </div>
+
+    <div class="row justify-content-center">
+      <div class="col-lg-10">
+        <div
+          class="booking-card p-4 p-md-5 rounded-4 shadow-lg"
+          [class.light-mode]="!themeService.isDarkTheme()"
+        >
+          <div class="row align-items-center mb-5">
+            <div class="col-md-6 text-center text-md-start">
+              <div class="brand-logo-mini mb-2">
+                <span class="logo-text">Elite<span class="logo-accent">Drive</span></span>
+              </div>
+              <h2 class="display-5 fw-bold premium-title">Book your {{ selectedCar }}</h2>
+              <p class="premium-subtitle opacity-75">Experience Vorsprung durch Technik</p>
+            </div>
+            <div class="col-md-6 text-center">
+              <img [src]="selectedCarImage" [alt]="selectedCar" class="img-fluid car-preview-img" />
+            </div>
+          </div>
+
+          <form [formGroup]="bookingForm" (ngSubmit)="onSubmit()" class="premium-form">
+            <div class="row g-4">
+              <div class="col-md-6">
+                <label for="name" class="form-label fw-bold">Enter Your Name</label>
+                <div class="input-container">
+                  <input
+                    type="text"
+                    id="name"
+                    class="form-control premium-input"
+                    [class.light-mode]="!themeService.isDarkTheme()"
+                    formControlName="name"
+                    placeholder="E.g. Alexander Pierce"
+                  />
+                </div>
+                @if (bookingForm.get('name')?.touched && bookingForm.get('name')?.invalid) {
+                  <div class="error-msg">Please enter your full name (min 3 chars).</div>
+                }
+              </div>
+              <div class="col-md-6">
+                <label for="email" class="form-label fw-bold">Email Address</label>
+                <div class="input-container">
+                  <input
+                    type="email"
+                    id="email"
+                    class="form-control premium-input"
+                    [class.light-mode]="!themeService.isDarkTheme()"
+                    formControlName="email"
+                    placeholder="E.g. alexander@email.com"
+                  />
+                </div>
+                @if (bookingForm.get('email')?.touched && bookingForm.get('email')?.invalid) {
+                  <div class="error-msg">Please enter a valid email address.</div>
+                }
+              </div>
+
+              <div class="col-md-6">
+                <label for="age" class="form-label fw-bold"
+                  >Age <span class="req-hint">(Must be 18+)</span></label
+                >
+                <input
+                  type="number"
+                  id="age"
+                  class="form-control premium-input"
+                  [class.light-mode]="!themeService.isDarkTheme()"
+                  formControlName="age"
+                  placeholder="Your Age"
+                />
+                @if (bookingForm.get('age')?.touched && bookingForm.get('age')?.invalid) {
+                  <div class="error-msg">Minors are not permitted to rent.</div>
+                }
+              </div>
+
+              <div class="col-md-6">
+                <label for="licenseNumber" class="form-label fw-bold"
+                  >License Number <span class="req-hint">(16 Digits)</span></label
+                >
+                <input
+                  type="text"
+                  id="licenseNumber"
+                  class="form-control premium-input"
+                  [class.light-mode]="!themeService.isDarkTheme()"
+                  formControlName="licenseNumber"
+                  placeholder="XXXX XXXX XXXX XXXX"
+                  maxlength="16"
+                />
+                @if (
+                  bookingForm.get('licenseNumber')?.touched &&
+                  bookingForm.get('licenseNumber')?.invalid
+                ) {
+                  <div class="error-msg">Invalid 16-digit license number.</div>
+                }
+              </div>
+
+              <div class="col-12 mt-5">
+                <h5 class="section-title mb-4">Duration :</h5>
+                <div class="options-grid">
+                  @for (d of durations; track d) {
+                    <div class="option-item">
+                      <input
+                        type="radio"
+                        [id]="'d-' + d"
+                        [value]="d"
+                        formControlName="duration"
+                        class="btn-check"
+                      />
+                      <label
+                        [for]="'d-' + d"
+                        class="btn btn-premium-option w-100 py-3"
+                        [class.light-mode]="!themeService.isDarkTheme()"
+                      >
+                        {{ d }}
+                      </label>
+                    </div>
+                  }
+                </div>
+              </div>
+
+              <div class="col-12 mt-5">
+                <h5 class="section-title mb-4">Time Slot :</h5>
+                <div class="options-grid time-slots">
+                  @for (slot of timeSlots; track slot) {
+                    <div class="option-item">
+                      <input
+                        type="radio"
+                        [id]="'s-' + slot"
+                        [value]="slot"
+                        formControlName="timeSlot"
+                        class="btn-check"
+                      />
+                      <label
+                        [for]="'s-' + slot"
+                        class="btn btn-premium-option w-100 py-2"
+                        [class.light-mode]="!themeService.isDarkTheme()"
+                      >
+                        {{ slot }}
+                      </label>
+                    </div>
+                  }
+                </div>
+              </div>
+
+              <div class="col-12 mt-5 text-center">
+                <button
+                  type="submit"
+                  class="btn btn-confirm-booking rounded-pill px-5 py-3 fw-bold"
+                >
+                  CONFIRM AUDI BOOKING
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

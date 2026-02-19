@@ -1,0 +1,186 @@
+.booking-page {
+  min-height: 100vh;
+  background: radial-gradient(circle at top right, #1a0000, #0a0a0b);
+  color: #fff;
+  transition: all 0.5s ease;
+
+  &.light-mode {
+    background: radial-gradient(circle at top right, #fff5f5, #f8f9fa);
+    color: #212529;
+  }
+}
+
+.booking-card {
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  
+  &.light-mode {
+    background: #ffffff;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    box-shadow: 0 15px 50px rgba(0, 0, 0, 0.1) !important;
+  }
+}
+
+.premium-title {
+  background: linear-gradient(45deg, #ffffff, #ff4d4d);
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-family: 'Playfair Display', serif;
+}
+
+.booking-card.light-mode .premium-title {
+  background: linear-gradient(45deg, #000000, #b30000);
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.logo-accent {
+  color: #d4af37;
+}
+
+.car-preview-img {
+  filter: drop-shadow(0 10px 20px rgba(0,0,0,0.5));
+  animation: float 4s ease-in-out infinite;
+}
+
+// @keyframes float {
+//   0%, 100% { transform: translateY(0); }
+//   50% { transform: translateY(-10px); }
+// }
+
+.section-title {
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  font-size: 1.1rem;
+  opacity: 0.9;
+}
+
+.premium-input {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: white;
+  padding: 1rem;
+  border-radius: 12px;
+  transition: all 0.3s;
+
+  &:focus {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: #ff4d4d;
+    box-shadow: 0 0 15px rgba(255, 77, 77, 0.2);
+    color: white;
+  }
+
+  &.light-mode {
+    background: #f1f3f5;
+    border-color: #dee2e6;
+    color: #212529;
+    &:focus {
+      background: #fff;
+      border-color: #ff4d4d;
+      color: #212529;
+    }
+  }
+}
+
+.options-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1.5rem;
+}
+
+.btn-premium-option {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: white;
+  border-radius: 15px;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: #ff4d4d;
+    color: white;
+    transform: translateY(-5px);
+  }
+
+  &.light-mode {
+    background: #fff;
+    border-color: #e9ecef;
+    color: #495057;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+    &:hover {
+      background: #fff;
+      border-color: #ff4d4d;
+      color: #ff4d4d;
+    }
+  }
+}
+
+.btn-check:checked + .btn-premium-option {
+  background: #ff4d4d !important;
+  border-color: #ff4d4d !important;
+  color: white !important;
+  box-shadow: 0 10px 20px rgba(255, 77, 77, 0.4);
+  transform: translateY(-5px) scale(1.05);
+}
+
+.btn-confirm-booking {
+  background: linear-gradient(45deg, #ff4d4d, #b30000);
+  border: none;
+  color: white;
+  letter-spacing: 3px;
+  box-shadow: 0 10px 30px rgba(255, 77, 77, 0.3);
+  transition: all 0.3s;
+
+  &:hover {
+    transform: scale(1.05);
+    box-shadow: 0 15px 40px rgba(255, 77, 77, 0.5);
+    background: linear-gradient(45deg, #b30000, #ff4d4d);
+  }
+}
+
+.error-msg {
+  color: #ff4d4d;
+  font-size: 0.85rem;
+  margin-top: 0.5rem;
+  font-style: italic;
+}
+
+.req-hint {
+  font-size: 0.75rem;
+  opacity: 0.6;
+  font-weight: normal;
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.8s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.back-btn {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: white;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(5px);
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.15);
+    color: white;
+    transform: translateX(-5px);
+  }
+
+  &.light-mode {
+    background: rgba(0, 0, 0, 0.05);
+    border-color: rgba(0, 0, 0, 0.1);
+    color: #1a1a1a;
+    &:hover {
+      background: rgba(0, 0, 0, 0.1);
+      color: black;
+    }
+  }
+}

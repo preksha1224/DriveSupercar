@@ -1,16 +1,16 @@
-import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { ThemeService } from '../theme.service';
+import { ThemeService } from '../../theme.service';
 
 @Component({
-  selector: 'app-audi-selection',
+  selector: 'app-car-selection',
   standalone: true,
   imports: [CommonModule, RouterLink],
-  templateUrl: './audi-selection.component.html',
-  styleUrl: './audi-selection.component.scss'
+  templateUrl: './car-selection.component.html',
+  styleUrl: './car-selection.component.scss',
 })
-export class AudiSelectionComponent {
+export class CarSelectionComponent {
   public themeService = inject(ThemeService);
 
   bookAudi() {
