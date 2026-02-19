@@ -2,6 +2,10 @@
   min-height: calc(100vh - 100px); // subtract estimated footer height
 }
 
+.text-logo
+{
+  color: #d4af37;
+}
 .app-footer {
   transition: background-color 0.3s ease, color 0.3s ease;
   
