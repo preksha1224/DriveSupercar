@@ -1,7 +1,142 @@
+
 .hero-section{
-    background: linear-gradient(180deg, rgba(13,110,253,0.04), rgba(13,110,253,0.02));
+        background: linear-gradient(180deg, rgba(13,110,253,0.04), rgba(13,110,253,0.02));
+}
+/* Make hero relative */
+.hero-section {
+    position: relative;
+    overflow: hidden;
 }
 
+/* Animated Background Container */
+.hero-animated-bg {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+}
+
+.luxury-beam {
+    position: absolute;
+    width: 200%;
+    height: 120px;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(212,175,55,0.25),
+        transparent
+    );
+    transform: rotate(-25deg);
+    animation: beamMove 8s linear infinite;
+    filter: blur(40px);
+}
+
+.beam-1 { top: 10%; animation-delay: 0s; }
+.beam-2 { top: 40%; animation-delay: 2s; }
+.beam-3 { top: 70%; animation-delay: 4s; }
+
+@keyframes beamMove {
+    0%   { transform: translateX(-50%) rotate(-25deg); }
+    100% { transform: translateX(50%) rotate(-25deg); }
+}
+
+.floating-particles span {
+    position: absolute;
+    width: 6px;
+    height: 6px;
+    background: #d4af37;
+    border-radius: 50%;
+    opacity: 0.6;
+    animation: floatUp 10s linear infinite;
+}
+
+.floating-particles span:nth-child(1){ left:10%; bottom:-20px; animation-delay:0s;}
+.floating-particles span:nth-child(2){ left:30%; bottom:-40px; animation-delay:2s;}
+.floating-particles span:nth-child(3){ left:55%; bottom:-30px; animation-delay:4s;}
+.floating-particles span:nth-child(4){ left:75%; bottom:-50px; animation-delay:6s;}
+.floating-particles span:nth-child(5){ left:90%; bottom:-20px; animation-delay:8s;}
+
+@keyframes floatUp {
+    0% {
+        transform: translateY(0) scale(0.8);
+        opacity: 0;
+    }
+    20% {
+        opacity: 0.6;
+    }
+    100% {
+        transform: translateY(-600px) scale(1.2);
+        opacity: 0;
+    }
+}
+
+
+.hero-section::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+        270deg,
+        rgba(13,110,253,0.05),
+        rgba(212,175,55,0.08),
+        rgba(13,110,253,0.05)
+    );
+    background-size: 400% 400%;
+    animation: gradientFlow 12s ease infinite;
+    z-index: 0;
+}
+
+@keyframes gradientFlow {
+    0%   { background-position: 0% 50%; }
+    50%  { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+/* Make sure hero card stays above */
+.hero-3d-wrapper {
+    position: relative;
+    z-index: 2;
+}
+
+
+.hero-3d-wrapper {
+    perspective: 1200px;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.hero-card {
+    will-change: transform;
+    transition: transform 0.25s cubic-bezier(.25,.46,.45,.94), box-shadow 0.25s;
+    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08), 0 0 60px 0 rgba(212,175,55,0.08);
+    position: relative;
+    z-index: 2;
+}
+
+.hero-card.is-tilting {
+    box-shadow: 0 20px 40px rgba(15, 23, 42, 0.16), 0 0 120px 0 rgba(212,175,55,0.18);
+}
+
+.hero-3d-glow {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 420px;
+    height: 220px;
+    background: radial-gradient(circle at 50% 50%, #d4af37cc 0%, #fff0 80%);
+    filter: blur(32px);
+    opacity: 0.25;
+    pointer-events: none;
+    transform: translate(-50%, -50%) scale(1.1);
+    z-index: 1;
+    transition: opacity 0.3s;
+}
+
+@media (max-width: 576px){
+    .hero-3d-glow { width: 220px; height: 120px; }
+}
 .hero-card{
     max-width: 980px;
     border-radius: 12px;

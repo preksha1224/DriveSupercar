@@ -1,14 +1,36 @@
 <!-- Hero Section -->
 <div class="hero-section py-5">
-  <div class="container">
-    <div class="hero-card mx-auto text-center p-4 p-md-5 bg-white">
-      <h1 class="display-5 fw-bold">Drive Supercars</h1>
-      <div class="underline my-3 mx-auto" aria-hidden="true"></div>
+  <!-- Crazy Animated Background Layer -->
+  <div class="hero-animated-bg">
+    <div class="luxury-beam beam-1"></div>
+    <div class="luxury-beam beam-2"></div>
+    <div class="luxury-beam beam-3"></div>
 
-      <div class="col-lg-8 mx-auto">
-        <p class="lead mb-2">Where Luxury Meets Performance on Every Mile.</p>
-        <p class="mb-4 text-primary">Rent exclusive supercars designed to dominate the road and redefine your driving experience. Because ordinary was never your style.</p>
+    <div class="floating-particles">
+      <span></span>
+      <span></span>
+      <span></span>
+      <span></span>
+      <span></span>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="hero-3d-wrapper">
+      <div class="hero-card mx-auto text-center p-4 p-md-5 bg-white"
+           (mousemove)="onHeroMouseMove($event)"
+           (mouseleave)="onHeroMouseLeave()"
+           #heroCard>
+        <h1 class="display-5 fw-bold">Drive Supercars</h1>
+        <div class="underline my-3 mx-auto" aria-hidden="true"></div>
+
+        <div class="col-lg-8 mx-auto">
+          <p class="lead mb-2">Where Luxury Meets Performance on Every Mile.</p>
+          <p class="mb-4 text-primary">Rent exclusive supercars designed to dominate the road and redefine your driving experience. Because ordinary was never your style.</p>
+        </div>
       </div>
+      <!-- 3D floating light effect -->
+      <div class="hero-3d-glow"></div>
     </div>
   </div>
 </div>
@@ -108,7 +130,7 @@
     <!-- 1. Offer inside on card with two column -->
     <div class="offer-card row g-4 px-md-3 mx-auto p-4 p-md-5 rounded shadow-lg bg-white">
       <!-- <div class=""> -->
-        
+
         <!-- Offer 1 -->
         <div class="col-md-6">
           <div class="offer-item d-flex align-items-center p-3 rounded h-100 shadow-sm">
