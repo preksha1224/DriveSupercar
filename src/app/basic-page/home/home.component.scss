@@ -218,66 +218,107 @@
 
 /* Premium booking form styles */
 .premium-form {
-    background: rgba(212, 175, 55, 0.04);
-    // border: 1px solid rgba(212, 175, 55, 0.08);
-    backdrop-filter: blur(6px);
+    background: linear-gradient(145deg, rgba(212, 175, 55, 0.08) 0%, rgba(212, 175, 55, 0.02) 100%);
+    backdrop-filter: blur(8px);
+    border-left: 1px solid rgba(212, 175, 55, 0.1);
 }
 
 .premium-image-wrapper {
-    background: rgba(255, 255, 255, 0.8);
-    border: 1px solid rgba(0, 0, 0, 0.05);
-    transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
-    padding: 2.5rem 1.5rem !important;
-}
-
-.premium-image-wrapper:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.12);
+    background: #ffffff;
+    transition: transform 0.3s ease-in-out;
 }
 
 .car-img-large {
-    max-height: 220px;
+    max-height: 180px;
     width: 100%;
     object-fit: contain;
-    filter: drop-shadow(0 10px 15px rgba(0, 0, 0, 0.15));
+    filter: drop-shadow(0 15px 25px rgba(0, 0, 0, 0.1));
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.car-item-hover:hover .car-img-large {
+    transform: translateY(-12px) scale(1.05) rotate(-2deg);
+    filter: drop-shadow(0 25px 35px rgba(0, 0, 0, 0.15));
 }
 
 .premium-image-wrapper h4 {
-    letter-spacing: 1px;
-    font-size: 1.5rem;
+    letter-spacing: 2px;
+    font-size: 1.4rem;
+    text-transform: uppercase;
 }
 
-.premium-image-wrapper .text-primary {
-    color: var(--bs-primary) !important;
+.explore-btn {
+    border: 2px solid #d4af37;
+    color: #d4af37;
+    background: transparent;
+    transition: all 0.3s ease;
+
+    &:hover {
+        background: #d4af37;
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 15px rgba(212, 175, 55, 0.3);
+    }
 }
 
 .premium-form .form-label {
-    color: #d4af37;
-    font-weight: 600;
-}
-
-.lineform
-{
-    background: #d4af37;
-    width: 50%;
-    height: 2px;
-}
-
-.premium-form .form-control,
-.premium-form .form-select{
-    // background: transparent;
-    // border: 1px solid rgba(255,255,255,0.06);
-    // color: inherit;
-}
-.form-select:focus
-{
-    border-color: #d4af37;
-    outline: 0;
-    box-shadow: 0 0 0 .25rem #d4af37;
-}
-.premium-form .btn-primary{
-    padding: 0.45rem 1rem;
+    color: #b38f1c;
     font-weight: 700;
+}
+
+.custom-input {
+    border: 1px solid rgba(212, 175, 55, 0.2);
+    padding: 0.8rem 1rem;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.9);
+    transition: all 0.3s ease;
+    
+    &:focus {
+        border-color: #d4af37;
+        box-shadow: 0 0 0 0.25rem rgba(212, 175, 55, 0.15);
+        background: #ffffff;
+    }
+}
+
+.letter-spacing-1 {
+    letter-spacing: 1px;
+}
+
+.lineform {
+    background: linear-gradient(90deg, transparent, #d4af37, transparent);
+    width: 60%;
+    height: 3px;
+    border-radius: 2px;
+}
+
+.premium-form .btn-primary {
+    padding: 1.1rem;
+    font-weight: 800;
+    font-size: 1.1rem;
+    box-shadow: 0 8px 20px rgba(212, 175, 55, 0.3);
+    border: none;
+    transition: all 0.3s ease;
+
+    &:hover {
+        transform: scale(1.02);
+        box-shadow: 0 10px 25px rgba(212, 175, 55, 0.45);
+        background: #b38f1c !important;
+    }
+}
+
+/* Responsive adjustments for premium-show */
+@media (max-width: 991.98px) {
+    .premium-form {
+        border-left: none;
+        border-top: 1px solid rgba(212, 175, 55, 0.1);
+        border-bottom-left-radius: 12px;
+        border-bottom-right-radius: 12px;
+    }
+    
+    .premium-image-wrapper {
+        border-top-left-radius: 12px;
+        border-top-right-radius: 12px;
+    }
 }
 
 
