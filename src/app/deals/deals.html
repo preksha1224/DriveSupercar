@@ -1,0 +1,100 @@
+<div class="deals-container">
+  <div class="deals-header">
+    <h1>Special Deals & Offers</h1>
+    <p>Save big on your next car rental with our exclusive deals!</p>
+  </div>
+
+  <!-- Discounts Section -->
+  <section class="deals-section">
+    <h2><span class="icon-circle">💰</span> Special Discounts</h2>
+    <div class="discount-grid">
+      <div class="discount-card" *ngFor="let discount of discounts">
+        <div class="discount-content">
+          <div class="discount-badge-large">{{discount.discount}}</div>
+          <h3>{{discount.title}}</h3>
+          <p>{{discount.description}}</p>
+        </div>
+        <div class="discount-footer">
+          <div class="validity-info">
+            <span class="label">Valid Until</span>
+            <span class="date">{{discount.validUntil}}</span>
+          </div>
+          <button class="btn-claim">Claim Offer</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Coupons Section -->
+  <section class="deals-section">
+    <h2><span class="icon-circle">🎟️</span> Coupon Codes</h2>
+    <div class="offers-grid">
+      <div class="offer-card coupon-card" *ngFor="let coupon of coupons">
+        <div class="card-content">
+          <div class="card-left">
+            <div class="offer-badge">{{coupon.discount}}</div>
+            <h3>{{coupon.title}}</h3>
+            <p>{{coupon.description}}</p>
+            <div class="coupon-code">
+              <span class="code">{{coupon.code}}</span>
+              <button class="btn-copy" (click)="copyCode(coupon.code!)">Copy Code</button>
+            </div>
+          </div>
+          <div class="card-right">
+            <span class="validity">Valid until<br>{{coupon.validUntil}}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Festival Offers Section -->
+  <section class="deals-section festival-section">
+    <h2><span class="icon-circle">🎉</span> Festival Offers</h2>
+    <div class="festival-grid">
+      <div class="festival-card-special" *ngFor="let offer of festivalOffers">
+        <div class="festival-content">
+          <div class="festival-top">
+            <div class="festival-icon-badge">{{getFestivalIcon(offer.title)}}</div>
+            <div class="festival-badge-large">{{offer.discount}}</div>
+          </div>
+          <div class="festival-details">
+            <h3>{{offer.title}}</h3>
+            <p>{{offer.description}}</p>
+          </div>
+          <div class="festival-code-section">
+            <div class="code-label">Promo Code</div>
+            <div class="festival-code-display">
+              <span class="festival-code">{{offer.code}}</span>
+              <button class="btn-copy-festival" (click)="copyCode(offer.code!)">Copy</button>
+            </div>
+          </div>
+          <div class="festival-expiry">
+            <span class="expiry-label">Expires:</span>
+            <span class="expiry-date">{{offer.validUntil}}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Gift Vouchers Section -->
+  <section class="deals-section voucher-section">
+    <h2><span class="icon-circle">🎁</span> Gift Vouchers</h2>
+    <div class="offers-grid">
+      <div class="offer-card voucher-card" *ngFor="let voucher of giftVouchers">
+        <div class="card-content">
+          <div class="card-left">
+            <div class="voucher-value">{{voucher.discount}}</div>
+            <h3>{{voucher.title}}</h3>
+            <p>{{voucher.description}}</p>
+          </div>
+          <div class="card-right">
+            <span class="validity">Valid until<br>{{voucher.validUntil}}</span>
+            <button class="btn-buy">Buy Now</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>

@@ -1,0 +1,596 @@
+.deals-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  min-height: 100vh;
+  position: relative;
+  
+  // Decorative background elements
+  &::before {
+    content: '';
+    position: fixed;
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, rgba(212, 175, 55, 0.08) 0%, transparent 70%);
+    top: -200px;
+    right: -200px;
+    z-index: 0;
+    pointer-events: none;
+  }
+  
+  &::after {
+    content: '';
+    position: fixed;
+    width: 300px;
+    height: 300px;
+    background: radial-gradient(circle, rgba(26, 26, 26, 0.03) 0%, transparent 70%);
+    bottom: -150px;
+    left: -150px;
+    z-index: 0;
+    pointer-events: none;
+  }
+  
+  > * {
+    position: relative;
+    z-index: 1;
+  }
+  
+  .deals-header {
+    text-align: center;
+    margin-bottom: 3rem;
+    padding: 2.5rem;
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    border: 1px solid rgba(212, 175, 55, 0.15);
+    
+    h1 {
+      font-size: 2.5rem;
+      color: #1a1a1a;
+      margin-bottom: 0.5rem;
+      font-weight: 700;
+    }
+    
+    p {
+      font-size: 1.1rem;
+      color: #666;
+    }
+  }
+  
+  .deals-section {
+    margin-bottom: 3rem;
+    
+    h2 {
+      font-size: 1.8rem;
+      color: #1a1a1a;
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      font-weight: 700;
+      padding: 1.2rem 1.5rem;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+      border-left: 4px solid #d4af37;
+      
+      .icon-circle {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 40px;
+        height: 40px;
+        background: linear-gradient(135deg, #d4af37 0%, #f4d03f 100%);
+        border-radius: 50%;
+        font-size: 1.2rem;
+      }
+    }
+  }
+  
+  .offers-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+  
+  .offer-card {
+    background: white;
+    border-radius: 16px;
+    padding: 2rem;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+    position: relative;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    overflow: hidden;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    
+    &:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 20px rgba(212, 175, 55, 0.3);
+      border-color: rgba(212, 175, 55, 0.3);
+    }
+    
+    .card-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 2rem;
+      position: relative;
+    }
+    
+    .card-left {
+      flex: 1;
+      position: relative;
+    }
+    
+    .card-right {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 1rem;
+      min-width: 150px;
+      padding: 1rem;
+      background: linear-gradient(135deg, rgba(212, 175, 55, 0.05) 0%, transparent 100%);
+      border-radius: 12px;
+      border: 1px dashed rgba(212, 175, 55, 0.2);
+    }
+    
+    .offer-badge {
+      display: inline-block;
+      background: linear-gradient(135deg, #d4af37 0%, #f4d03f 100%);
+      color: #1a1a1a;
+      padding: 0.5rem 1.2rem;
+      border-radius: 20px;
+      font-weight: bold;
+      font-size: 1rem;
+      margin-bottom: 1rem;
+      box-shadow: 0 4px 12px rgba(212, 175, 55, 0.3);
+    }
+    
+    h3 {
+      font-size: 1.8rem;
+      color: #1a1a1a;
+      margin-bottom: 0.5rem;
+      font-weight: 700;
+    }
+    
+    p {
+      color: #666;
+      margin-bottom: 0;
+      line-height: 1.5;
+      font-size: 1rem;
+    }
+    
+    .validity {
+      font-size: 0.9rem;
+      color: #999;
+      text-align: right;
+      line-height: 1.4;
+      font-weight: 500;
+    }
+    
+    .btn-claim, .btn-buy {
+      background: linear-gradient(135deg, #d4af37 0%, #f4d03f 100%);
+      color: #1a1a1a;
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      white-space: nowrap;
+      font-size: 1rem;
+      box-shadow: 0 2px 8px rgba(212, 175, 55, 0.2);
+      
+      &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(212, 175, 55, 0.4);
+      }
+    }
+  }
+  
+  .coupon-card {
+    .coupon-code {
+      background: linear-gradient(135deg, #fafafa 0%, #f5f5f5 100%);
+      border: 2px dashed #d4af37;
+      border-radius: 8px;
+      padding: 1rem;
+      margin-top: 1rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+      
+      .code {
+        font-family: 'Courier New', monospace;
+        font-size: 1.3rem;
+        font-weight: bold;
+        color: #d4af37;
+        letter-spacing: 2px;
+      }
+      
+      .btn-copy {
+        background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+        color: white;
+        border: none;
+        padding: 0.6rem 1.2rem;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        white-space: nowrap;
+        box-shadow: 0 2px 8px rgba(26, 26, 26, 0.2);
+        
+        &:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 4px 12px rgba(26, 26, 26, 0.3);
+        }
+      }
+    }
+  }
+  
+  .voucher-section {
+    .voucher-card {
+      background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+      
+      h3, p {
+        color: white;
+      }
+      
+      .voucher-value {
+        font-size: 2.5rem;
+        font-weight: bold;
+        color: #d4af37;
+        margin-bottom: 0.5rem;
+        display: inline-block;
+      }
+      
+      .validity {
+        color: rgba(255, 255, 255, 0.7) !important;
+      }
+      
+      .card-right {
+        background: rgba(212, 175, 55, 0.1) !important;
+        border-color: rgba(212, 175, 55, 0.3) !important;
+      }
+    }
+  }
+  
+  // Special Discounts Grid - Professional Design
+  .discount-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 2rem;
+    margin-top: 1.5rem;
+  }
+  
+  .discount-card {
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    position: relative;
+    transition: all 0.3s ease;
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    overflow: hidden;
+    
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, #d4af37 0%, #f4d03f 100%);
+    }
+    
+    &:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 35px rgba(212, 175, 55, 0.2);
+      border-color: rgba(212, 175, 55, 0.3);
+    }
+    
+    .discount-content {
+      padding: 2rem;
+      text-align: center;
+      
+      .discount-badge-large {
+        display: inline-block;
+        background: linear-gradient(135deg, #d4af37 0%, #f4d03f 100%);
+        color: #1a1a1a;
+        padding: 0.6rem 1.8rem;
+        border-radius: 8px;
+        font-weight: 700;
+        font-size: 1.5rem;
+        margin-bottom: 1.5rem;
+        letter-spacing: 0.5px;
+      }
+      
+      h3 {
+        font-size: 1.5rem;
+        color: #1a1a1a;
+        margin-bottom: 0.6rem;
+        font-weight: 700;
+      }
+      
+      p {
+        color: #666;
+        line-height: 1.6;
+        font-size: 0.95rem;
+      }
+    }
+    
+    .discount-footer {
+      padding: 1.5rem 2rem;
+      background: #f8f9fa;
+      border-top: 1px solid #e9ecef;
+      
+      .validity-info {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+        padding: 0.8rem 1rem;
+        background: white;
+        border-radius: 8px;
+        border: 1px solid #e0e0e0;
+        
+        .label {
+          color: #999;
+          font-size: 0.8rem;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+          font-weight: 600;
+        }
+        
+        .date {
+          color: #1a1a1a;
+          font-weight: 600;
+        }
+      }
+      
+      .btn-claim {
+        width: 100%;
+        background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+        color: #d4af37;
+        border: none;
+        padding: 0.9rem;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 600;
+        font-size: 0.95rem;
+        transition: all 0.3s ease;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        
+        &:hover {
+          background: linear-gradient(135deg, #2d2d2d 0%, #1a1a1a 100%);
+          box-shadow: 0 4px 15px rgba(26, 26, 26, 0.25);
+        }
+      }
+    }
+  }
+  
+  // Festival Offers Grid - Professional Design
+  .festival-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 2rem;
+    margin-top: 1.5rem;
+  }
+  
+  .festival-card-special {
+    background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+    position: relative;
+    border: 1px solid rgba(212, 175, 55, 0.2);
+    
+    &:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 12px 40px rgba(212, 175, 55, 0.3);
+      border-color: rgba(212, 175, 55, 0.4);
+    }
+    
+    .festival-content {
+      padding: 2rem;
+      
+      .festival-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+        
+        .festival-icon-badge {
+          width: 60px;
+          height: 60px;
+          background: rgba(212, 175, 55, 0.15);
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 2rem;
+          border: 2px solid rgba(212, 175, 55, 0.3);
+        }
+        
+        .festival-badge-large {
+          background: linear-gradient(135deg, #d4af37 0%, #f4d03f 100%);
+          color: #1a1a1a;
+          padding: 0.7rem 1.5rem;
+          border-radius: 8px;
+          font-weight: 800;
+          font-size: 1.6rem;
+          letter-spacing: 1px;
+        }
+      }
+      
+      .festival-details {
+        margin-bottom: 1.5rem;
+        
+        h3 {
+          color: white;
+          font-size: 1.6rem;
+          margin-bottom: 0.6rem;
+          font-weight: 700;
+        }
+        
+        p {
+          color: rgba(255, 255, 255, 0.7);
+          line-height: 1.6;
+          font-size: 0.95rem;
+        }
+      }
+      
+      .festival-code-section {
+        background: rgba(255, 255, 255, 0.05);
+        padding: 1.3rem;
+        border-radius: 10px;
+        border: 1px solid rgba(212, 175, 55, 0.3);
+        margin-bottom: 1.5rem;
+        
+        .code-label {
+          color: #d4af37;
+          font-size: 0.75rem;
+          text-transform: uppercase;
+          letter-spacing: 1.5px;
+          font-weight: 600;
+          margin-bottom: 0.8rem;
+        }
+        
+        .festival-code-display {
+          display: flex;
+          gap: 1rem;
+          align-items: center;
+          
+          .festival-code {
+            flex: 1;
+            background: rgba(212, 175, 55, 0.1);
+            padding: 0.9rem 1.2rem;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #d4af37;
+            letter-spacing: 2px;
+            text-align: center;
+            border: 1px solid rgba(212, 175, 55, 0.25);
+          }
+          
+          .btn-copy-festival {
+            background: linear-gradient(135deg, #d4af37 0%, #f4d03f 100%);
+            color: #1a1a1a;
+            border: none;
+            padding: 0.9rem 1.3rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 700;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            
+            &:hover {
+              background: linear-gradient(135deg, #f4d03f 0%, #d4af37 100%);
+              box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
+            }
+          }
+        }
+      }
+      
+      .festival-expiry {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.9rem 1.2rem;
+        background: rgba(212, 175, 55, 0.08);
+        border-radius: 8px;
+        border: 1px solid rgba(212, 175, 55, 0.2);
+        
+        .expiry-label {
+          color: rgba(255, 255, 255, 0.6);
+          font-size: 0.85rem;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+        }
+        
+        .expiry-date {
+          color: white;
+          font-weight: 600;
+          font-size: 0.9rem;
+        }
+      }
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .deals-container {
+    padding: 1rem;
+    
+    .deals-header h1 {
+      font-size: 2rem;
+    }
+    
+    .discount-grid {
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+    }
+    
+    .festival-grid {
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+    }
+    
+    .festival-card-special .festival-content {
+      .festival-top {
+        flex-direction: column;
+        gap: 1rem;
+        text-align: center;
+      }
+      
+      .festival-code-section .festival-code-display {
+        flex-direction: column;
+        
+        .btn-copy-festival {
+          width: 100%;
+        }
+      }
+    }
+    
+    .offer-card {
+      padding: 1.5rem;
+      
+      .card-content {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1.5rem;
+      }
+      
+      .card-right {
+        width: 100%;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        
+        .validity {
+          text-align: left;
+        }
+      }
+      
+      h3 {
+        font-size: 1.5rem;
+      }
+    }
+    
+    .coupon-card .coupon-code {
+      flex-direction: column;
+      align-items: stretch;
+      
+      .btn-copy {
+        width: 100%;
+      }
+    }
+  }
+}
