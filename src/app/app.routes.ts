@@ -13,6 +13,7 @@ import { CarVerifyComponent } from './cars/car-verify/car-verify.component';
 import { CarSuccessComponent } from './cars/car-success/car-success.component';
 import { HomeComponent } from './basic-page/home/home.component';
 import { Deals } from './deals/deals';
+import { LocationComponent } from './basic-page/location/location.component';
 
 export const routes: Routes = [
 	{ path: '', component: HomeComponent},
@@ -25,6 +26,7 @@ export const routes: Routes = [
 	{ path: 'verify-bmw', component: VerifyBmwDetailsComponent, canActivate: [AuthGuard] },
 	{ path: 'success-audi', component: CarSuccessComponent, canActivate: [AuthGuard] },
 	{ path: 'success-bmw', component: SuccessBmwComponent, canActivate: [AuthGuard] },
+	{ path: 'location', component: LocationComponent },
 	{ path: 'deals', component: Deals, title: 'Special Deals & Offers' },
 	{
 		path: 'user',
