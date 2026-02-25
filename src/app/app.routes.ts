@@ -6,14 +6,16 @@ import { SuccessBmwComponent } from './cars/success-bmw.component';
 import { LoginComponent } from './auth/login/login.component';
 import { RegistrationComponent } from './auth/registration/registration.component';
 import { AuthGuard } from './auth/guards/auth.guard';
-import { CarChoiceComponent } from './cars/car-choice/car-choice.component';
+// import { CarChoiceComponent } from './cars/car-choice/car-choice.component';
 import { CarSelectionComponent } from './cars/car-selection/car-selection.component';
 import { CarBookComponent } from './cars/car-book/car-book.component';
 import { CarVerifyComponent } from './cars/car-verify/car-verify.component';
 import { CarSuccessComponent } from './cars/car-success/car-success.component';
 import { HomeComponent } from './basic-page/home/home.component';
 import { Deals } from './deals/deals';
+import { BookingPageComponent
 
+ } from './booking-page/booking-page.component';
 export const routes: Routes = [
 	{ path: '', component: HomeComponent},
 	// { path: '', component: CarChoiceComponent, canActivate: [AuthGuard] },
@@ -26,6 +28,7 @@ export const routes: Routes = [
 	{ path: 'success-audi', component: CarSuccessComponent, canActivate: [AuthGuard] },
 	{ path: 'success-bmw', component: SuccessBmwComponent, canActivate: [AuthGuard] },
 	{ path: 'deals', component: Deals, title: 'Special Deals & Offers' },
+	{ path: 'booking', component: BookingPageComponent, title: 'Your Bookings' },
 	{
 		path: 'user',
 		children: [
