@@ -1,6 +1,6 @@
 <nav class="navbar navbar-expand-md navbar-light bg-white shadow-sm">
 	<div class="container-fluid">
-		<a class="navbar-brand fw-bold" routerLink="/">Drive Supercars</a>
+		<a class="navbar-brand fw-bold" [routerLink]="'/'">Drive Supercars</a>
 
 		<!-- Mobile toggle -->
 		<button class="btn d-md-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileMenu" aria-controls="mobileMenu" aria-label="Open menu">
@@ -10,10 +10,17 @@
 		<!-- Desktop nav -->
 		<div class="d-none d-md-flex ms-auto justify-content-between align-items-center">
 			<ul class="navbar-nav">
-				<li class="nav-item"><a class="nav-link" routerLink="/cars">Cars</a></li>
-				<li class="nav-item"><a class="nav-link" routerLink="/bookings">Bookings</a></li>
-				<li class="nav-item"><a class="nav-link" routerLink="/about">About</a></li>
-				<li class="nav-item"><a class="btn btn-primary ms-2" routerLink="/login">Login</a></li>
+				@if (isLoggedIn) {
+          <li class="nav-item"><a class="nav-link" routerLink="/deals">Deal</a></li>
+					<li class="nav-item"><a class="nav-link" routerLink="/booking">Bookings</a></li>
+					<li class="nav-item"><a class="nav-link" routerLink="/location">Location</a></li>
+					<li class="nav-item"><button class="btn btn-primary ms-2" (click)="logout()">Log-out</button></li>
+        }
+        @else{
+          <li class="nav-item"><a class="nav-link" routerLink="/about">About</a></li>
+					<li class="nav-item"><a class="nav-link" routerLink="/location">Location</a></li>
+          <li class="nav-item"><a class="btn btn-primary ms-2" routerLink="/user/login">Login</a></li>
+        }
 			</ul>
 		</div>
 	</div>
@@ -27,10 +34,17 @@
 	</div>
 	<div class="offcanvas-body">
 		<ul class="nav flex-column">
-			<li class="nav-item"><a class="nav-link" routerLink="/cars" data-bs-dismiss="offcanvas">Cars</a></li>
-			<li class="nav-item"><a class="nav-link" routerLink="/bookings" data-bs-dismiss="offcanvas">Bookings</a></li>
-			<li class="nav-item"><a class="nav-link" routerLink="/about" data-bs-dismiss="offcanvas">About</a></li>
-			<li class="nav-item mt-2"><a class="btn btn-primary w-100" routerLink="/login" data-bs-dismiss="offcanvas">Login</a></li>
+      				@if (isLoggedIn) {
+          <li class="nav-item"><a class="nav-link" routerLink="/deals">Deal</a></li>
+					<li class="nav-item"><a class="nav-link" routerLink="/booking">Bookings</a></li>
+					<li class="nav-item"><a class="nav-link" routerLink="/location">Location</a></li>
+					<li class="nav-item"><button class="btn btn-primary w-100" (click)="logout()">Log-out</button></li>
+        }
+        @else{
+          <li class="nav-item"><a class="nav-link" routerLink="/about">About</a></li>
+					<li class="nav-item"><a class="nav-link" routerLink="/location">Location</a></li>
+          <li class="nav-item"><a class="btn btn-primary w-100" routerLink="/user/login">Login</a></li>
+        }
 		</ul>
 	</div>
 </div>

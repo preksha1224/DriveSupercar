@@ -16,7 +16,7 @@ import { Deals } from './deals/deals';
 import { BookingPageComponent } from './booking-page/booking-page.component';
 import { LocationComponent } from './basic-page/location/location.component';
 export const routes: Routes = [
-	{ path: '', component: HomeComponent},
+	{ path: '', component: HomeComponent,title:'Home'},
 	// { path: '', component: CarChoiceComponent, canActivate: [AuthGuard] },
 	{ path: 'bmw', component: BmwSelectionComponent },
 	{ path: 'audi', component: CarSelectionComponent },
@@ -26,8 +26,8 @@ export const routes: Routes = [
 	{ path: 'verify-bmw', component: VerifyBmwDetailsComponent, canActivate: [AuthGuard] },
 	{ path: 'success-audi', component: CarSuccessComponent, canActivate: [AuthGuard] },
 	{ path: 'success-bmw', component: SuccessBmwComponent, canActivate: [AuthGuard] },
-	{ path: 'deals', component: Deals, title: 'Special Deals & Offers' },
-	{ path: 'booking', component: BookingPageComponent },
+	{ path: 'deals', component: Deals, title: 'Special Deals & Offers',canActivate: [AuthGuard] },
+	{ path: 'booking', component: BookingPageComponent,canActivate: [AuthGuard] },
 	{ path: 'location', component: LocationComponent },
 	{
 		path: 'user',

@@ -1,6 +1,8 @@
 import { AfterViewInit, ElementRef, ViewChild, Renderer2 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
+import { AuthService } from '../../services/auth.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-home',
@@ -11,7 +13,14 @@ import { Component } from '@angular/core';
 })
 export class HomeComponent implements AfterViewInit {
   @ViewChild('heroCard', { static: false }) heroCardRef!: ElementRef;
-  constructor(private renderer: Renderer2) {}
+  toastMessage: string = '';
+  showToast: boolean = false;
+  toastTimeout: any;
+
+  constructor(private renderer: Renderer2,private authService:AuthService,private router:Router) {}
+  get isLoggedIn(): boolean {
+    return this.authService.isLoggedIn();
+  }
 
   ngAfterViewInit() {}
 
@@ -36,4 +45,31 @@ export class HomeComponent implements AfterViewInit {
     this.renderer.removeClass(card, 'is-tilting');
   }
 
+  alertMessage(message: string) {
+    this.toastMessage = message;
+    this.showToast = true;
+    if (this.toastTimeout) {
+      clearTimeout(this.toastTimeout);
+    }
+    this.toastTimeout = setTimeout(() => {
+      this.showToast = false;
+      this.router.navigateByUrl('/user/login')
+    }, 3000);
+  }
+
+  bookingRedirect(){
+    if(this.isLoggedIn) {
+      this.router.navigateByUrl('/booking');
+    } else {
+      this.alertMessage('Please login first to explore booking the car');
+    }
+  }
+
+  viewOffers() {
+    if(this.isLoggedIn) {
+      this.router.navigateByUrl('/deals');
+    } else {
+      this.alertMessage('Please login first to see offers and deals in detail');
+    }
+  }
 }

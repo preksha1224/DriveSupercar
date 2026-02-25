@@ -1,3 +1,14 @@
+<!-- Bootstrap Toast for messages -->
+<div aria-live="polite" aria-atomic="true" style="position: fixed; top: 1rem; left: 50%; transform: translateX(-50%); z-index: 1080; min-width: 250px;" *ngIf="showToast">
+  <div class="toast show align-items-center text-bg-primary border-0" role="alert">
+    <div class="d-flex">
+      <div class="toast-body">
+        {{ toastMessage }}
+      </div>
+      <button type="button" class="btn-close btn-close-white me-2 m-auto" aria-label="Close" (click)="showToast = false"></button>
+    </div>
+  </div>
+</div>
 <!-- Hero Section -->
 <div class="hero-section py-5">
   <!-- Crazy Animated Background Layer -->
@@ -105,9 +116,9 @@
                 <label class="form-label small text-uppercase fw-bold letter-spacing-1">Pick-up Date</label>
                 <input type="date" class="form-control custom-input" />
               </div>
-              
+
               <div class="text-center mt-4">
-                <button type="button" class="btn btn-primary w-100 py-3 rounded-pill fw-bold text-uppercase">
+                <button type="button" class="btn btn-primary w-100 py-3 rounded-pill fw-bold text-uppercase" (click)="bookingRedirect()">
                   Instant Booking
                 </button>
               </div>
@@ -177,7 +188,7 @@
         </div>
         <!-- button other offers -->
         <div class="col-12 mt-4 text-center">
-          <button class="btn view-offers-btn px-5 py-2 fw-bold">
+          <button class="btn view-offers-btn px-5 py-2 fw-bold" (click)="viewOffers()">
             View All Offers
           </button>
       </div>

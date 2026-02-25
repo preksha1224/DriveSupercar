@@ -1,6 +1,7 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable } from 'rxjs';
+import { Router } from '@angular/router';
 
 interface RegisterResponse {
   success: boolean;
@@ -16,7 +17,7 @@ export class AuthService {
   public currentUser$ = this.currentUserSubject.asObservable();
   private isAuthenticatedSubject = new BehaviorSubject<boolean>(false);
   public isAuthenticated$ = this.isAuthenticatedSubject.asObservable();
-
+  private router=inject(Router)
   constructor(private http: HttpClient) {}
 
   login(email: string, password: string): Observable<any> {
@@ -28,12 +29,11 @@ export class AuthService {
   }
 
   logout(): void {
-    localStorage.removeItem('authToken');
-    this.currentUserSubject.next(null);
-    this.isAuthenticatedSubject.next(false);
+    localStorage.removeItem('user');
+    this.router.navigateByUrl('/user/login')
   }
 
-  isLoggedIn(): boolean { 
+  isLoggedIn(): boolean {
     const user = localStorage.getItem('user');
     if (user) {
       return true;
