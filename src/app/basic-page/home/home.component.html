@@ -26,7 +26,7 @@
 
         <div class="col-lg-8 mx-auto">
           <p class="lead mb-2">Where Luxury Meets Performance on Every Mile.</p>
-          <p class="mb-4 text-primary">Rent exclusive supercars designed to dominate the road and redefine your driving experience. Because ordinary was never your style.</p>
+          <p class="mb-4">Rent exclusive supercars designed to dominate the road and redefine your driving experience. Because ordinary was never your style.</p>
         </div>
       </div>
       <!-- 3D floating light effect -->
@@ -37,74 +37,79 @@
 
 <!-- Premium Show Section -->
 <div class="premium-show py-5">
-  <div class="container bg-white rounded shadow-sm p-4">
-            <!-- 1. left side Image two with transparent and show button one -->
-
-    <div class="premium-card rounded p-4 d-flex align-items-center gap-3">
-      <div class="row w-100 gy-3 align-items-center">
-<div class="col-lg-7 col-12">
-  <div class="premium-image-wrapper p-4 rounded shadow-sm">
-
-    <div class="row g-4 align-items-center text-center">
-
-      <!-- BMW -->
-      <div class="col-6">
-        <img src="images/BMW M4 Coupe.png"
-             class="img-fluid car-img-large"
-             alt="BMW M4 Coupe" />
-        <h4 class="mt-3 text-primary fw-bold">Porchase 911</h4>
-      </div>
-
-      <!-- Audi -->
-      <div class="col-6">
-        <img src="images/Audi R8.png"
-             class="img-fluid car-img-large"
-             alt="Audi R8" />
-        <h4 class="mt-3 text-primary fw-bold">Audi R8</h4>
-      </div>
-
-      <!-- Button -->
-      <div class="col-12 mt-4">
-        <button class="btn btn-primary rounded-pill px-5 py-2 fw-bold">
-          Explore Premium Fleet
-        </button>
-      </div>
-
+  <div class="container bg-white rounded shadow-sm p-5">
+    <!-- Header for Premium section -->
+    <div class="text-center mb-5">
+      <h2 class="display-6 fw-bold">Explore Our Premium Fleet</h2>
+      <div class="underline mx-auto mb-3"></div>
+      <p class="text-muted">Choose your dream car and book with ease.</p>
     </div>
 
-  </div>
-</div>
-        <div class="col-lg-5 ">
-          <div class="premium-form p-3 rounded bg-white-5">
-            <h3 class="mb-3 text-center">Booking Car Form</h3>
-            <div class="mx-auto mb-3 lineform"></div>
-            <form>
-              <div class="mb-2">
-                <label class="form-label small">City</label>
-                <select class="form-select">
-                  <option selected>Choose city</option>
+    <div class="premium-card rounded p-0 d-flex align-items-center">
+      <div class="row w-100 g-0 align-items-stretch">
+        <div class="col-lg-7">
+          <div class="premium-image-wrapper h-100 p-4 p-md-5 rounded-start shadow-sm border-0">
+            <div class="row g-4 align-items-center text-center">
+              <!-- Porsche -->
+              <div class="col-6 car-item-hover">
+                <img src="images/BMW M4 Coupe.png"
+                     class="img-fluid car-img-large"
+                     alt="Porsche 911" />
+                <h4 class="mt-3 text-primary fw-bold">Porsche 911</h4>
+              </div>
+
+              <!-- Audi -->
+              <div class="col-6 car-item-hover">
+                <img src="images/Audi R8.png"
+                     class="img-fluid car-img-large"
+                     alt="Audi R8" />
+                <h4 class="mt-3 text-primary fw-bold">Audi R8</h4>
+              </div>
+
+              <!-- Button -->
+              <div class="col-12 mt-5">
+                <button class="btn btn-outline-primary rounded-pill px-5 py-2 fw-bold explore-btn">
+                  Explore Full Fleet
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-5">
+          <div class="premium-form h-100 p-4 p-md-5 rounded-end">
+            <h3 class="mb-3 text-center fw-bold">Quick Booking</h3>
+            <div class="mx-auto mb-4 lineform"></div>
+            <form class="booking-grid">
+              <div class="mb-3">
+                <label class="form-label small text-uppercase fw-bold letter-spacing-1">Select City</label>
+                <select class="form-select custom-input">
+                  <option selected disabled>Choose city...</option>
                   <option>New York</option>
                   <option>Los Angeles</option>
                   <option>Miami</option>
                 </select>
               </div>
 
-              <div class="mb-2">
-                <label class="form-label small">Area</label>
-                <select class="form-select">
-                  <option selected>Choose area</option>
+              <div class="mb-3">
+                <label class="form-label small text-uppercase fw-bold letter-spacing-1">Select Area</label>
+                <select class="form-select custom-input">
+                  <option selected disabled>Choose area...</option>
                   <option>Downtown</option>
                   <option>Airport</option>
                   <option>Beachside</option>
                 </select>
               </div>
 
-              <div class="mb-2">
-                <label class="form-label small">Date</label>
-               <input type="date" class="form-control" />
+              <div class="mb-4">
+                <label class="form-label small text-uppercase fw-bold letter-spacing-1">Pick-up Date</label>
+                <input type="date" class="form-control custom-input" />
               </div>
-              <div class="mb-3">
-                <button type="button" class="btn btn-primary">Book</button>
+              
+              <div class="text-center mt-4">
+                <button type="button" class="btn btn-primary w-100 py-3 rounded-pill fw-bold text-uppercase">
+                  Instant Booking
+                </button>
               </div>
             </form>
           </div>
@@ -118,7 +123,7 @@
 <div class="offer-section py-5">
   <div class="container py-lg-4">
     <div class="text-center mb-5">
-      <h2 class="display-6 fw-bold text-primary">Exclusive Offers</h2>
+      <h2 class="display-6 fw-bold">Exclusive Offers</h2>
       <div class="underline mx-auto mb-3"></div>
       <p class="text-muted">Take advantage of our limited-time premium rental deals</p>
     </div>
@@ -201,7 +206,7 @@
   </div>
   <div class="container py-lg-4 position-relative" style="z-index:2;">
     <div class="text-center mb-5">
-      <h2 class="display-6 fw-bold text-primary">Our Services</h2>
+      <h2 class="display-6 fw-bold">Our Services</h2>
       <div class="underline mx-auto mb-3"></div>
       <p class="text-muted">Experience premium car rental services tailored for you</p>
     </div>

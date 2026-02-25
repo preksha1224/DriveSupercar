@@ -13,9 +13,8 @@ import { CarVerifyComponent } from './cars/car-verify/car-verify.component';
 import { CarSuccessComponent } from './cars/car-success/car-success.component';
 import { HomeComponent } from './basic-page/home/home.component';
 import { Deals } from './deals/deals';
-import { BookingPageComponent
-
- } from './booking-page/booking-page.component';
+import { BookingPageComponent } from './booking-page/booking-page.component';
+import { LocationComponent } from './basic-page/location/location.component';
 export const routes: Routes = [
 	{ path: '', component: HomeComponent},
 	// { path: '', component: CarChoiceComponent, canActivate: [AuthGuard] },
@@ -28,7 +27,8 @@ export const routes: Routes = [
 	{ path: 'success-audi', component: CarSuccessComponent, canActivate: [AuthGuard] },
 	{ path: 'success-bmw', component: SuccessBmwComponent, canActivate: [AuthGuard] },
 	{ path: 'deals', component: Deals, title: 'Special Deals & Offers' },
-	{ path: 'booking', component: BookingPageComponent, title: 'Your Bookings' },
+	{ path: 'booking', component: BookingPageComponent },
+	{ path: 'location', component: LocationComponent },
 	{
 		path: 'user',
 		children: [

@@ -1,0 +1,9 @@
+<section class="location">
+  <h2 class="location__title">Choose a City</h2>
+  <div class="location__grid">
+    <article class="city-card" *ngFor="let city of cities">
+      <img class="city-card__image" [src]="city.imageUrl" [alt]="city.imageAlt" loading="lazy" />
+      <h3 class="city-card__name">{{ city.name }}</h3>
+    </article>
+  </div>
+</section>
