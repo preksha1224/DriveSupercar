@@ -1,6 +1,7 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
 
 interface Booking {
   id: string;
@@ -28,7 +29,7 @@ interface TimeSlot {
   templateUrl: './booking-page.component.html',
   styleUrl: './booking-page.component.scss',
 })
-export class BookingPageComponent {
+export class BookingPageComponent implements OnInit {
   // Form fields
   carModel: string = '';
   licenseProof: string = '';
@@ -49,6 +50,19 @@ export class BookingPageComponent {
     { id: 'slot7', time: '06:00 PM - 08:00 PM', selected: false, available: true },
     { id: 'slot8', time: '08:00 PM - 10:00 PM', selected: false, available: false },
   ];
+
+  // Location info
+  selectedState: string = '';
+  selectedCity: string = '';
+
+  constructor(private route: ActivatedRoute) {}
+
+  ngOnInit(): void {
+    this.route.queryParams.subscribe(params => {
+      this.selectedState = params['state'] || '';
+      this.selectedCity = params['city'] || '';
+    });
+  }
 
   getStatusClass(status: string): string {
     return `status-${status}`;

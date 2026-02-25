@@ -487,6 +487,52 @@
   }
 }
 
+.location-info {
+  margin-top: 24px;
+  display: flex;
+  justify-content: center;
+  animation: fadeInUp 0.8s ease 0.4s backwards;
+}
+
+.location-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 28px;
+  background: linear-gradient(135deg, rgba(212, 175, 55, 0.15) 0%, rgba(255, 215, 0, 0.15) 100%);
+  border: 2px solid rgba(212, 175, 55, 0.4);
+  border-radius: 50px;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 15px rgba(212, 175, 55, 0.2);
+}
+
+.location-icon {
+  font-size: 20px;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.location-text {
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  background: linear-gradient(135deg, #d4af37 0%, #ffd700 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 @media (max-width: 1024px) {
   .booking-container {
     .header {

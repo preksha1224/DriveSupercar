@@ -4,6 +4,12 @@
       <span class="header-tagline">LUXURY CAR RENTAL</span>
       <h1>RESERVE YOUR EXPERIENCE</h1>
       <p class="subtitle">Uncompromising quality. Unparalleled service.</p>
+      <div class="location-info" *ngIf="selectedState && selectedCity">
+        <div class="location-badge">
+          <span class="location-icon">📍</span>
+          <span class="location-text">{{ selectedCity }}, {{ selectedState }}</span>
+        </div>
+      </div>
       <div class="header-divider"></div>
     </div>
   </div>

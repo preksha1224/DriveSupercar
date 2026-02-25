@@ -1,9 +1,17 @@
 <section class="location">
-  <h2 class="location__title">Choose a City</h2>
+  <h2 class="location__title">Explore Our Locations</h2>
   <div class="location__grid">
-    <article class="city-card" *ngFor="let city of cities">
-      <img class="city-card__image" [src]="city.imageUrl" [alt]="city.imageAlt" loading="lazy" />
-      <h3 class="city-card__name">{{ city.name }}</h3>
+    <article class="city-card" *ngFor="let state of states">
+      <img class="city-card__image" [src]="state.imageUrl" [alt]="state.imageAlt" loading="lazy" />
+      <h3 class="city-card__name">{{ state.name }}</h3>
+      <div class="city-card__dropdown">
+        <p class="dropdown__title">Select a city:</p>
+        <ul class="dropdown__list">
+          <li class="dropdown__item" *ngFor="let city of state.cities" (click)="onCitySelect(state.name, city)">
+            {{ city }}
+          </li>
+        </ul>
+      </div>
     </article>
   </div>
 </section>
