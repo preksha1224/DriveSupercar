@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
+import { min } from 'rxjs';
 
 interface Booking {
   id: string;
@@ -18,9 +19,14 @@ interface Booking {
 
 interface TimeSlot {
   id: string;
-  time: string;
+  startTime: string;
+  endTime: string;
   selected: boolean;
   available: boolean;
+}
+interface timeSlotBooking {
+  start: string;
+  end: string;
 }
 
 @Component({
@@ -38,19 +44,20 @@ export class BookingPageComponent implements OnInit {
   amount: number = 0;
   discount: number = 0;
   finalAmount: number = 0;
-
+  selectSlot:TimeSlot|undefined;
+  selectTime:any|undefined;
+  slotBooking:timeSlotBooking[]|undefined;
   // Time slots (BMS style)
   timeSlots: TimeSlot[] = [
-    { id: 'slot1', time: '06:00 AM - 08:00 AM', selected: false, available: true },
-    { id: 'slot2', time: '08:00 AM - 10:00 AM', selected: false, available: true },
-    { id: 'slot3', time: '10:00 AM - 12:00 PM', selected: false, available: true },
-    { id: 'slot4', time: '12:00 PM - 02:00 PM', selected: false, available: false },
-    { id: 'slot5', time: '02:00 PM - 04:00 PM', selected: false, available: true },
-    { id: 'slot6', time: '04:00 PM - 06:00 PM', selected: false, available: true },
-    { id: 'slot7', time: '06:00 PM - 08:00 PM', selected: false, available: true },
-    { id: 'slot8', time: '08:00 PM - 10:00 PM', selected: false, available: false },
+    { id: 'short', startTime: '10:00',endTime:'13:00', selected: false, available: true },
+    { id: 'long', startTime: '13:00', endTime:'16:00', selected: false, available: true },
+    { id: 'all', startTime: '10:00', endTime:'16:00', selected: false, available: true },
   ];
-
+  minOption=[
+    {id: 'short',minOption:[10,20]},
+    {id: 'long',minOption:[40,60]},
+    {id:'all',minOption:[10,20,40,60]}
+  ]
   // Location info
   selectedState: string = '';
   selectedCity: string = '';
@@ -62,6 +69,10 @@ export class BookingPageComponent implements OnInit {
       this.selectedState = params['state'] || '';
       this.selectedCity = params['city'] || '';
     });
+    // const timeSlots = this.getTimeIntervals('10:00', '12:00',60,10);
+    // for(let timeSlot of timeSlots){
+    //   console.log(timeSlot)
+    // }
   }
 
   getStatusClass(status: string): string {
@@ -70,11 +81,27 @@ export class BookingPageComponent implements OnInit {
 
   selectTimeSlot(slot: TimeSlot): void {
     if (!slot.available) return;
-    
+
     // Deselect all other slots
     this.timeSlots.forEach(s => s.selected = false);
     // Select the clicked slot
     slot.selected = true;
+    this.selectSlot=slot;
+    console.log(this.selectSlot)
+    this.selectTime=this.minOption.find(data=>data.id===slot.id)
+    console.log(this.selectTime)
+    this.selectTime.selected = false
+  }
+  selectMin(min:number){
+    console.log(min);
+    if(min===10){
+    const timeSlots = this.getTimeIntervals(this.selectSlot?.startTime??'10:00', this.selectSlot?.endTime??'12:00',min,5);
+     this.slotBooking=timeSlots;
+    }
+    else{
+    const timeSlots = this.getTimeIntervals(this.selectSlot?.startTime??'10:00', this.selectSlot?.endTime??'12:00',min,10);
+     this.slotBooking=timeSlots;
+    }
   }
 
   calculateFinalAmount(): void {
@@ -91,7 +118,7 @@ export class BookingPageComponent implements OnInit {
 
   submitBooking(): void {
     const selectedSlot = this.timeSlots.find(slot => slot.selected);
-    
+
     if (!this.carModel || !this.licenseProof || !this.pickupDate || !this.dropDate || !selectedSlot) {
       alert('Please fill all required fields and select a time slot');
       return;
@@ -103,7 +130,7 @@ export class BookingPageComponent implements OnInit {
       licenseProof: this.licenseProof,
       pickupDate: this.pickupDate,
       dropDate: this.dropDate,
-      timeSlot: selectedSlot.time,
+      timeSlot: selectedSlot.startTime,
       amount: this.amount,
       discount: this.discount,
       finalAmount: this.finalAmount
@@ -122,5 +149,31 @@ export class BookingPageComponent implements OnInit {
     this.discount = 0;
     this.finalAmount = 0;
     this.timeSlots.forEach(slot => slot.selected = false);
+  }
+
+  getTimeIntervals(startTimeStr: string, endTimeStr: string, min: number, buffer: number) {
+    const intervals = [];
+    const startTime = new Date();
+    const endTime = new Date();
+    const [startHours, startMinutes] = startTimeStr.split(':').map(Number);
+    const [endHours, endMinutes] = endTimeStr.split(':').map(Number);
+    startTime.setHours(startHours, startMinutes, 0, 0);
+    endTime.setHours(endHours, endMinutes, 0, 0);
+    if (endTime <= startTime) {
+      endTime.setDate(endTime.getDate() + 1);
+    }
+    let currentStart = new Date(startTime);
+    while (currentStart < endTime) {
+      let currentEnd = new Date(currentStart);
+      currentEnd.setMinutes(currentEnd.getMinutes() + min);
+      const formattedStart = `${currentStart.getHours().toString().padStart(2, '0')}:${currentStart.getMinutes().toString().padStart(2, '0')}`;
+      const formattedEnd = `${currentEnd.getHours().toString().padStart(2, '0')}:${currentEnd.getMinutes().toString().padStart(2, '0')}`;
+      intervals.push({ start: formattedStart, end: formattedEnd });
+      // Advance to next slot: last end + buffer
+      currentStart = new Date(currentEnd);
+      currentStart.setMinutes(currentStart.getMinutes() + buffer);
+      if (currentStart > endTime) break;
+    }
+    return intervals;
   }
 }

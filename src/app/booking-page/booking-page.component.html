@@ -20,7 +20,7 @@
       <h2 class="form-title">BOOKING DETAILS</h2>
       <p class="form-subtitle">Complete the form below to secure your reservation</p>
     </div>
-    
+
     <div class="booking-form">
       <div class="form-section">
         <h3 class="section-title">VEHICLE & DOCUMENTS</h3>
@@ -29,10 +29,10 @@
             <label for="carModel">
               CAR MODEL <span class="required">*</span>
             </label>
-            <input 
-              type="text" 
-              id="carModel" 
-              [(ngModel)]="carModel" 
+            <input
+              type="text"
+              id="carModel"
+              [(ngModel)]="carModel"
               placeholder="e.g., BMW X5, Audi Q7"
               class="form-input"
             />
@@ -42,10 +42,10 @@
             <label for="licenseProof">
               LICENSE NUMBER <span class="required">*</span>
             </label>
-            <input 
-              type="text" 
-              id="licenseProof" 
-              [(ngModel)]="licenseProof" 
+            <input
+              type="text"
+              id="licenseProof"
+              [(ngModel)]="licenseProof"
               placeholder="Enter your license number"
               class="form-input"
             />
@@ -60,10 +60,10 @@
             <label for="pickupDate">
               PICKUP DATE <span class="required">*</span>
             </label>
-            <input 
-              type="date" 
-              id="pickupDate" 
-              [(ngModel)]="pickupDate" 
+            <input
+              type="date"
+              id="pickupDate"
+              [(ngModel)]="pickupDate"
               class="form-input"
             />
           </div>
@@ -72,10 +72,10 @@
             <label for="dropDate">
               RETURN DATE <span class="required">*</span>
             </label>
-            <input 
-              type="date" 
-              id="dropDate" 
-              [(ngModel)]="dropDate" 
+            <input
+              type="date"
+              id="dropDate"
+              [(ngModel)]="dropDate"
               class="form-input"
             />
           </div>
@@ -91,10 +91,10 @@
             </label>
             <div class="pricing-box">
               <span class="currency">₹</span>
-              <input 
-                type="number" 
-                id="amount" 
-                [(ngModel)]="amount" 
+              <input
+                type="number"
+                id="amount"
+                [(ngModel)]="amount"
                 (ngModelChange)="onAmountChange()"
                 placeholder="0"
                 class="form-input with-currency"
@@ -109,10 +109,10 @@
             </label>
             <div class="pricing-box">
               <span class="currency">₹</span>
-              <input 
-                type="number" 
-                id="discount" 
-                [(ngModel)]="discount" 
+              <input
+                type="number"
+                id="discount"
+                [(ngModel)]="discount"
                 (ngModelChange)="onDiscountChange()"
                 placeholder="0"
                 class="form-input with-currency"
@@ -138,19 +138,52 @@
         <h3 class="section-title">TIME SLOT <span class="required">*</span></h3>
         <p class="section-subtitle">Select your preferred pickup time</p>
         <div class="time-slots-grid">
-          <div 
-            *ngFor="let slot of timeSlots" 
+          <div
+            *ngFor="let slot of timeSlots"
             class="time-slot-btn"
             [class.selected]="slot.selected"
             [class.unavailable]="!slot.available"
             (click)="selectTimeSlot(slot)"
           >
-            <span class="time-text">{{ slot.time }}</span>
+            <span class="time-text">{{slot.id}} duration ({{ slot.startTime }}-{{slot.endTime}})</span>
             <span class="slot-status" *ngIf="slot.selected">SELECTED</span>
             <span class="slot-status unavailable-text" *ngIf="!slot.available">UNAVAILABLE</span>
           </div>
         </div>
       </div>
+
+      <!--Min Option-->
+      @if(selectSlot){
+      <div class="form-section">
+        <h3 class="section-title">Min option <span class="required">*</span></h3>
+        <p class="section-subtitle">Select your min</p>
+        <div class="time-slots-grid">
+          <div
+            *ngFor="let slot of selectTime.minOption"
+            class="time-slot-btn"
+            [class.selected]="selectTime.selected"
+            (click)="selectMin(slot)"
+          >
+            <span class="time-text">{{slot}} min</span>
+          </div>
+        </div>
+      </div>
+      }
+      <!--Slot divide-->
+      @if(slotBooking){
+      <div class="form-section">
+        <h3 class="section-title">Time available <span class="required">*</span></h3>
+        <p class="section-subtitle">Select prefer time</p>
+        <div class="time-slots-grid">
+          <div
+            *ngFor="let slot of slotBooking"
+            class="time-slot-btn"
+          >
+            <span class="time-text">{{slot.start}} - {{slot.end}}</span>
+          </div>
+        </div>
+      </div>
+      }
 
       <div class="form-actions">
         <button class="btn-secondary" (click)="resetForm()">
