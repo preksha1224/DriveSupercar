@@ -44,7 +44,14 @@ export class LoginComponent {
       .subscribe({
         next: (response) => {
           localStorage.setItem('user', JSON.stringify(response.user));
-          this.router.navigate(['/']);
+          localStorage.setItem('role', response.user.role);
+          if (response.user.role === 'admin') {
+            this.router.navigate(['/admin']);
+          } else if (response.user.role === 'customer') {
+            this.router.navigate(['/']);
+          } else {
+            this.router.navigate(['/']);
+          }
         },
         error: (error) => {
           console.error('Login error:', error);

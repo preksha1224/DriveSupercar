@@ -30,6 +30,7 @@ export class AuthService {
 
   logout(): void {
     localStorage.removeItem('user');
+    localStorage.removeItem('role');
     this.router.navigateByUrl('/user/login')
   }
 
@@ -46,5 +47,17 @@ export class AuthService {
     localStorage.setItem('authToken', token);
     localStorage.setItem('user', JSON.stringify(user));
   }
+
+getRole(): string | null {
+  return localStorage.getItem('role');
+}
+
+isAdmin(): boolean {
+  return this.getRole() === 'admin';
+}
+
+isCustomer(): boolean {
+  return this.getRole() === 'customer';
+}
 
 }
