@@ -1,34 +1,238 @@
 <div class="admin-hero text-center py-5 position-relative overflow-hidden">
-
-  <!-- Premium Animated Background -->
-  <div class="admin-bg-layer">
-    <div class="admin-gradient"></div>
-    <div class="admin-mesh"></div>
-    <div class="admin-radial-glow"></div>
-  </div>
-
   <div class="container position-relative" style="z-index:2;">
     <div class="row">
-      <div class="col-lg-8 mx-auto py-5">
+      <div class="col-lg-12 mx-auto py-5">
 
         <div class="admin-card p-5">
           <h1 class="display-4 fw-bold mb-3 text-dark">
-            Welcome to Admin
+            Welcome Mahmoud
           </h1>
-
           <div class="gold-divider mx-auto mb-4"></div>
 
           <p class="lead text-muted mb-4">
             Control your luxury fleet platform with power and precision.
           </p>
 
-          <button class="btn btn-gold btn-lg px-4 rounded-pill fw-bold">
+          <button class="btn btn-gold btn-lg px-4 rounded-pill fw-bold"  data-bs-toggle="modal" data-bs-target="#exampleModal">
             Create New Ride
           </button>
+
+          <!--Create new card-->
+          <!-- <div class="d-flex flex-wrap"></div> -->
+
         </div>
 
       </div>
     </div>
   </div>
 
+  <div class="container mt-5" *ngIf="rides.length > 0">
+    <div class="row">
+      <div class="col-md-6 col-lg-4 mb-4"
+          *ngFor="let ride of rides; let i = index">
+        <div class="card shadow-lg border-0">
+          <div class="card-body">
+            <h4 class="card-title fw-bold text-primary">
+             <i class="bi bi-geo-alt-fill"></i> {{ ride.location| uppercase }}
+            </h4>
+            <p class="text-start mb-0"><strong>Start Date:</strong> {{ ride.startDate }}</p>
+            <p class="text-start"><strong>End Date:</strong> {{ ride.endDate }}</p>
+            <hr>
+            <h6 class="fw-bold">Time Slots</h6>
+            <div *ngFor="let slot of ride.timeSlots; let j = index"
+                class="border rounded p-2 mb-2">
+            <div class="d-flex flex-wrap justify-content-between">
+                 <p class="mb-1">
+                <strong>Start-time:</strong> {{ slot.startTime }}
+              </p>
+              <p class="mb-1">
+                <strong>End-time:</strong> {{ slot.endTime }}
+              </p>
+            </div>
+              <div class="small text-muted text-start">
+                <strong>Minutes Option:</strong>
+                <span *ngIf="slot.tenMin">10 mins </span>
+                <span *ngIf="slot.twentyMin">20 mins </span>
+                <span *ngIf="slot.fortyMin">40 mins </span>
+                <span *ngIf="slot.sixtyMin">60 mins </span>
+              </div>
+            </div>
+            <button class="btn btn-link">Show your booking -> </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="exampleModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+
+      <div class="modal-header">
+        <h5 class="modal-title">Add Ride</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <form [formGroup]="rideForm" >
+
+        <div class="modal-body">
+
+          <!-- Location -->
+          <div class="mb-3">
+            <label class="form-label">Location</label>
+            <select class="form-select" aria-label="Location" formControlName="location">
+              <option selected disabled>Select Location</option>
+              <option value="berlin">Berlin</option>
+              <option value="hamburg">Hamburg</option>
+              <option value="munich">Munich</option>
+            </select>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Start Date</label>
+              <input type="date"
+                    class="form-control"
+                    formControlName="startDate">
+              <div class="text-danger"
+                  *ngIf="rideForm.get('startDate')?.touched && rideForm.get('startDate')?.invalid">
+                Start date is required
+              </div>
+            </div>
+
+            <!-- End Date -->
+            <div class="col-md-6 mb-3">
+              <label class="form-label">End Date</label>
+              <input type="date"
+                    class="form-control"
+                    formControlName="endDate">
+              <div class="text-danger"
+                  *ngIf="rideForm.get('endDate')?.touched && rideForm.get('endDate')?.invalid">
+                End date is required
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Date Range Validation -->
+          <div class="text-danger"
+              *ngIf="rideForm.errors?.['invalidDateRange']">
+            End date must be after Start date
+          </div>
+
+          <!-- Time Duration -->
+          <div class="mb-3">
+            <label class="form-label fw-bold">Time Duration (24-Hour)</label>
+
+            <div formArrayName="timeSlots">
+
+              <div class="border p-3 mb-3"
+                  *ngFor="let slot of timeSlots.controls; let i = index"
+                  [formGroupName]="i">
+
+                <div class="row">
+
+                  <!-- Start Time -->
+                  <div class="col-md-4">
+                    <label class="form-label">Start Time</label>
+                    <input type="time"
+                          class="form-control"
+                          formControlName="startTime"
+                          step="60">
+
+                    <div class="text-danger"
+                        *ngIf="slot.get('startTime')?.touched && slot.get('startTime')?.invalid">
+                      Start time required
+                    </div>
+                  </div>
+
+                  <!-- End Time -->
+                  <div class="col-md-4">
+                    <label class="form-label">End Time</label>
+                    <input type="time"
+                          class="form-control"
+                          formControlName="endTime"
+                          step="60">
+
+                    <div class="text-danger"
+                        *ngIf="slot.get('endTime')?.touched && slot.get('endTime')?.invalid">
+                      End time required
+                    </div>
+                  </div>
+
+                  <!-- Remove Button -->
+                  <div class="col-md-4 d-flex align-items-end">
+                    <button type="button"
+                            class="btn btn-danger w-100"
+                            (click)="removeTimeSlot(i)"
+                            *ngIf="timeSlots.length > 1">
+                      Remove
+                    </button>
+                  </div>
+
+                </div>
+
+                <!-- Checkbox Options -->
+                <div class="mt-3">
+
+                  <div class="form-check form-check-inline">
+                    <input class="form-check-input"
+                          type="checkbox"
+                          formControlName="tenMin">
+                    <label class="form-check-label">10 mins</label>
+                  </div>
+
+                  <div class="form-check form-check-inline">
+                    <input class="form-check-input"
+                          type="checkbox"
+                          formControlName="twentyMin">
+                    <label class="form-check-label">20 mins</label>
+                  </div>
+
+                  <div class="form-check form-check-inline">
+                    <input class="form-check-input"
+                          type="checkbox"
+                          formControlName="fortyMin">
+                    <label class="form-check-label">40 mins</label>
+                  </div>
+
+                  <div class="form-check form-check-inline">
+                    <input class="form-check-input"
+                          type="checkbox"
+                          formControlName="sixtyMin">
+                    <label class="form-check-label">60 mins</label>
+                  </div>
+
+                </div>
+
+              </div>
+
+            </div>
+
+            <!-- Add Button -->
+            <button type="button"
+                    class="btn btn-success"
+                    (click)="addTimeSlot()">
+              + Add Time Slot
+            </button>
+
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button"
+                  class="btn btn-secondary"
+                  data-bs-dismiss="modal">
+            Close
+          </button>
+          <button type="submit"
+                  class="btn btn-primary" (click)="onSubmit()">
+            Save Ride
+          </button>
+        </div>
+
+      </form>
+    </div>
+  </div>
 </div>
