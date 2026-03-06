@@ -151,9 +151,8 @@
           </div>
         </div>
       </div>
-
-      <!--Min Option-->
-      @if(selectSlot){
+            <!--Min Option-->
+      @if(selectSlot && selectTime){
       <div class="form-section">
         <h3 class="section-title">Min option <span class="required">*</span></h3>
         <p class="section-subtitle">Select your min</p>
@@ -161,16 +160,17 @@
           <div
             *ngFor="let slot of selectTime.minOption"
             class="time-slot-btn"
-            [class.selected]="selectTime.selected"
+            [class.selected]="selectedMin === slot"
             (click)="selectMin(slot)"
           >
             <span class="time-text">{{slot}} min</span>
+            <span class="slot-status" *ngIf="selectedMin === slot">SELECTED</span>
           </div>
         </div>
       </div>
       }
       <!--Slot divide-->
-      @if(slotBooking){
+      @if(slotBooking.length){
       <div class="form-section">
         <h3 class="section-title">Time available <span class="required">*</span></h3>
         <p class="section-subtitle">Select prefer time</p>
@@ -178,8 +178,11 @@
           <div
             *ngFor="let slot of slotBooking"
             class="time-slot-btn"
+            [class.selected]="slot.selected"
+            (click)="selectDividedSlot(slot)"
           >
             <span class="time-text">{{slot.start}} - {{slot.end}}</span>
+            <span class="slot-status" *ngIf="slot.selected">SELECTED</span>
           </div>
         </div>
       </div>

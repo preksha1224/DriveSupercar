@@ -27,6 +27,12 @@ interface TimeSlot {
 interface timeSlotBooking {
   start: string;
   end: string;
+  selected: boolean;
+}
+
+interface MinOption {
+  id: string;
+  minOption: number[];
 }
 
 @Component({
@@ -44,20 +50,22 @@ export class BookingPageComponent implements OnInit {
   amount: number = 0;
   discount: number = 0;
   finalAmount: number = 0;
-  selectSlot:TimeSlot|undefined;
-  selectTime:any|undefined;
-  slotBooking:timeSlotBooking[]|undefined;
+ selectSlot: TimeSlot | undefined;
+  selectTime: MinOption | undefined;
+  selectedMin: number | undefined;
+  slotBooking: timeSlotBooking[] = [];
+  
   // Time slots (BMS style)
   timeSlots: TimeSlot[] = [
     { id: 'short', startTime: '10:00',endTime:'13:00', selected: false, available: true },
     { id: 'long', startTime: '13:00', endTime:'16:00', selected: false, available: true },
     { id: 'all', startTime: '10:00', endTime:'16:00', selected: false, available: true },
   ];
-  minOption=[
-    {id: 'short',minOption:[10,20]},
-    {id: 'long',minOption:[40,60]},
-    {id:'all',minOption:[10,20,40,60]}
-  ]
+  minOption: MinOption[] = [
+    { id: 'short', minOption: [10, 20] },
+    { id: 'long', minOption: [40, 60] },
+    { id: 'all', minOption: [10, 20, 40, 60] },
+  ];
   // Location info
   selectedState: string = '';
   selectedCity: string = '';
@@ -86,22 +94,28 @@ export class BookingPageComponent implements OnInit {
     this.timeSlots.forEach(s => s.selected = false);
     // Select the clicked slot
     slot.selected = true;
-    this.selectSlot=slot;
-    console.log(this.selectSlot)
-    this.selectTime=this.minOption.find(data=>data.id===slot.id)
-    console.log(this.selectTime)
-    this.selectTime.selected = false
+    this.selectSlot = slot;
+    this.selectTime = this.minOption.find(data => data.id === slot.id);
+    this.selectedMin = undefined;
+    this.slotBooking = [];
   }
-  selectMin(min:number){
-    console.log(min);
-    if(min===10){
-    const timeSlots = this.getTimeIntervals(this.selectSlot?.startTime??'10:00', this.selectSlot?.endTime??'12:00',min,5);
-     this.slotBooking=timeSlots;
-    }
-    else{
-    const timeSlots = this.getTimeIntervals(this.selectSlot?.startTime??'10:00', this.selectSlot?.endTime??'12:00',min,10);
-     this.slotBooking=timeSlots;
-    }
+
+  selectMin(min: number): void {
+    this.selectedMin = min;
+    const buffer = min === 10 ? 5 : 10;
+    this.slotBooking = this.getTimeIntervals(
+      this.selectSlot?.startTime ?? '10:00',
+      this.selectSlot?.endTime ?? '12:00',
+      min,
+      buffer
+    );
+  }
+
+  selectDividedSlot(selectedSlot: timeSlotBooking): void {
+    this.slotBooking = this.slotBooking.map(slot => ({
+      ...slot,
+      selected: slot.start === selectedSlot.start && slot.end === selectedSlot.end,
+    }));
   }
 
   calculateFinalAmount(): void {
@@ -148,11 +162,15 @@ export class BookingPageComponent implements OnInit {
     this.amount = 0;
     this.discount = 0;
     this.finalAmount = 0;
+    this.selectSlot = undefined;
+    this.selectTime = undefined;
+    this.selectedMin = undefined;
+    this.slotBooking = [];
     this.timeSlots.forEach(slot => slot.selected = false);
   }
 
   getTimeIntervals(startTimeStr: string, endTimeStr: string, min: number, buffer: number) {
-    const intervals = [];
+    const intervals: timeSlotBooking[] = [];
     const startTime = new Date();
     const endTime = new Date();
     const [startHours, startMinutes] = startTimeStr.split(':').map(Number);
@@ -168,7 +186,7 @@ export class BookingPageComponent implements OnInit {
       currentEnd.setMinutes(currentEnd.getMinutes() + min);
       const formattedStart = `${currentStart.getHours().toString().padStart(2, '0')}:${currentStart.getMinutes().toString().padStart(2, '0')}`;
       const formattedEnd = `${currentEnd.getHours().toString().padStart(2, '0')}:${currentEnd.getMinutes().toString().padStart(2, '0')}`;
-      intervals.push({ start: formattedStart, end: formattedEnd });
+      intervals.push({ start: formattedStart, end: formattedEnd, selected: false });
       // Advance to next slot: last end + buffer
       currentStart = new Date(currentEnd);
       currentStart.setMinutes(currentStart.getMinutes() + buffer);
