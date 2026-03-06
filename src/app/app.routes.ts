@@ -24,6 +24,11 @@ export const routes: Routes = [
       { path: 'registration', component: RegistrationComponent }
     ]
   },
+  {
+    path: 'booking',
+    canActivate:[AuthGuard],
+    component:BookingPageComponent
+  },
 
   { path: '**', redirectTo: '' }
 ];

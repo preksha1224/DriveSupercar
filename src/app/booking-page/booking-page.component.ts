@@ -11,8 +11,6 @@ interface Booking {
   dropDate: Date;
   timeSlot: string;
   amount: number;
-  discount: number;
-  finalAmount: number;
   status: 'pending' | 'confirmed' | 'completed' | 'cancelled';
   carModel?: string;
 }
@@ -50,11 +48,17 @@ export class BookingPageComponent implements OnInit {
   amount: number = 0;
   discount: number = 0;
   finalAmount: number = 0;
- selectSlot: TimeSlot | undefined;
+  selectSlot: TimeSlot | undefined;
   selectTime: MinOption | undefined;
   selectedMin: number | undefined;
+    selectedLocation: string = '';
+
   slotBooking: timeSlotBooking[] = [];
-  
+    locations: string[] = [
+    'Berlin',
+    'Hamburg',
+    'Munich',
+  ];
   // Time slots (BMS style)
   timeSlots: TimeSlot[] = [
     { id: 'short', startTime: '10:00',endTime:'13:00', selected: false, available: true },
@@ -77,6 +81,11 @@ export class BookingPageComponent implements OnInit {
       this.selectedState = params['state'] || '';
       this.selectedCity = params['city'] || '';
     });
+    this.route.queryParamMap.subscribe(params => {
+      const location = params.get('location') ?? '';
+
+    });
+    
     // const timeSlots = this.getTimeIntervals('10:00', '12:00',60,10);
     // for(let timeSlot of timeSlots){
     //   console.log(timeSlot)
@@ -118,18 +127,6 @@ export class BookingPageComponent implements OnInit {
     }));
   }
 
-  calculateFinalAmount(): void {
-    this.finalAmount = this.amount - this.discount;
-  }
-
-  onAmountChange(): void {
-    this.calculateFinalAmount();
-  }
-
-  onDiscountChange(): void {
-    this.calculateFinalAmount();
-  }
-
   submitBooking(): void {
     const selectedSlot = this.timeSlots.find(slot => slot.selected);
 
@@ -146,8 +143,6 @@ export class BookingPageComponent implements OnInit {
       dropDate: this.dropDate,
       timeSlot: selectedSlot.startTime,
       amount: this.amount,
-      discount: this.discount,
-      finalAmount: this.finalAmount
     });
 
     alert('Booking submitted successfully!');
