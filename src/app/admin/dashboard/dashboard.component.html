@@ -26,43 +26,45 @@
     </div>
   </div>
 
-  <div class="container mt-5" *ngIf="rides.length > 0">
+  @if (rides.length > 0) {
+  <div class="container mt-5" >
     <div class="row">
-      <div class="col-md-6 col-lg-4 mb-4"
-          *ngFor="let ride of rides; let i = index">
-        <div class="card shadow-lg border-0">
-          <div class="card-body">
-            <h4 class="card-title fw-bold text-primary">
-             <i class="bi bi-geo-alt-fill"></i> {{ ride.location| uppercase }}
-            </h4>
-            <p class="text-start mb-0"><strong>Start Date:</strong> {{ ride.startDate }}</p>
-            <p class="text-start"><strong>End Date:</strong> {{ ride.endDate }}</p>
-            <hr>
-            <h6 class="fw-bold">Time Slots</h6>
-            <div *ngFor="let slot of ride.timeSlots; let j = index"
-                class="border rounded p-2 mb-2">
-            <div class="d-flex flex-wrap justify-content-between">
-                 <p class="mb-1">
-                <strong>Start-time:</strong> {{ slot.startTime }}
-              </p>
-              <p class="mb-1">
-                <strong>End-time:</strong> {{ slot.endTime }}
-              </p>
+      @for (ride of rides; track $index) {
+        <div class="col-md-6 col-lg-4 mb-4">
+          <div class="card shadow-lg border-0">
+            <div class="card-body">
+              <h4 class="card-title fw-bold text-primary">
+              <i class="bi bi-geo-alt-fill"></i> {{ ride.city_name| uppercase }}
+              </h4>
+              <p class="text-start mb-0"><strong>Start Date:</strong> {{ ride.start_date | date}}</p>
+              <p class="text-start"><strong>End Date:</strong> {{ ride.end_date | date}}</p>
+              <hr>
+              <h6 class="fw-bold">Time Slots</h6>
+              @for(slot of ride.eventTimeWindows; track $index){
+                <div class="border rounded p-2 mb-2">
+                  <div class="d-flex flex-wrap justify-content-between">
+                      <p class="mb-1">
+                      <strong>Start-time:</strong> {{ slot.start_time | date:'shortTime'}}
+                    </p>
+                    <p class="mb-1">
+                      <strong>End-time:</strong> {{ slot.end_time | date:'shortTime'}}
+                    </p>
+                  </div>
+                  <div class="small text-muted text-start">
+                    @if (slot.allowed_duration.length > 0) {
+                      <strong>Minutes Option:</strong> {{ slot.allowed_duration | durationFormat }}
+                    }
+                  </div>
+                </div>
+              }
+              <div class="text-end"><button class="btn btn-link">Show your booking</button></div>
             </div>
-              <div class="small text-muted text-start">
-                <strong>Minutes Option:</strong>
-                <span *ngIf="slot.tenMin">10 mins </span>
-                <span *ngIf="slot.twentyMin">20 mins </span>
-                <span *ngIf="slot.fortyMin">40 mins </span>
-                <span *ngIf="slot.sixtyMin">60 mins </span>
-              </div>
-            </div>
-            <button class="btn btn-link">Show your booking -> </button>
           </div>
         </div>
-      </div>
+      }
     </div>
   </div>
+  }
 </div>
 
 <!-- Modal -->
@@ -77,6 +79,33 @@
       <form [formGroup]="rideForm" >
 
         <div class="modal-body">
+
+          <!-- Select Cars -->
+          <div class="mb-3">
+            <label class="form-label fw-bold">Select Cars</label>
+
+            <div class="row">
+
+              <div class="col-md-6"
+                  *ngFor="let car of cars">
+
+                <div class="form-check">
+
+                  <input
+                    class="form-check-input"
+                    type="checkbox"
+                    [checked]="carsFormArray.value?.includes(car.car_id)"
+                    (change)="onCarChange($event, car.car_id)">
+                  <label class="form-check-label">
+                    {{ car.make }} - {{ car.model }}
+                  </label>
+
+                </div>
+
+              </div>
+
+            </div>
+          </div>
 
           <!-- Location -->
           <div class="mb-3">
