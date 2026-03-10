@@ -4,9 +4,10 @@ import { RegistrationComponent } from './auth/registration/registration.componen
 import { AuthGuard } from './auth/guards/auth.guard';
 import { HomeComponent } from './basic-page/home/home.component';
 import { DashboardComponent } from './admin/dashboard/dashboard.component';
+import { BookingPageComponent } from './booking-page/booking-page.component';
 export const routes: Routes = [
   { path: '', component: HomeComponent },
-
+  { path: 'booking', component: BookingPageComponent },
   {
     path: 'admin',
     canActivate: [AuthGuard],
@@ -22,6 +23,11 @@ export const routes: Routes = [
       { path: 'login', component: LoginComponent },
       { path: 'registration', component: RegistrationComponent }
     ]
+  },
+  {
+    path: 'booking',
+    canActivate:[AuthGuard],
+    component:BookingPageComponent
   },
 
   { path: '**', redirectTo: '' }
