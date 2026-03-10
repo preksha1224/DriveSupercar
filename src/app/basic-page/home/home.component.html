@@ -1,4 +1,4 @@
-<!-- Bootstrap Toast for messages -->
+<!-- Toast Notification -->
 <div aria-live="polite" aria-atomic="true" style="position: fixed; top: 1rem; left: 50%; transform: translateX(-50%); z-index: 1080; min-width: 250px;" *ngIf="showToast">
   <div class="toast show align-items-center text-bg-primary border-0" role="alert">
     <div class="d-flex">
@@ -9,120 +9,164 @@
     </div>
   </div>
 </div>
+
 <!-- Hero Section -->
 <div class="hero-section py-5">
-  <!-- Crazy Animated Background Layer -->
-  <div class="hero-animated-bg">
-    <div class="luxury-beam beam-1"></div>
-    <div class="luxury-beam beam-2"></div>
-    <div class="luxury-beam beam-3"></div>
-
-    <div class="floating-particles">
-      <span></span>
-      <span></span>
-      <span></span>
-      <span></span>
-      <span></span>
-    </div>
+  <!-- Video Background -->
+  <video class="hero-video-bg" autoplay muted loop playsinline preload="auto">
+    <source src="assets/videos/cars3.mp4" type="video/mp4">
+    Your browser does not support the video tag.
+  </video>
+  
+  <!-- Overlay for better text readability -->
+  <div class="hero-video-overlay"></div>
+  
+  <div class="container text-center position-relative">
+    <h1 class="display-4 fw-bold">Drive the Supercar Experience</h1>
+    <p class="lead">From <span class="highlight">69 €</span> – Porsche GT3 & Audi R8</p>
+    <button class="btn btn-primary btn-lg rounded-pill px-5 py-3 fw-bold" (click)="bookingRedirect()">Book Your Drive</button>
   </div>
+</div>
 
+<!-- Booking Steps -->
+<div class="booking-steps py-5">
+  <div class="container text-center">
+    <div class="row">
+      <div class="col-md-4">
+        <div class="step">
+          <i class="bi bi-car-front-fill"></i>
+          <h5>Select Your Car</h5>
+          <p>Choose from our premium fleet of supercars.</p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="step">
+          <i class="bi bi-geo-alt"></i>
+          <h5>Choose Location</h5>
+          <p>Pick your preferred location for the drive.</p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="step">
+          <i class="bi bi-clock"></i>
+          <h5>Pick a Duration</h5>
+          <p>10, 20, 30, 45, or 60 minutes.</p>
+        </div>
+      </div>
+    </div>
+    <button class="btn btn-outline-primary rounded-pill px-5 py-2 fw-bold mt-4">Check Availability</button>
+  </div>
+</div>
+
+<!-- Car Availability Showcase Card -->
+<div class="availability-showcase py-5">
   <div class="container">
-    <div class="hero-3d-wrapper">
-      <div class="hero-card mx-auto text-center p-4 p-md-5 bg-white"
-           (mousemove)="onHeroMouseMove($event)"
-           (mouseleave)="onHeroMouseLeave()"
-           #heroCard>
-        <h1 class="display-5 fw-bold">Drive Supercars</h1>
-        <div class="underline my-3 mx-auto" aria-hidden="true"></div>
-
-        <div class="col-lg-8 mx-auto">
-          <p class="lead mb-2">Where Luxury Meets Performance on Every Mile.</p>
-          <p class="mb-4">Rent exclusive supercars designed to dominate the road and redefine your driving experience. Because ordinary was never your style.</p>
+    <div class="availability-main-card">
+      <div class="availability-header text-center mb-4">
+        <div class="owner-badge mb-3">
+          <i class="bi bi-person-badge"></i>
+          <span>CAR OWNER</span>
         </div>
+        <h2 class="display-6 fw-bold">List Your Car & Earn Money</h2>
+        <p class="lead">Share your availability and connect with verified renters</p>
       </div>
-      <!-- 3D floating light effect -->
-      <div class="hero-3d-glow"></div>
-    </div>
-  </div>
-</div>
-
-<!-- Premium Show Section -->
-<div class="premium-show py-5">
-  <div class="container bg-white rounded shadow-sm p-5">
-    <!-- Header for Premium section -->
-    <div class="text-center mb-5">
-      <h2 class="display-6 fw-bold">Explore Our Premium Fleet</h2>
-      <div class="underline mx-auto mb-3"></div>
-      <p class="text-muted">Choose your dream car and book with ease.</p>
-    </div>
-
-    <div class="premium-card rounded p-0 d-flex align-items-center">
-      <div class="row w-100 g-0 align-items-stretch">
-        <div class="col-lg-7">
-          <div class="premium-image-wrapper h-100 p-4 p-md-5 rounded-start shadow-sm border-0">
-            <div class="row g-4 align-items-center text-center">
-              <!-- Porsche -->
-              <div class="col-6 car-item-hover">
-                <img src="images/BMW M4 Coupe.png"
-                     class="img-fluid car-img-large"
-                     alt="Porsche 911" />
-                <h4 class="mt-3 text-primary fw-bold">Porsche 911</h4>
-              </div>
-
-              <!-- Audi -->
-              <div class="col-6 car-item-hover">
-                <img src="images/Audi R8.png"
-                     class="img-fluid car-img-large"
-                     alt="Audi R8" />
-                <h4 class="mt-3 text-primary fw-bold">Audi R8</h4>
-              </div>
-
-              <!-- Button -->
-              <div class="col-12 mt-5">
-                <button class="btn btn-outline-primary rounded-pill px-5 py-2 fw-bold explore-btn">
-                  Explore Full Fleet
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-
+      
+      <div class="row g-4">
         <div class="col-lg-5">
-          <div class="premium-form h-100 p-4 p-md-5 rounded-end">
-            <h3 class="mb-3 text-center fw-bold">Quick Booking</h3>
-            <div class="mx-auto mb-4 lineform"></div>
-            <form class="booking-grid">
-              <div class="mb-3">
-                <label class="form-label small text-uppercase fw-bold letter-spacing-1">Select City</label>
-                <select class="form-select custom-input">
-                  <option selected disabled>Choose city...</option>
-                  <option>New York</option>
-                  <option>Los Angeles</option>
-                  <option>Miami</option>
-                </select>
+          <div class="availability-visual">
+            <div class="floating-car-icon">
+              <i class="bi bi-car-front-fill"></i>
+            </div>
+            <div class="availability-stats">
+              <div class="stat-item">
+                <h3>500+</h3>
+                <p>Active Listings</p>
               </div>
-
-              <div class="mb-3">
-                <label class="form-label small text-uppercase fw-bold letter-spacing-1">Select Area</label>
-                <select class="form-select custom-input">
-                  <option selected disabled>Choose area...</option>
-                  <option>Downtown</option>
-                  <option>Airport</option>
-                  <option>Beachside</option>
-                </select>
+              <div class="stat-item">
+                <h3>€250</h3>
+                <p>Avg. Daily Earning</p>
               </div>
-
-              <div class="mb-4">
-                <label class="form-label small text-uppercase fw-bold letter-spacing-1">Pick-up Date</label>
-                <input type="date" class="form-control custom-input" />
+              <div class="stat-item">
+                <h3>4.8★</h3>
+                <p>Owner Rating</p>
               </div>
-
-              <div class="text-center mt-4">
-                <button type="button" class="btn btn-primary w-100 py-3 rounded-pill fw-bold text-uppercase" (click)="bookingRedirect()">
-                  Instant Booking
-                </button>
+            </div>
+          </div>
+        </div>
+        
+        <div class="col-lg-7">
+          <div class="availability-form-card">
+            <h4 class="mb-4">Post Your Car Availability</h4>
+            
+            <div class="quick-info-grid">
+              <div class="info-box">
+                <div class="info-icon">
+                  <i class="bi bi-car-front"></i>
+                </div>
+                <div class="info-content">
+                  <h6>Your Car Details</h6>
+                  <p>BMW M4, Mercedes-AMG, or any luxury car</p>
+                </div>
               </div>
-            </form>
+              
+              <div class="info-box">
+                <div class="info-icon">
+                  <i class="bi bi-geo-alt-fill"></i>
+                </div>
+                <div class="info-content">
+                  <h6>Location</h6>
+                  <p>Munich, Berlin, Frankfurt & more</p>
+                </div>
+              </div>
+              
+              <div class="info-box">
+                <div class="info-icon">
+                  <i class="bi bi-clock-history"></i>
+                </div>
+                <div class="info-content">
+                  <h6>Available Time</h6>
+                  <p>Set your own schedule & hours</p>
+                </div>
+              </div>
+              
+              <div class="info-box">
+                <div class="info-icon">
+                  <i class="bi bi-cash-coin"></i>
+                </div>
+                <div class="info-content">
+                  <h6>Your Price</h6>
+                  <p>€50 - €200 per hour</p>
+                </div>
+              </div>
+            </div>
+            
+            <div class="benefits-list mt-4">
+              <h6 class="mb-3">Why List With Us?</h6>
+              <div class="benefit-item">
+                <i class="bi bi-shield-check"></i>
+                <span>100% Insurance Coverage</span>
+              </div>
+              <div class="benefit-item">
+                <i class="bi bi-cash-stack"></i>
+                <span>Guaranteed Payment</span>
+              </div>
+              <div class="benefit-item">
+                <i class="bi bi-people"></i>
+                <span>Verified Renters Only</span>
+              </div>
+              <div class="benefit-item">
+                <i class="bi bi-star-fill"></i>
+                <span>Premium Listing Support</span>
+              </div>
+            </div>
+            
+            <button class="btn btn-primary w-100 mt-4 list-car-btn" (click)="listYourCar()">
+              <i class="bi bi-plus-circle me-2"></i>List Your Car Now
+            </button>
+            
+            <p class="text-center text-muted mt-3 mb-0">
+              <small><i class="bi bi-info-circle me-1"></i>Free to list • No hidden charges • Instant approval</small>
+            </p>
           </div>
         </div>
       </div>
@@ -130,138 +174,61 @@
   </div>
 </div>
 
-<!-- Offer Section -->
-<div class="offer-section py-5">
-  <div class="container py-lg-4">
-    <div class="text-center mb-5">
-      <h2 class="display-6 fw-bold">Exclusive Offers</h2>
-      <div class="underline mx-auto mb-3"></div>
-      <p class="text-muted">Take advantage of our limited-time premium rental deals</p>
-    </div>
-
-    <!-- 1. Offer inside on card with two column -->
-    <div class="offer-card row g-4 px-md-3 mx-auto p-4 p-md-5 rounded shadow-lg bg-white">
-      <!-- <div class=""> -->
-
-        <!-- Offer 1 -->
-        <div class="col-md-6">
-          <div class="offer-item d-flex align-items-center p-3 rounded h-100 shadow-sm">
-            <div class="offer-number me-4">01</div>
-            <div>
-              <h5 class="mb-1 fw-bold">Weekend Escape</h5>
-              <p class="mb-0 small text-muted lh-sm">Get 20% off on all luxury sedans for weekend bookings.</p>
-            </div>
-          </div>
+<!-- Our Supercars Section -->
+<div class="our-supercars py-5">
+  <div class="container text-center">
+    <h2 class="display-6 fw-bold">Our Supercars</h2>
+    <div class="row mt-4">
+      <div class="col-md-6">
+        <div class="car-card">
+          <img src="assets/videos/por.webp" alt="Porsche 911 GT3" class="img-fluid">
+          <h4>Porsche 911 GT3</h4>
+          <p>From 79 € + fuel flat fee</p>
+          <p>510 HP | 0-100 km/h in 3.4s</p>
+          <button class="btn btn-outline-primary rounded-pill px-4 py-2">View Details</button>
         </div>
-
-        <!-- Offer 2 -->
-        <div class="col-md-6">
-          <div class="offer-item d-flex align-items-center p-3 rounded h-100 shadow-sm">
-            <div class="offer-number me-4">02</div>
-            <div>
-              <h5 class="mb-1 fw-bold">Early Bird Special</h5>
-              <p class="mb-0 small text-muted lh-sm">Book 30 days in advance and save 15% on supercars.</p>
-            </div>
-          </div>
+      </div>
+      <div class="col-md-6">
+        <div class="car-card">
+          <img src="assets/videos/audi.webp" alt="Audi R8 V10" class="img-fluid">
+          <h4>Audi R8 V10</h4>
+          <p>From 69 € + fuel flat fee</p>
+          <p>620 HP | 0-100 km/h in 3.1s</p>
+          <button class="btn btn-outline-primary rounded-pill px-4 py-2">View Details</button>
         </div>
-
-        <!-- Offer 3 -->
-        <div class="col-md-6">
-          <div class="offer-item d-flex align-items-center p-3 rounded h-100 shadow-sm">
-            <div class="offer-number me-4">03</div>
-            <div>
-              <h5 class="mb-1 fw-bold">Monthly Masterpiece</h5>
-              <p class="mb-0 small text-muted lh-sm">Rent for a month and get the first 3 days absolutely free.</p>
-            </div>
-          </div>
-        </div>
-
-        <!-- Offer 4 -->
-        <div class="col-md-6">
-          <div class="offer-item d-flex align-items-center p-3 rounded h-100 shadow-sm">
-            <div class="offer-number me-4">04</div>
-            <div>
-              <h5 class="mb-1 fw-bold">Loyalty Rewards</h5>
-              <p class="mb-0 small text-muted lh-sm">Earn points for every mile and redeem for extra hours.</p>
-            </div>
-          </div>
-        </div>
-        <!-- button other offers -->
-        <div class="col-12 mt-4 text-center">
-          <button class="btn view-offers-btn px-5 py-2 fw-bold" (click)="viewOffers()">
-            View All Offers
-          </button>
       </div>
     </div>
   </div>
 </div>
 
-<div class="service-setion py-5 position-relative" style="overflow:hidden;">
-  <!-- Unique Animated Background for Services -->
-  <div class="service-animated-bg">
-    <div class="service-gradient"></div>
-    <svg class="service-mesh-bg" width="100%" height="100%" viewBox="0 0 1200 400" preserveAspectRatio="none">
-      <polygon points="0,300 200,350 400,320 600,370 800,340 1000,380 1200,320 1200,400 0,400" fill="#f7e7ce" opacity="0.5">
-        <animate attributeName="points" dur="8s" repeatCount="indefinite"
-          values="0,300 200,350 400,320 600,370 800,340 1000,380 1200,320 1200,400 0,400;
-                  0,320 200,340 400,360 600,340 800,370 1000,350 1200,330 1200,400 0,400;
-                  0,300 200,350 400,320 600,370 800,340 1000,380 1200,320 1200,400 0,400" />
-      </polygon>
-      <polygon points="0,350 300,370 600,330 900,390 1200,360 1200,400 0,400" fill="#d4af37" opacity="0.18">
-        <animate attributeName="points" dur="10s" repeatCount="indefinite"
-          values="0,350 300,370 600,330 900,390 1200,360 1200,400 0,400;
-                  0,370 300,350 600,370 900,350 1200,380 1200,400 0,400;
-                  0,350 300,370 600,330 900,390 1200,360 1200,400 0,400" />
-      </polygon>
-    </svg>
-  </div>
-  <div class="container py-lg-4 position-relative" style="z-index:2;">
-    <div class="text-center mb-5">
-      <h2 class="display-6 fw-bold">Our Services</h2>
-      <div class="underline mx-auto mb-3"></div>
-      <p class="text-muted">Experience premium car rental services tailored for you</p>
-    </div>
-    <div class="row g-4 px-md-3 mx-auto p-4 p-md-5 rounded shadow-lg bg-white">
-      <!-- Service 1 -->
-      <div class="col-md-6 col-lg-3">
-        <div class="offer-item d-flex flex-column align-items-center p-3 rounded h-100 shadow-sm text-center">
-          <div class="mb-3" style="font-size:2.5rem; color:#d4af37;">
-            <i class="bi bi-car-front-fill" style="font-weight:900;  filter: brightness(1.2);"></i>
-          </div>
-          <h5 class="mb-1 fw-bold">Luxury Fleet</h5>
-          <p class="mb-0 small text-muted lh-sm">Choose from a wide range of premium and exotic cars for every occasion.</p>
+<!-- Why Choose Us Section -->
+<div class="why-choose-us py-5">
+  <div class="container text-center">
+    <h2 class="display-6 fw-bold">Why Choose Us</h2>
+    <div class="row mt-4">
+      <div class="col-md-4">
+        <div class="feature">
+          <i class="bi bi-person-check"></i>
+          <h5>Certified Instructors</h5>
+          <p>Expert guidance during your drive.</p>
         </div>
       </div>
-      <!-- Service 2 -->
-      <div class="col-md-6 col-lg-3">
-        <div class="offer-item d-flex flex-column align-items-center p-3 rounded h-100 shadow-sm text-center">
-          <div class="mb-3" style="font-size:2.5rem; color:#d4af37;">
-            <i class="bi bi-shield-check" style="font-weight:900; filter: brightness(1.2);"></i>
-          </div>
-          <h5 class="mb-1 fw-bold">Comprehensive Insurance</h5>
-          <p class="mb-0 small text-muted lh-sm">Drive with peace of mind with our full coverage insurance on all rentals.</p>
+      <div class="col-md-4">
+        <div class="feature">
+          <i class="bi bi-shield-check"></i>
+          <h5>100% Prepayment & Secure Booking</h5>
+          <p>Fully prepaid bookings with 100% safety.</p>
         </div>
       </div>
-      <!-- Service 3 -->
-      <div class="col-md-6 col-lg-3">
-        <div class="offer-item d-flex flex-column align-items-center p-3 rounded h-100 shadow-sm text-center">
-          <div class="mb-3" style="font-size:2.5rem; color:#d4af37;">
-            <i class="bi bi-geo-alt" style="font-weight:900; filter: brightness(1.2);"></i>
-          </div>
-          <h5 class="mb-1 fw-bold">Flexible Locations</h5>
-          <p class="mb-0 small text-muted lh-sm">Pick up and drop off your car at multiple convenient locations citywide.</p>
-        </div>
-      </div>
-      <!-- Service 4 -->
-      <div class="col-md-6 col-lg-3">
-        <div class="offer-item d-flex flex-column align-items-center p-3 rounded h-100 shadow-sm text-center">
-          <div class="mb-3" style="font-size:2.5rem; color:#d4af37;">
-            <i class="bi bi-headset" style="font-weight:900; filter: brightness(1.2);"></i>
-          </div>
-          <h5 class="mb-1 fw-bold">24/7 Support</h5>
-          <p class="mb-0 small text-muted lh-sm">Our dedicated team is available around the clock for your assistance.</p>
+      <div class="col-md-4">
+        <div class="feature">
+          <i class="bi bi-calendar-check"></i>
+          <h5>Limited Slots per Location</h5>
+          <p>Small groups for the ultimate thrill.</p>
         </div>
       </div>
     </div>
+    <p class="mt-4"><i>"An unforgettable adrenaline rush! The best driving experience of my life." – Michael S.</i></p>
+    <button class="btn btn-primary btn-lg rounded-pill px-5 py-3 fw-bold">Book Your Drive</button>
   </div>
 </div>

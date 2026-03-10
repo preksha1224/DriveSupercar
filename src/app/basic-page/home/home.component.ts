@@ -72,4 +72,12 @@ export class HomeComponent implements AfterViewInit {
       this.alertMessage('Please login first to see offers and deals in detail');
     }
   }
+
+  listYourCar() {
+    if(this.isLoggedIn) {
+      this.router.navigateByUrl('/owner/list-car');
+    } else {
+      this.alertMessage('Please login first to list your car');
+    }
+  }
 }

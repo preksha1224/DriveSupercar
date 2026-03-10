@@ -34,6 +34,11 @@
                 "glob": "**/*",
                 "input": "src/app/imgs",
                 "output": "images"
+              },
+              {
+                "glob": "**/*",
+                "input": "src/assets",
+                "output": "assets"
               }
             ],
             "styles": [
