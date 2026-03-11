@@ -11,224 +11,369 @@
 </div>
 
 <!-- Hero Section -->
-<div class="hero-section py-5">
-  <!-- Video Background -->
+<section class="hero-section">
   <video class="hero-video-bg" autoplay muted loop playsinline preload="auto">
     <source src="assets/videos/cars3.mp4" type="video/mp4">
-    Your browser does not support the video tag.
   </video>
+  <div class="hero-overlay"></div>
   
-  <!-- Overlay for better text readability -->
-  <div class="hero-video-overlay"></div>
-  
-  <div class="container text-center position-relative">
-    <h1 class="display-4 fw-bold">Drive the Supercar Experience</h1>
-    <p class="lead">From <span class="highlight">69 €</span> – Porsche GT3 & Audi R8</p>
-    <button class="btn btn-primary btn-lg rounded-pill px-5 py-3 fw-bold" (click)="bookingRedirect()">Book Your Drive</button>
+  <div class="container hero-content">
+    <div class="row align-items-center">
+      <div class="col-lg-6">
+        <h1 class="hero-title">Drive Your Dream Supercar</h1>
+        <p class="hero-subtitle">Experience the thrill of driving luxury supercars from €69/hour</p>
+        <button class="btn btn-hero" (click)="bookingRedirect()">
+          Book Now <i class="bi bi-arrow-right ms-2"></i>
+        </button>
+      </div>
+    </div>
   </div>
-</div>
+</section>
 
-<!-- Booking Steps -->
-<div class="booking-steps py-5">
-  <div class="container text-center">
-    <div class="row">
+<!-- Features Section -->
+<section class="features-section py-5">
+  <div class="container">
+    <div class="row g-4">
       <div class="col-md-4">
-        <div class="step">
-          <i class="bi bi-car-front-fill"></i>
-          <h5>Select Your Car</h5>
-          <p>Choose from our premium fleet of supercars.</p>
+        <div class="feature-card">
+          <div class="feature-icon">
+            <i class="bi bi-car-front-fill"></i>
+          </div>
+          <h5>Premium Fleet</h5>
+          <p>Choose from Porsche, Audi, BMW and more luxury brands</p>
         </div>
       </div>
       <div class="col-md-4">
-        <div class="step">
-          <i class="bi bi-geo-alt"></i>
-          <h5>Choose Location</h5>
-          <p>Pick your preferred location for the drive.</p>
+        <div class="feature-card">
+          <div class="feature-icon">
+            <i class="bi bi-shield-check"></i>
+          </div>
+          <h5>Fully Insured</h5>
+          <p>100% insurance coverage for complete peace of mind</p>
         </div>
       </div>
       <div class="col-md-4">
-        <div class="step">
-          <i class="bi bi-clock"></i>
-          <h5>Pick a Duration</h5>
-          <p>10, 20, 30, 45, or 60 minutes.</p>
+        <div class="feature-card">
+          <div class="feature-icon">
+            <i class="bi bi-clock-history"></i>
+          </div>
+          <h5>Flexible Duration</h5>
+          <p>From 30 minutes to full day rentals available</p>
         </div>
       </div>
     </div>
-    <button class="btn btn-outline-primary rounded-pill px-5 py-2 fw-bold mt-4">Check Availability</button>
   </div>
-</div>
+</section>
 
-<!-- Car Availability Showcase Card -->
-<div class="availability-showcase py-5">
+<!-- Locations Section -->
+<section class="locations-section py-5">
   <div class="container">
-    <div class="availability-main-card">
-      <div class="availability-header text-center mb-4">
-        <div class="owner-badge mb-3">
-          <i class="bi bi-person-badge"></i>
-          <span>CAR OWNER</span>
+    <div class="section-header text-center mb-5">
+      <h2 class="section-title-locations">DRIVE ACROSS GERMANY</h2>
+      <div class="title-underline"></div>
+      <p class="section-subtitle-locations">Five hand-picked locations across Germany, each offering unique roads and unforgettable scenery.</p>
+    </div>
+    
+    <div class="row g-3">
+      <!-- Berlin - Large Featured Card -->
+      <div class="col-lg-4 d-flex">
+        <div class="location-box large-box w-100 popular-location" (click)="selectLocation(locations[0])">
+          <div class="location-badge-popular">
+            <i class="bi bi-star-fill me-1"></i>MOST POPULAR
+          </div>
+          
+          <div class="location-content-wrapper">
+            <div class="location-number">01</div>
+            
+            <div class="location-icon-circle">
+              <i class="bi bi-geo-alt-fill"></i>
+            </div>
+            
+            <h3 class="location-city">{{ locations[0].city }}</h3>
+            <p class="location-region">
+              <i class="bi bi-pin-map me-2"></i>{{ locations[0].region }}
+            </p>
+            <p class="location-route">
+              <i class="bi bi-signpost-2 me-2"></i>{{ locations[0].route }}
+            </p>
+            
+            <div class="location-stats-mini">
+              <div class="stat-mini">
+                <i class="bi bi-car-front"></i>
+                <span>12 Cars</span>
+              </div>
+              <div class="stat-mini">
+                <i class="bi bi-star-fill"></i>
+                <span>4.9</span>
+              </div>
+            </div>
+            
+            <button class="btn-explore">
+              Explore <i class="bi bi-arrow-right ms-2"></i>
+            </button>
+          </div>
         </div>
-        <h2 class="display-6 fw-bold">List Your Car & Earn Money</h2>
-        <p class="lead">Share your availability and connect with verified renters</p>
       </div>
       
-      <div class="row g-4">
-        <div class="col-lg-5">
-          <div class="availability-visual">
-            <div class="floating-car-icon">
-              <i class="bi bi-car-front-fill"></i>
-            </div>
-            <div class="availability-stats">
-              <div class="stat-item">
-                <h3>500+</h3>
-                <p>Active Listings</p>
+      <!-- Munich & Hamburg -->
+      <div class="col-lg-4 d-flex flex-column">
+        <div class="mb-3 flex-fill">
+          <div class="location-box small-box h-100" (click)="selectLocation(locations[1])">
+            <div class="location-content-wrapper compact">
+              <div class="location-number small">02</div>
+              
+              <div class="location-icon-circle small">
+                <i class="bi bi-geo-alt-fill"></i>
               </div>
-              <div class="stat-item">
-                <h3>€250</h3>
-                <p>Avg. Daily Earning</p>
-              </div>
-              <div class="stat-item">
-                <h3>4.8★</h3>
-                <p>Owner Rating</p>
-              </div>
+              
+              <h3 class="location-city small">{{ locations[1].city }}</h3>
+              <p class="location-region">
+                <i class="bi bi-pin-map me-2"></i>{{ locations[1].region }}
+              </p>
+              <p class="location-route small">
+                <i class="bi bi-signpost-2 me-2"></i>{{ locations[1].route }}
+              </p>
             </div>
           </div>
         </div>
         
-        <div class="col-lg-7">
-          <div class="availability-form-card">
-            <h4 class="mb-4">Post Your Car Availability</h4>
-            
-            <div class="quick-info-grid">
-              <div class="info-box">
-                <div class="info-icon">
-                  <i class="bi bi-car-front"></i>
-                </div>
-                <div class="info-content">
-                  <h6>Your Car Details</h6>
-                  <p>BMW M4, Mercedes-AMG, or any luxury car</p>
-                </div>
+        <div class="flex-fill">
+          <div class="location-box small-box h-100" (click)="selectLocation(locations[3])">
+            <div class="location-content-wrapper compact">
+              <div class="location-number small">03</div>
+              
+              <div class="location-icon-circle small">
+                <i class="bi bi-geo-alt-fill"></i>
               </div>
               
-              <div class="info-box">
-                <div class="info-icon">
-                  <i class="bi bi-geo-alt-fill"></i>
-                </div>
-                <div class="info-content">
-                  <h6>Location</h6>
-                  <p>Munich, Berlin, Frankfurt & more</p>
-                </div>
-              </div>
-              
-              <div class="info-box">
-                <div class="info-icon">
-                  <i class="bi bi-clock-history"></i>
-                </div>
-                <div class="info-content">
-                  <h6>Available Time</h6>
-                  <p>Set your own schedule & hours</p>
-                </div>
-              </div>
-              
-              <div class="info-box">
-                <div class="info-icon">
-                  <i class="bi bi-cash-coin"></i>
-                </div>
-                <div class="info-content">
-                  <h6>Your Price</h6>
-                  <p>€50 - €200 per hour</p>
-                </div>
-              </div>
+              <h3 class="location-city small">{{ locations[3].city }}</h3>
+              <p class="location-region">
+                <i class="bi bi-pin-map me-2"></i>{{ locations[3].region }}
+              </p>
+              <p class="location-route small">
+                <i class="bi bi-signpost-2 me-2"></i>{{ locations[3].route }}
+              </p>
             </div>
-            
-            <div class="benefits-list mt-4">
-              <h6 class="mb-3">Why List With Us?</h6>
-              <div class="benefit-item">
-                <i class="bi bi-shield-check"></i>
-                <span>100% Insurance Coverage</span>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Frankfurt & Stuttgart -->
+      <div class="col-lg-4 d-flex flex-column">
+        <div class="mb-3 flex-fill">
+          <div class="location-box small-box h-100" (click)="selectLocation(locations[2])">
+            <div class="location-content-wrapper compact">
+              <div class="location-number small">04</div>
+              
+              <div class="location-icon-circle small">
+                <i class="bi bi-geo-alt-fill"></i>
               </div>
-              <div class="benefit-item">
-                <i class="bi bi-cash-stack"></i>
-                <span>Guaranteed Payment</span>
-              </div>
-              <div class="benefit-item">
-                <i class="bi bi-people"></i>
-                <span>Verified Renters Only</span>
-              </div>
-              <div class="benefit-item">
-                <i class="bi bi-star-fill"></i>
-                <span>Premium Listing Support</span>
-              </div>
+              
+              <h3 class="location-city small">{{ locations[2].city }}</h3>
+              <p class="location-region">
+                <i class="bi bi-pin-map me-2"></i>{{ locations[2].region }}
+              </p>
+              <p class="location-route small">
+                <i class="bi bi-signpost-2 me-2"></i>{{ locations[2].route }}
+              </p>
             </div>
-            
-            <button class="btn btn-primary w-100 mt-4 list-car-btn" (click)="listYourCar()">
-              <i class="bi bi-plus-circle me-2"></i>List Your Car Now
-            </button>
-            
-            <p class="text-center text-muted mt-3 mb-0">
-              <small><i class="bi bi-info-circle me-1"></i>Free to list • No hidden charges • Instant approval</small>
-            </p>
+          </div>
+        </div>
+        
+        <div class="flex-fill">
+          <div class="location-box small-box h-100" (click)="selectLocation(locations[4])">
+            <div class="location-content-wrapper compact">
+              <div class="location-number small">05</div>
+              
+              <div class="location-icon-circle small">
+                <i class="bi bi-geo-alt-fill"></i>
+              </div>
+              
+              <h3 class="location-city small">{{ locations[4].city }}</h3>
+              <p class="location-region">
+                <i class="bi bi-pin-map me-2"></i>{{ locations[4].region }}
+              </p>
+              <p class="location-route small">
+                <i class="bi bi-signpost-2 me-2"></i>{{ locations[4].route }}
+              </p>
+            </div>
           </div>
         </div>
       </div>
     </div>
   </div>
-</div>
+</section>
 
-<!-- Our Supercars Section -->
-<div class="our-supercars py-5">
-  <div class="container text-center">
-    <h2 class="display-6 fw-bold">Our Supercars</h2>
-    <div class="row mt-4">
-      <div class="col-md-6">
-        <div class="car-card">
-          <img src="assets/videos/por.webp" alt="Porsche 911 GT3" class="img-fluid">
-          <h4>Porsche 911 GT3</h4>
-          <p>From 79 € + fuel flat fee</p>
-          <p>510 HP | 0-100 km/h in 3.4s</p>
-          <button class="btn btn-outline-primary rounded-pill px-4 py-2">View Details</button>
+<!-- Car Availability Section -->
+<section class="availability-section py-5">
+  <div class="container">
+    <div class="availability-card">
+      <div class="row g-0">
+        <!-- Left Panel - Calendar Header -->
+        <div class="col-lg-4">
+          <div class="availability-left-panel">
+            <div class="calendar-icon-large">
+              <i class="bi bi-calendar-check"></i>
+            </div>
+            <h3 class="availability-title">Car Availability</h3>
+            <p class="availability-subtitle">Current Month: {{ currentMonthYear }}</p>
+            
+            <div class="availability-legend">
+              <div class="legend-item">
+                <div class="legend-dot available"></div>
+                <span>3+ Cities Available</span>
+              </div>
+              <div class="legend-item">
+                <div class="legend-dot limited"></div>
+                <span>1-2 Cities Available</span>
+              </div>
+              <div class="legend-item">
+                <div class="legend-dot booked"></div>
+                <span>Not Available</span>
+              </div>
+            </div>
+            
+            <div class="availability-stats">
+              <div class="stat-item-availability">
+                <i class="bi bi-car-front-fill"></i>
+                <div>
+                  <div class="stat-number-availability">{{ totalCarsAvailable }}</div>
+                  <div class="stat-label-availability">Cars Available Today</div>
+                </div>
+              </div>
+            </div>
+            
+            <div class="availability-info-box">
+              <i class="bi bi-info-circle-fill"></i>
+x              <p>Click on dates to see which cities have cars available</p>
+            </div>
+          </div>
         </div>
-      </div>
-      <div class="col-md-6">
-        <div class="car-card">
-          <img src="assets/videos/audi.webp" alt="Audi R8 V10" class="img-fluid">
-          <h4>Audi R8 V10</h4>
-          <p>From 69 € + fuel flat fee</p>
-          <p>620 HP | 0-100 km/h in 3.1s</p>
-          <button class="btn btn-outline-primary rounded-pill px-4 py-2">View Details</button>
+        
+        <!-- Right Panel - Calendar Grid -->
+        <div class="col-lg-8">
+          <div class="availability-right-panel">
+            <div class="calendar-header">
+              <h4 class="calendar-month-title">
+                <i class="bi bi-calendar3 me-2"></i>{{ currentMonthYear }}
+              </h4>
+              <div class="current-month-badge">
+                <i class="bi bi-dot"></i>CURRENT MONTH
+              </div>
+            </div>
+            
+            <!-- Weekday Headers -->
+            <div class="calendar-weekdays">
+              <div class="weekday" *ngFor="let day of weekDays">{{ day }}</div>
+            </div>
+            
+            <!-- Calendar Grid -->
+            <div class="calendar-grid" *ngIf="calendarDays && calendarDays.length > 0">
+              <div 
+                *ngFor="let day of calendarDays; let i = index" 
+                class="calendar-day"
+                [class.other-month]="!day.isCurrentMonth"
+                [class.today]="day.isToday"
+                [class.available]="day.availability === 'available'"
+                [class.limited]="day.availability === 'limited'"
+                [class.booked]="day.availability === 'booked'"
+                (click)="selectDate(day)">
+                
+                <!-- Day Number -->
+                <span class="day-number">{{ day.day }}</span>
+                
+                <!-- City Information -->
+                <div class="city-info" *ngIf="day.isCurrentMonth && day.cities && day.cities.length > 0">
+                  <div class="city-name" *ngFor="let city of day.cities">
+                    <i class="bi bi-geo-alt-fill"></i>{{ city.name }}
+                  </div>
+                  <span class="total-cars">{{ day.availableCars }} cars</span>
+                </div>
+                
+                <!-- Booked Badge -->
+                <span class="availability-badge" *ngIf="day.isCurrentMonth && day.availability === 'booked'">
+                  <i class="bi bi-x-circle"></i>
+                </span>
+              </div>
+            </div>
+            
+            <!-- Debug Info (remove after testing) -->
+            <div *ngIf="!calendarDays || calendarDays.length === 0" style="color: red; padding: 20px;">
+              No calendar data available. Calendar Days: {{ calendarDays?.length || 0 }}
+            </div>
+            
+            <div class="calendar-footer">
+              <p class="availability-note">
+                <i class="bi bi-calendar-check me-2"></i>
+                Click on any available date to book cars in the listed cities
+              </p>
+            </div>
+          </div>
         </div>
       </div>
     </div>
   </div>
-</div>
+</section>
 
-<!-- Why Choose Us Section -->
-<div class="why-choose-us py-5">
-  <div class="container text-center">
-    <h2 class="display-6 fw-bold">Why Choose Us</h2>
-    <div class="row mt-4">
-      <div class="col-md-4">
-        <div class="feature">
-          <i class="bi bi-person-check"></i>
-          <h5>Certified Instructors</h5>
-          <p>Expert guidance during your drive.</p>
+<!-- Fleet Section -->
+<section class="fleet-section py-5">
+  <div class="container">
+    <div class="section-header text-center mb-5">
+      <h2 class="section-title">Our Supercar Fleet</h2>
+      <p class="section-subtitle">Experience the ultimate driving machines</p>
+    </div>
+    
+    <div class="row g-4">
+      <div class="col-md-6">
+        <div class="car-showcase">
+          <div class="car-image-wrapper">
+            <img src="assets/videos/por.webp" alt="Porsche 911 GT3" class="car-image">
+          </div>
+          <div class="car-details">
+            <h4 class="car-name">Porsche 911 GT3</h4>
+            <div class="car-specs">
+              <span class="spec">510 HP</span>
+              <span class="spec-divider">•</span>
+              <span class="spec">0-100 km/h in 3.4s</span>
+            </div>
+            <div class="car-price-row">
+              <div class="car-price">From €79<span>/hour</span></div>
+              <button class="btn btn-view" (click)="bookingRedirect()">Book Now</button>
+            </div>
+          </div>
         </div>
       </div>
-      <div class="col-md-4">
-        <div class="feature">
-          <i class="bi bi-shield-check"></i>
-          <h5>100% Prepayment & Secure Booking</h5>
-          <p>Fully prepaid bookings with 100% safety.</p>
-        </div>
-      </div>
-      <div class="col-md-4">
-        <div class="feature">
-          <i class="bi bi-calendar-check"></i>
-          <h5>Limited Slots per Location</h5>
-          <p>Small groups for the ultimate thrill.</p>
+      
+      <div class="col-md-6">
+        <div class="car-showcase">
+          <div class="car-image-wrapper">
+            <img src="assets/videos/audi.webp" alt="Audi R8 V10" class="car-image">
+          </div>
+          <div class="car-details">
+            <h4 class="car-name">Audi R8 V10</h4>
+            <div class="car-specs">
+              <span class="spec">620 HP</span>
+              <span class="spec-divider">•</span>
+              <span class="spec">0-100 km/h in 3.1s</span>
+            </div>
+            <div class="car-price-row">
+              <div class="car-price">From €69<span>/hour</span></div>
+              <button class="btn btn-view" (click)="bookingRedirect()">Book Now</button>
+            </div>
+          </div>
         </div>
       </div>
     </div>
-    <p class="mt-4"><i>"An unforgettable adrenaline rush! The best driving experience of my life." – Michael S.</i></p>
-    <button class="btn btn-primary btn-lg rounded-pill px-5 py-3 fw-bold">Book Your Drive</button>
   </div>
-</div>
+</section>
+
+<!-- CTA Section -->
+<section class="cta-section py-5">
+  <div class="container">
+    <div class="cta-card">
+      <h2 class="cta-title">Ready to Drive?</h2>
+      <p class="cta-text">Book your supercar experience today and feel the power</p>
+      <button class="btn btn-cta" (click)="bookingRedirect()">Start Your Journey</button>
+    </div>
+  </div>
+</section>
