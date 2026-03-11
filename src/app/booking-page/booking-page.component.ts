@@ -2,7 +2,6 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
-import { min } from 'rxjs';
 
 interface Booking {
   id: string;
@@ -85,6 +84,10 @@ export class BookingPageComponent implements OnInit {
       const location = params.get('location') ?? '';
 
     });
+
+    const defaultSlot = this.timeSlots.find(slot => slot.id === 'all') ?? this.timeSlots[0];
+    this.selectSlot = defaultSlot;
+    this.selectTime = this.minOption.find(data => data.id === defaultSlot.id);
     
     // const timeSlots = this.getTimeIntervals('10:00', '12:00',60,10);
     // for(let timeSlot of timeSlots){
@@ -128,10 +131,11 @@ export class BookingPageComponent implements OnInit {
   }
 
   submitBooking(): void {
-    const selectedSlot = this.timeSlots.find(slot => slot.selected);
+    const selectedSlot = this.selectSlot;
+    const selectedTimeRange = this.slotBooking.find(slot => slot.selected);
 
-    if (!this.carModel || !this.licenseProof || !this.pickupDate || !this.dropDate || !selectedSlot) {
-      alert('Please fill all required fields and select a time slot');
+    if (!this.carModel || !this.licenseProof || !this.pickupDate || !this.selectedMin || !selectedTimeRange) {
+      alert('Please fill all required fields, select min option and available time');
       return;
     }
 
@@ -141,7 +145,9 @@ export class BookingPageComponent implements OnInit {
       licenseProof: this.licenseProof,
       pickupDate: this.pickupDate,
       dropDate: this.dropDate,
-      timeSlot: selectedSlot.startTime,
+      minOption: this.selectedMin,
+      timeAvailable: `${selectedTimeRange.start}-${selectedTimeRange.end}`,
+      timeSlot: selectedSlot?.startTime,
       amount: this.amount,
     });
 
@@ -157,8 +163,9 @@ export class BookingPageComponent implements OnInit {
     this.amount = 0;
     this.discount = 0;
     this.finalAmount = 0;
-    this.selectSlot = undefined;
-    this.selectTime = undefined;
+    const defaultSlot = this.timeSlots.find(slot => slot.id === 'all') ?? this.timeSlots[0];
+    this.selectSlot = defaultSlot;
+    this.selectTime = this.minOption.find(data => data.id === defaultSlot.id);
     this.selectedMin = undefined;
     this.slotBooking = [];
     this.timeSlots.forEach(slot => slot.selected = false);
