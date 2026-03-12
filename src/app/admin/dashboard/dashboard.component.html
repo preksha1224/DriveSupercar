@@ -34,7 +34,7 @@
           <div class="card shadow-lg border-0">
             <div class="card-body">
               <h4 class="card-title fw-bold text-primary">
-              <i class="bi bi-geo-alt-fill"></i> {{ ride.city_name| uppercase }}
+              <i class="bi bi-geo-alt-fill"></i> {{ ride.city_name| titlecase }}
               </h4>
               <p class="text-start mb-0"><strong>Start Date:</strong> {{ ride.start_date | date}}</p>
               <p class="text-start"><strong>End Date:</strong> {{ ride.end_date | date}}</p>
@@ -74,7 +74,7 @@
 
       <div class="modal-header">
         <h5 class="modal-title">Add Ride</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        <button type="button" class="btn-close" (click)="dismissModel()"></button>
       </div>
       <form [formGroup]="rideForm" >
 
@@ -110,7 +110,7 @@
           <!-- Location -->
           <div class="mb-3">
             <label class="form-label">Location</label>
-            <select class="form-select" aria-label="Location" formControlName="location">
+            <select class="form-select" aria-label="Location" formControlName="location" required>
               <option selected disabled>Select Location</option>
               <option value="berlin">Berlin</option>
               <option value="hamburg">Hamburg</option>
@@ -128,6 +128,9 @@
                   *ngIf="rideForm.get('startDate')?.touched && rideForm.get('startDate')?.invalid">
                 Start date is required
               </div>
+              <div class="text-danger" *ngIf="rideForm.errors?.['startBlocked']">
+                This date is already booked
+              </div>
             </div>
 
             <!-- End Date -->
@@ -140,6 +143,9 @@
                   *ngIf="rideForm.get('endDate')?.touched && rideForm.get('endDate')?.invalid">
                 End date is required
               </div>
+            <div class="text-danger" *ngIf="rideForm.errors?.['endBlocked']">
+              This date is already booked
+            </div>
             </div>
 
           </div>
@@ -232,17 +238,11 @@
                           formControlName="sixtyMin">
                     <label class="form-check-label">60 mins</label>
                   </div>
-
                 </div>
-
               </div>
-
             </div>
-
             <!-- Add Button -->
-            <button type="button"
-                    class="btn btn-success"
-                    (click)="addTimeSlot()">
+            <button type="button" class="btn btn-success" (click)="addTimeSlot()">
               + Add Time Slot
             </button>
 
@@ -250,13 +250,10 @@
         </div>
 
         <div class="modal-footer">
-          <button type="button"
-                  class="btn btn-secondary"
-                  data-bs-dismiss="modal">
+          <button type="button" class="btn btn-secondary" (click)="dismissModel()">
             Close
           </button>
-          <button type="submit"
-                  class="btn btn-primary" (click)="onSubmit()">
+          <button type="submit" class="btn btn-primary" (click)="onSubmit()">
             Save Ride
           </button>
         </div>

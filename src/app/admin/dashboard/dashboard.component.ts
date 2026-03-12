@@ -18,6 +18,7 @@ export class DashboardComponent implements OnInit{
   rideForm: FormGroup;
   rides: any[] = [];
   cars: Car[]=[];
+  blockedDateRanges: { start: Date; end: Date }[] = [];
 
   durationMap: any = {
     tenMin: 'TEN',
@@ -58,18 +59,29 @@ export class DashboardComponent implements OnInit{
     this.getEvent();
   }
 
-  getEvent(){
+  getEvent() {
     this.eventService.getEvent().subscribe({
       next: (data) => {
-        console.log(data);
-        this.rides=data;
-        this.rides.reverse();
+        this.rides = data.reverse();
+        console.log(data)
+        this.blockedDateRanges = this.rides.map((ride: any) => ({
+          start: new Date(ride.start_date),
+          end: new Date(ride.end_date)
+        }));
+
         this.cdr.markForCheck();
       },
-      error:(err)=>{
-        console.log(err)
-      }
-    })
+      error: (err) => console.log(err)
+    });
+  }
+    isDateBlocked(date: string): boolean {
+
+    const selected = new Date(date);
+
+    return this.blockedDateRanges.some(range =>
+      selected >= range.start && selected <= range.end
+    );
+
   }
 
   setDefaultCars() {
@@ -114,13 +126,23 @@ export class DashboardComponent implements OnInit{
     this.timeSlots.removeAt(index);
   }
 
-  dateRangeValidator(group: FormGroup) {
+  dateRangeValidator = (group: FormGroup) => {
+
     const start = group.get('startDate')?.value;
     const end = group.get('endDate')?.value;
 
     if (start && end && start > end) {
       return { invalidDateRange: true };
     }
+
+    if (start && this.isDateBlocked(start)) {
+      return { startBlocked: true };
+    }
+
+    if (end && this.isDateBlocked(end)) {
+      return { endBlocked: true };
+    }
+
     return null;
   }
   get carsFormArray(): FormArray {
@@ -139,6 +161,17 @@ export class DashboardComponent implements OnInit{
       if (index !== -1) {
         this.carsFormArray.removeAt(index);
       }
+    }
+  }
+
+
+  dismissModel() {
+    const modal = document.getElementById('exampleModal');
+      if (modal) {
+        const modalInstance = (window as any).bootstrap.Modal.getInstance(modal);
+        this.rideForm.reset();
+        modalInstance.hide();
+        this.setDefaultCars();
     }
   }
 
@@ -185,11 +218,7 @@ export class DashboardComponent implements OnInit{
       this.rideForm.reset();
       this.timeSlots.clear();
       this.addTimeSlot();
-      const modal = document.getElementById('exampleModal');
-      if (modal) {
-        const modalInstance = (window as any).bootstrap.Modal.getInstance(modal);
-        modalInstance.hide();
-      }
+
     } else {
       this.rideForm.markAllAsTouched();
     }
