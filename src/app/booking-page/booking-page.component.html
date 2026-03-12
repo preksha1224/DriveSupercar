@@ -1,131 +1,192 @@
 <div class="booking-container">
-  <div class="header">
-    <div class="header-content">
-      <span class="header-tagline">DRIVE SUPERCARS</span>
-      <h1>RESERVE YOUR EXPERIENCE</h1>
-      <p class="subtitle">Uncompromising quality. Unparalleled service.</p>
-      <div class="location-info" *ngIf="selectedState && selectedCity">
-        <div class="location-badge">
-          <span class="location-icon">📍</span>
-          <span class="location-text">{{ selectedCity }}, {{ selectedState }}</span>
-        </div>
-      </div>
-      <div class="header-divider"></div>
-    </div>
-  </div>
+<div class="header">
+  <div class="header-overlay"></div>
 
-  <!-- Booking Form -->
+  <div class="header-content">
+    <span class="header-tagline">DRIVE SUPERCARS</span>
+
+    <h1 class="header-title">
+      RESERVE YOUR EXPERIENCE
+    </h1>
+
+    <p class="subtitle">
+      Uncompromising quality. Unparalleled service.
+    </p>
+
+    <div class="location-info" *ngIf="selectedState && selectedCity">
+      <div class="location-badge">
+        <span class="location-icon">📍</span>
+        <span class="location-text">
+          {{ selectedCity }}, {{ selectedState }}
+        </span>
+      </div>
+    </div>
+
+    <div class="header-divider"></div>
+  </div>
+</div>
+
   <div class="booking-form-section">
     <div class="form-header">
       <h2 class="form-title">BOOKING DETAILS</h2>
-      <p class="form-subtitle">Complete the form below to secure your reservation</p>
+      <p class="form-subtitle">A guided four-step booking experience</p>
     </div>
 
-    <div class="booking-form">
-      <div class="form-section">
-        <h3 class="section-title">VEHICLE & DOCUMENTS</h3>
+    <div class="stepper" role="list" aria-label="Booking steps">
+      <div
+        *ngFor="let label of stepLabels; let i = index"
+        role="listitem"
+        class="step-item"
+        [class.active]="isStepActive(i + 1)"
+        [class.completed]="isStepCompleted(i + 1)"
+        (click)="goToStep(i + 1)"
+      >
+        <span class="step-count">{{ i + 1 }}</span>
+        <span class="step-label">{{ label }}</span>
+      </div>
+    </div>
+
+    <div class="booking-form" [attr.data-step]="currentStep">
+      <div *ngIf="validationMessage" class="validation-alert">{{ validationMessage }}</div>
+
+      <div *ngIf="currentStep === 1" class="form-section">
+        <h3 class="section-title">STEP 1. SELECT A CAR</h3>
+        <p class="section-subtitle">Pick the vehicle for your premium drive</p>
+        <div class="selection-grid">
+          <button
+            type="button"
+            class="select-card"
+            *ngFor="let car of carOptions"
+            [class.selected]="carModel === car"
+            (click)="selectCar(car)"
+          >
+            <span class="select-card-title">{{ car }}</span>
+            <span class="slot-status" *ngIf="carModel === car">SELECTED</span>
+          </button>
+        </div>
+      </div>
+
+      <div *ngIf="currentStep === 2" class="form-section">
+        <h3 class="section-title">STEP 2. SELECT LOCATION</h3>
+        <p class="section-subtitle">Choose one location using selection boxes</p>
+        <div class="selection-grid">
+          <button
+            type="button"
+            *ngFor="let loc of locations"
+            class="select-card"
+            [class.selected]="selectedLocation === loc"
+            (click)="selectLocation(loc)"
+          >
+            <span class="select-card-title">{{ loc }}</span>
+            <span class="slot-status" *ngIf="selectedLocation === loc">SELECTED</span>
+          </button>
+        </div>
+      </div>
+
+      <div *ngIf="currentStep === 3" class="form-section">
+        <h3 class="section-title">STEP 3. CHOOSE MIN OPTION</h3>
+        <p class="section-subtitle">Select your minute option</p>
+
+        <div class="sub-section">
+          <h4 class="sub-title">Min option <span class="required">*</span></h4>
+          <div class="time-slots-grid mini">
+            <button
+              type="button"
+              *ngFor="let slot of selectTime.minOption"
+              class="time-slot-btn"
+              [class.selected]="selectedMin === slot"
+              (click)="selectMin(slot)"
+            >
+              <span class="time-text">{{ slot }} min</span>
+              <span class="slot-status" *ngIf="selectedMin === slot">SELECTED</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div *ngIf="currentStep === 4" class="form-section">
+        <h3 class="section-title">STEP 4. SELECT DATE & TIME SLOT</h3>
+        <p class="section-subtitle">Choose pickup/drop date and one available time slot</p>
+
         <div class="form-row">
           <div class="form-group">
-            <label for="carModel"> CAR <span class="required">*</span> </label>
-            <select id="carModel" [(ngModel)]="carModel" class="form-input">
-              <option value="" disabled selected>Select a car</option>
-              <option value="Porsche 911">Porsche 911</option>
-              <option value="Audi R8">Audi R8</option>
-            </select>
-          </div>
-
-          <div class="form-group">
-            <label for="licenseProof"> LICENSE NUMBER <span class="required">*</span> </label>
+            <label for="bookingDate"> PICKUP / DROP DATE <span class="required">*</span> </label>
+            <div></div>
             <input
-              type="text"
-              id="licenseProof"
-              [(ngModel)]="licenseProof"
-              placeholder="Enter your license number"
+              type="date"
+              id="bookingDate"
+              [(ngModel)]="bookingDate"
+              [min]="minPickupDate"
+              (ngModelChange)="onBookingDateChange()"
               class="form-input"
             />
           </div>
         </div>
-      </div>
 
-      <div class="form-section">
-        <h3 class="section-title">RENTAL PERIOD</h3>
-        <div class="form-row">
-          <div class="form-group">
-            <label for="location"> Location<span class="required">*</span> </label>
-            <select id="location" [(ngModel)]="selectedLocation" class="form-input">
-              <option value="" disabled selected>Select a location</option>
-              <option *ngFor="let loc of locations" [value]="loc">{{ loc }}</option>
-            </select>
-          </div>
-
-          <div class="form-group">
-            <label for="pickupDate"> PICKUP DATE/DROP DATE<span class="required">*</span> </label>
-            <input type="date" id="pickupDate" [(ngModel)]="pickupDate" class="form-input" />
+        <div *ngIf="slotBooking.length" class="sub-section">
+          <h4 class="sub-title">Time available <span class="required">*</span></h4>
+          <div class="time-slots-grid">
+            <button
+              type="button"
+              *ngFor="let slot of slotBooking"
+              class="time-slot-btn"
+              [class.selected]="slot.selected"
+              (click)="selectDividedSlot(slot)"
+            >
+              <span class="time-text">{{ slot.start }}</span>
+              <span class="slot-status" *ngIf="slot.selected">SELECTED</span>
+            </button>
           </div>
         </div>
-      </div>
-      <div class="form-section">
-        <h3 class="section-title">PRICING</h3>
-        <div class="form-group">
-          <label for="amount"> AMOUNT <span class="required">*</span> </label>
-          <div class="pricing-box" style="width: min-content">
-            <span class="currency">₹</span>
-            <input
-              type="number"
-              id="amount"
-              [(ngModel)]="amount"
-              placeholder="0"
-              class="form-input with-currency"
-              min="0"
-            />
-          </div>
+
+        <div *ngIf="!slotBooking.length" class="helper-note">
+          Select min option in step 3 to view available time slots.
         </div>
       </div>
 
-      <!--Min Option-->
-      @if(selectTime){
-      <div class="form-section">
-        <h3 class="section-title">Min option <span class="required">*</span></h3>
-        <p class="section-subtitle">Select your min</p>
-        <div class="time-slots-grid">
-          <div
-            *ngFor="let slot of selectTime.minOption"
-            class="time-slot-btn"
-            [class.selected]="selectedMin === slot"
-            (click)="selectMin(slot)"
-          >
-            <span class="time-text">{{slot}} min</span>
-            <span class="slot-status" *ngIf="selectedMin === slot">SELECTED</span>
-          </div>
-        </div>
-        </div>
-      }
-      <!--Slot divide-->
-      @if(slotBooking.length){
-      <div class="form-section">
-        <h3 class="section-title">Time available <span class="required">*</span></h3>
-        <p class="section-subtitle">Select prefer time</p>
-        <div class="time-slots-grid">
-          <div
-            *ngFor="let slot of slotBooking"
-            class="time-slot-btn"
-            [class.selected]="slot.selected"
-            (click)="selectDividedSlot(slot)"
-          >
-            <span class="time-text">{{slot.start}} - {{slot.end}}</span>
-            <span class="slot-status" *ngIf="slot.selected">SELECTED</span>
-          </div>
-        </div>
-        </div>
-      }
+<div class="form-actions">
 
-      <div class="form-actions">
-        <button class="btn-secondary" (click)="resetForm()">RESET</button>
-        <button class="btn-primary" (click)="submitBooking()">CONFIRM RESERVATION</button>
-      </div>
+  <div class="actions-left">
+    <button type="button" class="btn-secondary" (click)="resetForm()">
+      RESET
+    </button>
+  </div>
+
+  <div class="actions-right">
+
+    <button
+      type="button"
+      class="btn-secondary"
+      *ngIf="currentStep > 1"
+      (click)="previousStep()"
+    >
+      BACK
+    </button>
+
+    <button
+      type="button"
+      class="btn-primary"
+      *ngIf="currentStep < totalSteps"
+      (click)="nextStep()"
+    >
+      NEXT
+    </button>
+
+    <button
+      type="button"
+      class="btn-primary"
+      *ngIf="currentStep === totalSteps"
+      [disabled]="!canSubmit"
+      (click)="submitBooking()"
+    >
+      CONFIRM RESERVATION
+    </button>
+
+  </div>
+
+</div>
     </div>
   </div>
 
-  <!-- Background Elements -->
   <div class="bg-grid"></div>
 </div>

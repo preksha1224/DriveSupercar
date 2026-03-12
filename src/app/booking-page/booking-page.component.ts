@@ -5,11 +5,8 @@ import { ActivatedRoute } from '@angular/router';
 
 interface Booking {
   id: string;
-  licenseProof: string;
-  pickupDate: Date;
-  dropDate: Date;
+  bookingDate: Date;
   timeSlot: string;
-  amount: number;
   status: 'pending' | 'confirmed' | 'completed' | 'cancelled';
   carModel?: string;
 }
@@ -28,7 +25,6 @@ interface timeSlotBooking {
 }
 
 interface MinOption {
-  id: string;
   minOption: number[];
 }
 
@@ -39,41 +35,51 @@ interface MinOption {
   styleUrl: './booking-page.component.scss',
 })
 export class BookingPageComponent implements OnInit {
+  currentStep: number = 1;
+  readonly totalSteps: number = 4;
+  readonly stepLabels: string[] = [
+    'Select Car',
+    'Choose Location',
+    'Choose Minutes',
+    'Date & Time Slot',
+  ];
+
   // Form fields
   carModel: string = '';
-  licenseProof: string = '';
-  pickupDate: string = '';
-  dropDate: string = '';
-  amount: number = 0;
-  discount: number = 0;
-  finalAmount: number = 0;
-  selectSlot: TimeSlot | undefined;
-  selectTime: MinOption | undefined;
+  bookingDate: string = '';
+  selectTime: MinOption;
   selectedMin: number | undefined;
-    selectedLocation: string = '';
+  selectedLocation: string = '';
+  validationMessage: string = '';
 
   slotBooking: timeSlotBooking[] = [];
-    locations: string[] = [
+  locations: string[] = [
     'Berlin',
     'Hamburg',
     'Munich',
   ];
-  // Time slots (BMS style)
-  timeSlots: TimeSlot[] = [
-    { id: 'short', startTime: '10:00',endTime:'13:00', selected: false, available: true },
-    { id: 'long', startTime: '13:00', endTime:'16:00', selected: false, available: true },
-    { id: 'all', startTime: '10:00', endTime:'16:00', selected: false, available: true },
+
+  carOptions: string[] = [
+    'Porsche 911',
+    'Audi R8',
   ];
-  minOption: MinOption[] = [
-    { id: 'short', minOption: [10, 20] },
-    { id: 'long', minOption: [40, 60] },
-    { id: 'all', minOption: [10, 20, 40, 60] },
-  ];
+
+  // Time window and minute options
+  readonly bookingWindow: TimeSlot = {
+    id: 'all',
+    startTime: '10:00',
+    endTime: '16:00',
+    selected: true,
+    available: true,
+  };
+  minOption: MinOption = { minOption: [10, 20, 40, 60] };
   // Location info
   selectedState: string = '';
   selectedCity: string = '';
 
-  constructor(private route: ActivatedRoute) {}
+  constructor(private route: ActivatedRoute) {
+    this.selectTime = this.minOption;
+  }
 
   ngOnInit(): void {
     this.route.queryParams.subscribe(params => {
@@ -81,14 +87,9 @@ export class BookingPageComponent implements OnInit {
       this.selectedCity = params['city'] || '';
     });
     this.route.queryParamMap.subscribe(params => {
-      const location = params.get('location') ?? '';
-
+      this.selectedLocation = params.get('location') ?? '';
     });
 
-    const defaultSlot = this.timeSlots.find(slot => slot.id === 'all') ?? this.timeSlots[0];
-    this.selectSlot = defaultSlot;
-    this.selectTime = this.minOption.find(data => data.id === defaultSlot.id);
-    
     // const timeSlots = this.getTimeIntervals('10:00', '12:00',60,10);
     // for(let timeSlot of timeSlots){
     //   console.log(timeSlot)
@@ -99,28 +100,113 @@ export class BookingPageComponent implements OnInit {
     return `status-${status}`;
   }
 
-  selectTimeSlot(slot: TimeSlot): void {
-    if (!slot.available) return;
+  get minPickupDate(): string {
+    return new Date().toISOString().split('T')[0];
+  }
 
-    // Deselect all other slots
-    this.timeSlots.forEach(s => s.selected = false);
-    // Select the clicked slot
-    slot.selected = true;
-    this.selectSlot = slot;
-    this.selectTime = this.minOption.find(data => data.id === slot.id);
-    this.selectedMin = undefined;
-    this.slotBooking = [];
+  get canSubmit(): boolean {
+    return this.isStepValid(4);
+  }
+
+  isStepActive(step: number): boolean {
+    return this.currentStep === step;
+  }
+
+  isStepCompleted(step: number): boolean {
+    return step < this.currentStep;
+  }
+
+  goToStep(step: number): void {
+    if (step < 1 || step > this.totalSteps) {
+      return;
+    }
+
+    if (step <= this.currentStep) {
+      this.currentStep = step;
+      this.validationMessage = '';
+      return;
+    }
+
+    for (let i = this.currentStep; i < step; i++) {
+      if (!this.isStepValid(i)) {
+        this.validationMessage = this.getStepValidationMessage(i);
+        return;
+      }
+    }
+
+    this.currentStep = step;
+    this.validationMessage = '';
+  }
+
+  nextStep(): void {
+    if (!this.isStepValid(this.currentStep)) {
+      this.validationMessage = this.getStepValidationMessage(this.currentStep);
+      return;
+    }
+
+    if (this.currentStep < this.totalSteps) {
+      this.currentStep += 1;
+      this.validationMessage = '';
+    }
+  }
+
+  previousStep(): void {
+    if (this.currentStep > 1) {
+      this.currentStep -= 1;
+      this.validationMessage = '';
+    }
+  }
+
+  isStepValid(step: number): boolean {
+    switch (step) {
+      case 1:
+        return !!this.carModel;
+      case 2:
+        return !!this.selectedLocation;
+      case 3:
+        return !!this.selectedMin;
+      case 4:
+        return !!this.bookingDate && this.slotBooking.some(slot => slot.selected);
+      default:
+        return false;
+    }
+  }
+
+  getStepValidationMessage(step: number): string {
+    switch (step) {
+      case 1:
+        return 'Please select a car to continue.';
+      case 2:
+        return 'Please select a pickup location.';
+      case 3:
+        return 'Please choose a minute option.';
+      case 4:
+        return 'Please select pickup/drop date and an available time slot.';
+      default:
+        return 'Please complete all required fields.';
+    }
+  }
+
+  selectCar(car: string): void {
+    this.carModel = car;
+    this.validationMessage = '';
+  }
+
+  selectLocation(location: string): void {
+    this.selectedLocation = location;
+    this.validationMessage = '';
   }
 
   selectMin(min: number): void {
     this.selectedMin = min;
     const buffer = min === 10 ? 5 : 10;
     this.slotBooking = this.getTimeIntervals(
-      this.selectSlot?.startTime ?? '10:00',
-      this.selectSlot?.endTime ?? '12:00',
+      this.bookingWindow.startTime,
+      this.bookingWindow.endTime,
       min,
       buffer
     );
+    this.validationMessage = '';
   }
 
   selectDividedSlot(selectedSlot: timeSlotBooking): void {
@@ -128,27 +214,35 @@ export class BookingPageComponent implements OnInit {
       ...slot,
       selected: slot.start === selectedSlot.start && slot.end === selectedSlot.end,
     }));
+    this.validationMessage = '';
+  }
+
+  onBookingDateChange(): void {
+    this.validationMessage = '';
   }
 
   submitBooking(): void {
-    const selectedSlot = this.selectSlot;
     const selectedTimeRange = this.slotBooking.find(slot => slot.selected);
 
-    if (!this.carModel || !this.licenseProof || !this.pickupDate || !this.selectedMin || !selectedTimeRange) {
-      alert('Please fill all required fields, select min option and available time');
+    if (
+      !this.carModel ||
+      !this.selectedLocation ||
+      !this.bookingDate ||
+      !this.selectedMin ||
+      !selectedTimeRange
+    ) {
+      alert('Please complete all required steps and select an available time.');
       return;
     }
 
     // You can add your booking submission logic here
     console.log('Booking submitted:', {
       carModel: this.carModel,
-      licenseProof: this.licenseProof,
-      pickupDate: this.pickupDate,
-      dropDate: this.dropDate,
+      location: this.selectedLocation,
+      bookingDate: this.bookingDate,
       minOption: this.selectedMin,
       timeAvailable: `${selectedTimeRange.start}-${selectedTimeRange.end}`,
-      timeSlot: selectedSlot?.startTime,
-      amount: this.amount,
+      timeSlot: this.bookingWindow.startTime,
     });
 
     alert('Booking submitted successfully!');
@@ -157,18 +251,13 @@ export class BookingPageComponent implements OnInit {
 
   resetForm(): void {
     this.carModel = '';
-    this.licenseProof = '';
-    this.pickupDate = '';
-    this.dropDate = '';
-    this.amount = 0;
-    this.discount = 0;
-    this.finalAmount = 0;
-    const defaultSlot = this.timeSlots.find(slot => slot.id === 'all') ?? this.timeSlots[0];
-    this.selectSlot = defaultSlot;
-    this.selectTime = this.minOption.find(data => data.id === defaultSlot.id);
+    this.bookingDate = '';
+    this.selectedLocation = '';
+    this.selectTime = this.minOption;
     this.selectedMin = undefined;
     this.slotBooking = [];
-    this.timeSlots.forEach(slot => slot.selected = false);
+    this.currentStep = 1;
+    this.validationMessage = '';
   }
 
   getTimeIntervals(startTimeStr: string, endTimeStr: string, min: number, buffer: number) {
@@ -186,6 +275,9 @@ export class BookingPageComponent implements OnInit {
     while (currentStart < endTime) {
       let currentEnd = new Date(currentStart);
       currentEnd.setMinutes(currentEnd.getMinutes() + min);
+      if (currentEnd > endTime) {
+        break;
+      }
       const formattedStart = `${currentStart.getHours().toString().padStart(2, '0')}:${currentStart.getMinutes().toString().padStart(2, '0')}`;
       const formattedEnd = `${currentEnd.getHours().toString().padStart(2, '0')}:${currentEnd.getMinutes().toString().padStart(2, '0')}`;
       intervals.push({ start: formattedStart, end: formattedEnd, selected: false });
