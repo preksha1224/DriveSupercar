@@ -1,3 +1,8 @@
+.navbar {
+  background-color: #0f0f0f !important;
+  color: white !important;
+  border-style: 1px solid #d4af37;
+}
 /* Minimal header styles; tweak as needed */
 .navbar-brand{color:#d4af37}
 .navbar .nav-link{color:#334155}
@@ -6,3 +11,12 @@
 /* Ensure offcanvas covers full height on mobile */
 .offcanvas-body{padding-top:0.5rem}
 
+.btn-custom {
+    background: linear-gradient(135deg, #1a1a1a 0%, #2d2414 50%, #1a1a1a 100%);
+    color: #ffd700;
+    border: 1px solid rgba(255, 215, 0, 0.3);
+    box-shadow:
+      0 4px 15px rgba(0, 0, 0, 0.3),
+      0 0 20px rgba(255, 215, 0, 0.1);
+    text-shadow: 0 0 5px rgba(255, 215, 0, 0.3);
+}

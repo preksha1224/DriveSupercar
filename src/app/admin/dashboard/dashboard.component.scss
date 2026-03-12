@@ -43,11 +43,12 @@
 }
 
 .admin-card {
-  background: rgba(255,255,255,0.95);
+  background-color: #0f0f0f !important;
+  color: white;
   backdrop-filter: blur(12px);
   border-radius: 15px;
   box-shadow: 0 25px 60px rgba(0,0,0,0.25);
-  border: 1px solid rgba(212,175,55,0.2);
+  border: 1px solid #d4af37;
   transition: all 0.3s ease;
 }
 
@@ -73,4 +74,11 @@
   height: 4px;
   background: linear-gradient(90deg, #d4af37, #b38f1c);
   border-radius: 20px;
+}
+
+.card-custom {
+  background-color: #0f0f0f !important;
+  color: white;
+  border: 1px solid #d4af37;
+
 }

@@ -8,7 +8,9 @@
 }
 .app-footer {
   transition: background-color 0.3s ease, color 0.3s ease;
-  
+  background-color: #0f0f0f !important;
+  color: white !important;
+
   .logo-text {
     letter-spacing: 1px;
   }

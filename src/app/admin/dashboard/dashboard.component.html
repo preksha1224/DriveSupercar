@@ -4,12 +4,12 @@
       <div class="col-lg-12 mx-auto py-5">
 
         <div class="admin-card p-5">
-          <h1 class="display-4 fw-bold mb-3 text-dark">
+          <h1 class="display-4 fw-bold mb-3">
             Welcome Mahmoud
           </h1>
           <div class="gold-divider mx-auto mb-4"></div>
 
-          <p class="lead text-muted mb-4">
+          <p class="lead mb-4">
             Control your luxury fleet platform with power and precision.
           </p>
 
@@ -31,9 +31,9 @@
     <div class="row">
       @for (ride of rides; track $index) {
         <div class="col-md-6 col-lg-4 mb-4">
-          <div class="card shadow-lg border-0">
+          <div class="card shadow-lg card-custom">
             <div class="card-body">
-              <h4 class="card-title fw-bold text-primary">
+              <h4 class="card-title fw-bold text-golden">
               <i class="bi bi-geo-alt-fill"></i> {{ ride.city_name| titlecase }}
               </h4>
               <p class="text-start mb-0"><strong>Start Date:</strong> {{ ride.start_date | date}}</p>
@@ -50,14 +50,14 @@
                       <strong>End-time:</strong> {{ slot.end_time | date:'shortTime'}}
                     </p>
                   </div>
-                  <div class="small text-muted text-start">
+                  <div class="small text-start">
                     @if (slot.allowed_duration.length > 0) {
                       <strong>Minutes Option:</strong> {{ slot.allowed_duration | durationFormat }}
                     }
                   </div>
                 </div>
               }
-              <div class="text-end"><button class="btn btn-link">Show your booking</button></div>
+              <div class="text-end"><button class="btn btn-link text-golden">Show your booking</button></div>
             </div>
           </div>
         </div>
