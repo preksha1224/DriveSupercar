@@ -41,7 +41,7 @@
               <hr>
               <h6 class="fw-bold">Time Slots</h6>
               @for(slot of ride.eventTimeWindows; track $index){
-                <div class="border rounded p-2 mb-2">
+                <div class="border-custom rounded p-2 mb-2">
                   <div class="d-flex flex-wrap justify-content-between">
                       <p class="mb-1">
                       <strong>Start-time:</strong> {{ slot.start_time | date:'shortTime'}}
