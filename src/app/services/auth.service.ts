@@ -28,6 +28,10 @@ export class AuthService {
     return this.http.post<RegisterResponse>('/auth/registration', userData);
   }
 
+  updateUser(userId:string,userData: any): Observable<RegisterResponse> {
+    return this.http.patch<RegisterResponse>(`/auth/update-user/${userId}`, userData);
+  }
+
   logout(): void {
     localStorage.removeItem('user');
     localStorage.removeItem('role');
