@@ -40,8 +40,8 @@ export class BookingPageComponent implements OnInit {
   readonly stepLabels: string[] = [
     'Select Car',
     'Choose Location',
-    'Choose Minutes',
-    'Date & Time Slot',
+    'Choose Date & Minutes',
+    'Choose Time Slot',
   ];
 
   // Form fields
@@ -164,9 +164,9 @@ export class BookingPageComponent implements OnInit {
       case 2:
         return !!this.selectedLocation;
       case 3:
-        return !!this.selectedMin;
+        return !!this.bookingDate && !!this.selectedMin;
       case 4:
-        return !!this.bookingDate && this.slotBooking.some(slot => slot.selected);
+        return this.slotBooking.some(slot => slot.selected);
       default:
         return false;
     }
@@ -179,9 +179,9 @@ export class BookingPageComponent implements OnInit {
       case 2:
         return 'Please select a pickup location.';
       case 3:
-        return 'Please choose a minute option.';
+        return 'Please choose a pickup/drop date and minute option.';
       case 4:
-        return 'Please select pickup/drop date and an available time slot.';
+        return 'Please select an available time slot.';
       default:
         return 'Please complete all required fields.';
     }
