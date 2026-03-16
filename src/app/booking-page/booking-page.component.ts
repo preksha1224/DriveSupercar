@@ -109,18 +109,12 @@ export class BookingPageComponent implements OnInit {
           .filter((name: unknown): name is string => typeof name === 'string' && name.trim().length > 0);
 
         this.carOptions = Array.from(new Set<string>(names));
-
-        if (!this.carOptions.length) {
-          this.carOptions = ['Audi', 'Porsche'];
-        }
-
         this.carModel = '';
         this.isCarLoading = false;
         this.cdr.detectChanges();
       },
       error: (err: unknown) => {
         console.error('Failed to load cars', err);
-        this.carOptions = ['Audi', 'Porsche'];
         this.carModel = '';
         this.isCarLoading = false;
         this.cdr.detectChanges();
