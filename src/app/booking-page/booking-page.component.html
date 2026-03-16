@@ -52,24 +52,30 @@
       <div *ngIf="currentStep === 1" class="form-section">
         <h3 class="section-title">STEP 1. SELECT A CAR</h3>
         <p class="section-subtitle">Pick the vehicle for your premium drive</p>
-        <div class="selection-grid">
+
+        <div class="selection-grid" *ngIf="currentStep === 1 && !isCarLoading">
           <button
             type="button"
             class="select-card"
             *ngFor="let car of carOptions"
             [class.selected]="carModel === car"
-            (click)="selectCar(car)"
+            (click)="selectCar(car)" 
           >
             <span class="select-card-title">{{ car }}</span>
             <span class="slot-status" *ngIf="carModel === car">SELECTED</span>
           </button>
         </div>
+
+        <div *ngIf="!isCarLoading && !carOptions.length">No cars available.</div>
       </div>
 
       <div *ngIf="currentStep === 2" class="form-section">
         <h3 class="section-title">STEP 2. SELECT LOCATION</h3>
         <p class="section-subtitle">Choose one location using selection boxes</p>
-        <div class="selection-grid">
+
+        <div *ngIf="isLocationLoading">Loading locations...</div>
+
+        <div class="selection-grid" *ngIf="!isLocationLoading && locations.length">
           <button
             type="button"
             *ngFor="let loc of locations"
@@ -81,11 +87,34 @@
             <span class="slot-status" *ngIf="selectedLocation === loc">SELECTED</span>
           </button>
         </div>
+
+        <div *ngIf="!isLocationLoading && !locations.length">No locations available.</div>
       </div>
 
       <div *ngIf="currentStep === 3" class="form-section">
-        <h3 class="section-title">STEP 3. SELECT DATE AND MINUTES</h3>
-        <p class="section-subtitle">Choose pickup/drop date, then select your minute option</p>
+        <h3 class="section-title">STEP 3. CHOOSE MIN OPTION</h3>
+        <p class="section-subtitle">Select your minute option</p>
+
+        <div class="sub-section">
+          <h4 class="sub-title">Min option <span class="required">*</span></h4>
+          <div class="time-slots-grid mini">
+            <button
+              type="button"
+              *ngFor="let slot of selectTime.minOption"
+              class="time-slot-btn"
+              [class.selected]="selectedMin === slot"
+              (click)="selectMin(slot)"
+            >
+              <span class="time-text">{{ slot }} min</span>
+              <span class="slot-status" *ngIf="selectedMin === slot">SELECTED</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div *ngIf="currentStep === 4" class="form-section">
+        <h3 class="section-title">STEP 4. SELECT DATE & TIME SLOT</h3>
+        <p class="section-subtitle">Choose pickup/drop date and one available time slot</p>
 
         <div class="form-row">
           <div class="form-group">
@@ -101,28 +130,6 @@
             />
           </div>
         </div>
-
-        <div class="sub-section">
-          <h4 class="sub-title">Minute option <span class="required">*</span></h4>
-          <div class="time-slots-grid mini">
-            <button
-              type="button"
-              *ngFor="let slot of selectTime.minOption"
-              class="time-slot-btn"
-              [class.selected]="selectedMin === slot"
-              [disabled]="!bookingDate"
-              (click)="selectMin(slot)"
-            >
-              <span class="time-text">{{ slot }} min</span>
-              <span class="slot-status" *ngIf="selectedMin === slot">SELECTED</span>
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <div *ngIf="currentStep === 4" class="form-section">
-        <h3 class="section-title">STEP 4. SELECT TIME SLOT</h3>
-        <p class="section-subtitle">Choose one available time slot</p>
 
         <div *ngIf="slotBooking.length" class="sub-section">
           <h4 class="sub-title">Time available <span class="required">*</span></h4>
@@ -141,7 +148,7 @@
         </div>
 
         <div *ngIf="!slotBooking.length" class="helper-note">
-          Select date and minute option in step 3 to view available time slots.
+          Select min option in step 3 to view available time slots.
         </div>
       </div>
 

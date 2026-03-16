@@ -1,8 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
-
+import { CarService } from '../services/car.service';
+import { EventService} from '../services/event.service';
+import { appConfig } from '../app.config';
 interface Booking {
   id: string;
   bookingDate: Date;
@@ -40,29 +42,23 @@ export class BookingPageComponent implements OnInit {
   readonly stepLabels: string[] = [
     'Select Car',
     'Choose Location',
-    'Choose Date & Minutes',
-    'Choose Time Slot',
+    'Choose Minutes',
+    'Date & Time Slot',
   ];
 
   // Form fields
-  carModel: string = '';
+  carModel: string = '';       
   bookingDate: string = '';
   selectTime: MinOption;
   selectedMin: number | undefined;
   selectedLocation: string = '';
   validationMessage: string = '';
-
+  cars: string[] = [];
   slotBooking: timeSlotBooking[] = [];
-  locations: string[] = [
-    'Berlin',
-    'Hamburg',
-    'Munich',
-  ];
-
-  carOptions: string[] = [
-    'Porsche 911',
-    'Audi R8',
-  ];
+  locations: string[] = [];         
+  isLocationLoading: boolean = false;
+  carOptions: string[] = [];
+  isCarLoading: boolean = false;
 
   // Time window and minute options
   readonly bookingWindow: TimeSlot = {
@@ -77,23 +73,97 @@ export class BookingPageComponent implements OnInit {
   selectedState: string = '';
   selectedCity: string = '';
 
-  constructor(private route: ActivatedRoute) {
+  constructor(private route: ActivatedRoute, private carService: CarService ,private cdr: ChangeDetectorRef, private event: EventService) {
     this.selectTime = this.minOption;
   }
 
   ngOnInit(): void {
+    this.getevent();
+    this.currentStep = 1;
+    this.carModel = '';
+    this.getcar();
+
     this.route.queryParams.subscribe(params => {
       this.selectedState = params['state'] || '';
       this.selectedCity = params['city'] || '';
     });
+
     this.route.queryParamMap.subscribe(params => {
       this.selectedLocation = params.get('location') ?? '';
     });
+  }
 
-    // const timeSlots = this.getTimeIntervals('10:00', '12:00',60,10);
-    // for(let timeSlot of timeSlots){
-    //   console.log(timeSlot)
-    // }
+  getcar(): void {
+    this.isCarLoading = true;
+
+    this.carService.getCar().subscribe({
+      next: (res: unknown): void => {
+        const api = res as { data?: unknown[] } | unknown[];
+        const list: unknown[] = Array.isArray(api) ? api : (api.data ?? []);
+
+        const names: string[] = list
+          .map((item: unknown) => {
+            const car = item as { name?: unknown; make?: unknown; model?: unknown };
+            return car.name ?? car.make ?? car.model;
+          })
+          .filter((name: unknown): name is string => typeof name === 'string' && name.trim().length > 0);
+
+        this.carOptions = Array.from(new Set<string>(names));
+
+        if (!this.carOptions.length) {
+          this.carOptions = ['Audi', 'Porsche'];
+        }
+
+        this.carModel = '';
+        this.isCarLoading = false;
+        this.cdr.detectChanges();
+      },
+      error: (err: unknown) => {
+        console.error('Failed to load cars', err);
+        this.carOptions = ['Audi', 'Porsche'];
+        this.carModel = '';
+        this.isCarLoading = false;
+        this.cdr.detectChanges();
+      }
+    });
+  }
+  getevent(): void {
+    this.isLocationLoading = true;
+
+    this.event.getEvent().subscribe({
+      next: (res: unknown): void => {
+        const root = res as any;
+        const list: any[] =
+          Array.isArray(root) ? root :
+          Array.isArray(root?.data) ? root.data :
+          Array.isArray(root?.data?.data) ? root.data.data :
+          [];
+
+        const cityNames: string[] = list
+          .map((item: any) =>
+            item?.cityName ??
+             item?.city_name ??   
+            item?.city ??
+            item?.CityName ??
+            item?.location?.cityName ??
+            item?.location?.city ??
+            item?.address?.cityName ??
+            item?.address?.city
+          )
+          .filter((city: unknown): city is string => typeof city === 'string' && city.trim().length > 0)
+          .map((city: string) => city.trim());
+
+        this.locations = Array.from(new Set(cityNames));
+        this.isLocationLoading = false;
+        this.cdr.detectChanges();
+      },
+      error: (err: unknown): void => {
+        console.error('Failed to load events', err);
+        this.locations = [];
+        this.isLocationLoading = false;
+        this.cdr.detectChanges();
+      }
+    });
   }
 
   getStatusClass(status: string): string {
@@ -164,9 +234,9 @@ export class BookingPageComponent implements OnInit {
       case 2:
         return !!this.selectedLocation;
       case 3:
-        return !!this.bookingDate && !!this.selectedMin;
+        return !!this.selectedMin;
       case 4:
-        return this.slotBooking.some(slot => slot.selected);
+        return !!this.bookingDate && this.slotBooking.some(slot => slot.selected);
       default:
         return false;
     }
@@ -179,18 +249,18 @@ export class BookingPageComponent implements OnInit {
       case 2:
         return 'Please select a pickup location.';
       case 3:
-        return 'Please choose a pickup/drop date and minute option.';
+        return 'Please choose a minute option.';
       case 4:
-        return 'Please select an available time slot.';
+        return 'Please select pickup/drop date and an available time slot.';
       default:
         return 'Please complete all required fields.';
     }
   }
 
   selectCar(car: string): void {
+    // this.getcar();
     this.carModel = car;
-    this.validationMessage = '';
-  }
+   }
 
   selectLocation(location: string): void {
     this.selectedLocation = location;
