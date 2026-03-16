@@ -1,8 +1,9 @@
-import { AfterViewInit, ElementRef, ViewChild, Renderer2, OnInit } from '@angular/core';
+import { AfterViewInit, ElementRef, ViewChild, Renderer2, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { AuthService } from '../../services/auth.service';
 import { Router } from '@angular/router';
+import { EventService } from '../../services/event.service';
 
 @Component({
   selector: 'app-home',
@@ -16,6 +17,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
   toastMessage: string = '';
   showToast: boolean = false;
   toastTimeout: any;
+  events: any[] = [];
 
   locations = [
     {
@@ -65,7 +67,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
   currentMonthYear: string = '';
   weekDays: string[] = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
   calendarDays: any[] = [];
-  totalCarsAvailable: number = 45;
+  totalCarsAvailable: number = 0;
 
   // City availability data for different dates
   cityAvailability: any = {
@@ -76,15 +78,41 @@ export class HomeComponent implements OnInit, AfterViewInit {
     'STUTTGART': [5, 12, 18, 22, 26]
   };
 
-  constructor(private renderer: Renderer2, private authService: AuthService, private router: Router) {}
-  
+  constructor(
+    private renderer: Renderer2,
+    private authService: AuthService,
+    private router: Router,
+    private eventService:EventService,
+    private cdr:ChangeDetectorRef
+  ) {}
+
   get isLoggedIn(): boolean {
     return this.authService.isLoggedIn();
   }
 
   ngOnInit() {
-    // Generate calendar on init to ensure data is ready
-    this.generateCalendar();
+
+  this.generateCalendar(); // create empty calendar first
+
+  this.eventService.getEvent().subscribe({
+  next: (res:any) => {
+
+    this.events = res || [];
+
+    this.totalCarsAvailable = this.events.reduce(
+      (sum:any, event:any) => sum + (event.eventCars?.length || 0),
+      0
+    );
+
+    this.generateCalendar(); // regenerate after API
+    this.cdr.markForCheck()
+  },
+  error: (err) => {
+    console.log('Event API error', err);
+  }
+
+  });
+
   }
 
   ngAfterViewInit() {
@@ -157,106 +185,87 @@ export class HomeComponent implements OnInit, AfterViewInit {
       this.alertMessage('Please login first to book a car at ' + location.city);
     }
   }
-
-  generateCalendar() {
-    // Always use current date
+  generateCalendar(){
     const today = new Date();
     const year = today.getFullYear();
     const month = today.getMonth();
-    
-    // Format current month and year
-    this.currentMonthYear = today.toLocaleDateString('en-US', { 
-      month: 'long', 
-      year: 'numeric' 
+
+    this.currentMonthYear = today.toLocaleDateString('en-US',{
+    month:'long',
+    year:'numeric'
     });
-    
-    // Get first day of month
-    const firstDay = new Date(year, month, 1);
+
     const lastDay = new Date(year, month + 1, 0);
-    const startingDayOfWeek = firstDay.getDay();
     const daysInMonth = lastDay.getDate();
-    
-    // Get days from previous month
-    const prevMonthLastDay = new Date(year, month, 0).getDate();
-    
+
     this.calendarDays = [];
-    
-    // Add days from previous month
-    for (let i = startingDayOfWeek - 1; i >= 0; i--) {
-      this.calendarDays.push({
-        day: prevMonthLastDay - i,
-        isCurrentMonth: false,
-        isToday: false,
-        availability: null,
-        availableCars: 0,
-        cities: []
-      });
+
+    for(let day = 1; day <= daysInMonth; day++){
+
+    const date = new Date(year, month, day);
+
+    const isToday =
+      date.toDateString() === today.toDateString();
+
+    const citiesAvailable = this.getCitiesForDay(date);
+
+    let availability = 'booked';
+    let totalCars = 0;
+
+    if(citiesAvailable.length){
+
+      totalCars = citiesAvailable.reduce(
+        (sum:any, city:any)=> sum + city.cars,
+        0
+      );
+
+      availability =
+        citiesAvailable.length >=3 ? 'available':'limited';
     }
-    
-    // Add days of current month
-    for (let day = 1; day <= daysInMonth; day++) {
-      const date = new Date(year, month, day);
-      const isToday = date.toDateString() === today.toDateString();
-      
-      // Get cities available on this day
-      const citiesAvailable = this.getCitiesForDay(day);
-      
-      // Determine availability based on number of cities
-      let availability = 'booked';
-      let totalCars = 0;
-      
-      if (citiesAvailable.length > 0) {
-        totalCars = citiesAvailable.reduce((sum, city) => sum + city.cars, 0);
-        
-        if (citiesAvailable.length >= 3) {
-          availability = 'available';
-        } else if (citiesAvailable.length > 0) {
-          availability = 'limited';
-        }
-      }
-      
-      this.calendarDays.push({
-        day: day,
-        isCurrentMonth: true,
-        isToday: isToday,
-        availability: availability,
-        availableCars: totalCars,
-        cities: citiesAvailable,
-        date: date
-      });
+
+    this.calendarDays.push({
+      day,
+      isCurrentMonth:true,
+      isToday,
+      availability,
+      availableCars: totalCars,
+      cities: citiesAvailable,
+      date
+    });
+
     }
-    
-    // Add days from next month to fill the grid
-    const remainingDays = 42 - this.calendarDays.length;
-    for (let day = 1; day <= remainingDays; day++) {
-      this.calendarDays.push({
-        day: day,
-        isCurrentMonth: false,
-        isToday: false,
-        availability: null,
-        availableCars: 0,
-        cities: []
-      });
-    }
-    
-    console.log('Calendar generated:', this.calendarDays.length, 'days');
-    console.log('Current month:', this.currentMonthYear);
+
   }
 
-  getCitiesForDay(day: number): any[] {
-    const cities = [];
-    
-    for (const [cityName, days] of Object.entries(this.cityAvailability)) {
-      if ((days as number[]).includes(day)) {
+  getCitiesForDay(date: Date){
+
+    const cities:any[] = [];
+
+    this.events.forEach((event:any)=>{
+
+      const start = new Date(event.start_date);
+      const end = new Date(event.end_date);
+
+      start.setHours(0,0,0,0);
+      end.setHours(0,0,0,0);
+
+      const current = new Date(date);
+      current.setHours(0,0,0,0);
+
+      if(current >= start && current <= end){
+
         cities.push({
-          name: cityName,
-          cars: Math.floor(Math.random() * 8) + 3 // 3-10 cars per city
+          name: event.city_name.toUpperCase(),
+          cars: event.eventCars.length
         });
+
       }
-    }
-    
+
+    });
+
     return cities;
   }
+
 
   previousMonth() {
     // Remove month navigation - always show current month
@@ -268,20 +277,30 @@ export class HomeComponent implements OnInit, AfterViewInit {
     return;
   }
 
-  selectDate(day: any) {
-    if (!day.isCurrentMonth || day.availability === 'booked') return;
-    
-    if (this.isLoggedIn) {
-      // Navigate to booking with selected date and available cities
-      this.router.navigate(['/booking'], { 
-        state: { 
+  selectDate(day:any){
+
+    if(!day.isCurrentMonth || day.availability === 'booked')
+      return;
+
+    if(this.isLoggedIn){
+
+      this.router.navigate(['/booking'],{
+        state:{
           selectedDate: day.date,
           availableCities: day.cities
         }
       });
-    } else {
-      const cityNames = day.cities.map((c: any) => c.name).join(', ');
-      this.alertMessage(`Please login first to book a car. Available in: ${cityNames}`);
+
+    }else{
+
+      const cityNames =
+        day.cities.map((c:any)=>c.name).join(', ');
+
+      this.alertMessage(
+        `Please login first. Available in: ${cityNames}`
+      );
+
     }
+
   }
 }
