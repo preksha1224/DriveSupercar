@@ -12,7 +12,7 @@
 
 <!-- Hero Section -->
 <section class="hero-section">
-  <video class="hero-video-bg" autoplay muted loop playsinline preload="auto">
+  <video class="hero-video-bg" autoplay m`uted loop playsinline preload="auto">
     <source src="assets/videos/cars3.mp4" type="video/mp4">
   </video>
   <div class="hero-overlay"></div>
@@ -245,7 +245,7 @@
             
             <div class="availability-info-box">
               <i class="bi bi-info-circle-fill"></i>
-x              <p>Click on dates to see which cities have cars available</p>
+              <p>Click on dates to see which cities have cars available</p>
             </div>
           </div>
         </div>
@@ -299,7 +299,7 @@ x              <p>Click on dates to see which cities have cars available</p>
             
             <!-- Debug Info (remove after testing) -->
             <div *ngIf="!calendarDays || calendarDays.length === 0" style="color: red; padding: 20px;">
-              No calendar data available. Calendar Days: {{ calendarDays?.length || 0 }}
+              No calendar data available. Calendar Days: {{ calendarDays?.length || 0 }} 
             </div>
             
             <div class="calendar-footer">

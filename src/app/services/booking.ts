@@ -13,6 +13,6 @@ export class Booking {
   }
 
   getBooking() : Observable<any>{
-    return this.http.get('/book/getBookings/id')
+    return this.http.get('/book/getBookings/id');
   }
 }

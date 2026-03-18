@@ -1,4 +1,11 @@
-import { AfterViewInit, ElementRef, ViewChild, Renderer2, OnInit, ChangeDetectorRef } from '@angular/core';
+import {
+  AfterViewInit,
+  ElementRef,
+  ViewChild,
+  Renderer2,
+  OnInit,
+  ChangeDetectorRef,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { AuthService } from '../../services/auth.service';
@@ -25,8 +32,8 @@ export class HomeComponent implements OnInit, AfterViewInit {
       region: 'Brandenburg',
       route: 'Autobahn A100 & City Routes',
       popular: true,
-      lat: 52.5200,
-      lng: 13.4050
+      lat: 52.52,
+      lng: 13.405,
     },
     {
       city: 'MUNICH',
@@ -34,7 +41,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
       route: 'Alpine Foothills & City Circuits',
       popular: false,
       lat: 48.1351,
-      lng: 11.5820
+      lng: 11.582,
     },
     {
       city: 'FRANKFURT',
@@ -42,7 +49,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
       route: 'Taunus Mountain Roads',
       popular: false,
       lat: 50.1109,
-      lng: 8.6821
+      lng: 8.6821,
     },
     {
       city: 'HAMBURG',
@@ -50,7 +57,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
       route: 'Harbor Drive & Expressways',
       popular: false,
       lat: 53.5511,
-      lng: 9.9937
+      lng: 9.9937,
     },
     {
       city: 'STUTTGART',
@@ -58,8 +65,8 @@ export class HomeComponent implements OnInit, AfterViewInit {
       route: 'Swabian Alb Scenic Routes',
       popular: false,
       lat: 48.7758,
-      lng: 9.1829
-    }
+      lng: 9.1829,
+    },
   ];
 
   // Calendar properties
@@ -71,19 +78,19 @@ export class HomeComponent implements OnInit, AfterViewInit {
 
   // City availability data for different dates
   cityAvailability: any = {
-    'BERLIN': [2, 5, 8, 12, 15, 18, 22, 25, 28],
-    'MUNICH': [3, 7, 10, 14, 17, 20, 24, 27, 30],
-    'FRANKFURT': [1, 6, 9, 13, 16, 19, 23, 26, 29],
-    'HAMBURG': [4, 11, 15, 21, 25, 28],
-    'STUTTGART': [5, 12, 18, 22, 26]
+    BERLIN: [2, 5, 8, 12, 15, 18, 22, 25, 28],
+    MUNICH: [3, 7, 10, 14, 17, 20, 24, 27, 30],
+    FRANKFURT: [1, 6, 9, 13, 16, 19, 23, 26, 29],
+    HAMBURG: [4, 11, 15, 21, 25, 28],
+    STUTTGART: [5, 12, 18, 22, 26],
   };
 
   constructor(
     private renderer: Renderer2,
     private authService: AuthService,
     private router: Router,
-    private eventService:EventService,
-    private cdr:ChangeDetectorRef
+    private eventService: EventService,
+    private cdr: ChangeDetectorRef,
   ) {}
 
   get isLoggedIn(): boolean {
@@ -91,28 +98,24 @@ export class HomeComponent implements OnInit, AfterViewInit {
   }
 
   ngOnInit() {
+    this.generateCalendar(); // create empty calendar first
 
-  this.generateCalendar(); // create empty calendar first
+    this.eventService.getEvent().subscribe({
+      next: (res: any) => {
+        this.events = res || [];
 
-  this.eventService.getEvent().subscribe({
-  next: (res:any) => {
+        this.totalCarsAvailable = this.events.reduce(
+          (sum: any, event: any) => sum + (event.eventCars?.length || 0),
+          0,
+        );
 
-    this.events = res || [];
-
-    this.totalCarsAvailable = this.events.reduce(
-      (sum:any, event:any) => sum + (event.eventCars?.length || 0),
-      0
-    );
-
-    this.generateCalendar(); // regenerate after API
-    this.cdr.markForCheck()
-  },
-  error: (err) => {
-    console.log('Event API error', err);
-  }
-
-  });
-
+        this.generateCalendar(); // regenerate after API
+        this.cdr.markForCheck();
+      },
+      error: (err) => {
+        console.log('Event API error', err);
+      },
+    });
   }
 
   ngAfterViewInit() {
@@ -148,7 +151,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
     }
     this.toastTimeout = setTimeout(() => {
       this.showToast = false;
-      this.router.navigateByUrl('/user/login')
+      this.router.navigateByUrl('/user/login');
     }, 3000);
   }
 
@@ -185,14 +188,14 @@ export class HomeComponent implements OnInit, AfterViewInit {
       this.alertMessage('Please login first to book a car at ' + location.city);
     }
   }
-  generateCalendar(){
+  generateCalendar() {
     const today = new Date();
     const year = today.getFullYear();
     const month = today.getMonth();
 
-    this.currentMonthYear = today.toLocaleDateString('en-US',{
-    month:'long',
-    year:'numeric'
+    this.currentMonthYear = today.toLocaleDateString('en-US', {
+      month: 'long',
+      year: 'numeric',
     });
 
     const lastDay = new Date(year, month + 1, 0);
@@ -200,72 +203,57 @@ export class HomeComponent implements OnInit, AfterViewInit {
 
     this.calendarDays = [];
 
-    for(let day = 1; day <= daysInMonth; day++){
+    for (let day = 1; day <= daysInMonth; day++) {
+      const date = new Date(year, month, day);
 
-    const date = new Date(year, month, day);
+      const isToday = date.toDateString() === today.toDateString();
 
-    const isToday =
-      date.toDateString() === today.toDateString();
+      const citiesAvailable = this.getCitiesForDay(date);
 
-    const citiesAvailable = this.getCitiesForDay(date);
+      let availability = 'booked';
+      let totalCars = 0;
 
-    let availability = 'booked';
-    let totalCars = 0;
+      if (citiesAvailable.length) {
+        totalCars = citiesAvailable.reduce((sum: any, city: any) => sum + city.cars, 0);
 
-    if(citiesAvailable.length){
+        availability = citiesAvailable.length >= 3 ? 'available' : 'limited';
+      }
 
-      totalCars = citiesAvailable.reduce(
-        (sum:any, city:any)=> sum + city.cars,
-        0
-      );
-
-      availability =
-        citiesAvailable.length >=3 ? 'available':'limited';
+      this.calendarDays.push({
+        day,
+        isCurrentMonth: true,
+        isToday,
+        availability,
+        availableCars: totalCars,
+        cities: citiesAvailable,
+        date,
+      });
     }
-
-    this.calendarDays.push({
-      day,
-      isCurrentMonth:true,
-      isToday,
-      availability,
-      availableCars: totalCars,
-      cities: citiesAvailable,
-      date
-    });
-
-    }
-
   }
 
-  getCitiesForDay(date: Date){
+  getCitiesForDay(date: Date) {
+    const cities: any[] = [];
 
-    const cities:any[] = [];
-
-    this.events.forEach((event:any)=>{
-
+    this.events.forEach((event: any) => {
       const start = new Date(event.start_date);
       const end = new Date(event.end_date);
 
-      start.setHours(0,0,0,0);
-      end.setHours(0,0,0,0);
+      start.setHours(0, 0, 0, 0);
+      end.setHours(0, 0, 0, 0);
 
       const current = new Date(date);
-      current.setHours(0,0,0,0);
+      current.setHours(0, 0, 0, 0);
 
-      if(current >= start && current <= end){
-
+      if (current >= start && current <= end) {
         cities.push({
           name: event.city_name.toUpperCase(),
-          cars: event.eventCars.length
+          cars: event.eventCars.length,
         });
-
       }
-
     });
 
     return cities;
   }
-
 
   previousMonth() {
     // Remove month navigation - always show current month
@@ -277,30 +265,44 @@ export class HomeComponent implements OnInit, AfterViewInit {
     return;
   }
 
-  selectDate(day:any){
+  selectDate(day: any) {
+    if (!day.isCurrentMonth || day.availability === 'booked') return;
 
-    if(!day.isCurrentMonth || day.availability === 'booked')
-      return;
+    if (this.isLoggedIn) {
+      // Find all available dates for the selected city
+      let availableDates: string[] = [];
+      if (day.cities && day.cities.length > 0) {
+        const selectedCity = day.cities[0].name;
+        availableDates = this.calendarDays
+          .filter((d) => d.isCurrentMonth && d.cities.some((c: any) => c.name === selectedCity))
+          .map((d) => {
+            if (d.date instanceof Date) {
+              return d.date.toISOString().split('T')[0];
+            } else if (typeof d.date === 'string') {
+              // fallback if date is already string
+              return d.date;
+            }
+            return '';
+          })
+          .filter((d: string) => !!d);
+      } else {
+        // fallback: just the selected day
+        availableDates = [
+          day.date instanceof Date ? day.date.toISOString().split('T')[0] : day.date,
+        ];
+      }
 
-    if(this.isLoggedIn){
-
-      this.router.navigate(['/booking'],{
-        state:{
-          selectedDate: day.date,
-          availableCities: day.cities
-        }
+      this.router.navigate(['/booking'], {
+        state: {
+          selectedDate: day.date instanceof Date ? day.date.toISOString().split('T')[0] : day.date,
+          availableCities: day.cities,
+          availableDates: availableDates,
+        },
       });
+    } else {
+      const cityNames = day.cities.map((c: any) => c.name).join(', ');
 
-    }else{
-
-      const cityNames =
-        day.cities.map((c:any)=>c.name).join(', ');
-
-      this.alertMessage(
-        `Please login first. Available in: ${cityNames}`
-      );
-
+      this.alertMessage(`Please login first. Available in: ${cityNames}`);
     }
-
   }
 }
