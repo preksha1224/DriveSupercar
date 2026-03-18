@@ -59,7 +59,7 @@
             class="select-card"
             *ngFor="let car of carOptions"
             [class.selected]="carModel === car"
-            (click)="selectCar(car)" 
+            (click)="selectCar(car)"
           >
             <span class="select-card-title">{{ car }}</span>
             <span class="slot-status" *ngIf="carModel === car">SELECTED</span>
