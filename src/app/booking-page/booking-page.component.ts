@@ -45,9 +45,10 @@ export class BookingPageComponent implements OnInit {
     'Choose Minutes',
     'Date & Time Slot',
   ];
+  availableDates: string[] = [];
 
   // Form fields
-  carModel: string = '';       
+  carModel: string = '';
   bookingDate: string = '';
   selectTime: MinOption;
   selectedMin: number | undefined;
@@ -55,7 +56,7 @@ export class BookingPageComponent implements OnInit {
   validationMessage: string = '';
   cars: string[] = [];
   slotBooking: timeSlotBooking[] = [];
-  locations: string[] = [];         
+  locations: string[] = [];
   isLocationLoading: boolean = false;
   carOptions: string[] = [];
   isCarLoading: boolean = false;
@@ -98,6 +99,60 @@ export class BookingPageComponent implements OnInit {
     this.currentStep = 1;
     this.carModel = '';
     this.getcar();
+        const navState = window.history.state;
+    if (navState) {
+      // Handle available dates (from calendar selection)
+      if (navState.availableDates && Array.isArray(navState.availableDates)) {
+        // Dates as ISO strings or Date objects
+        this.availableDates = navState.availableDates.map((d: any) => {
+          const dateObj = new Date(d);
+          return !isNaN(dateObj.getTime()) ? dateObj.toISOString().split('T')[0] : d;
+        });
+      } else if (navState.availableCities && Array.isArray(navState.availableCities)) {
+        // If availableCities has date info, extract all unique dates
+        const dates: string[] = navState.availableCities
+          .map((city: any) => city.date)
+          .filter((d: any) => !!d)
+          .map((d: any) => {
+            const dateObj = new Date(d);
+            return !isNaN(dateObj.getTime()) ? dateObj.toISOString().split('T')[0] : d;
+          });
+        this.availableDates = Array.from(new Set(dates));
+      } else if (navState.selectedDate) {
+        // Fallback: single selected date
+        const dateObj = new Date(navState.selectedDate);
+        if (!isNaN(dateObj.getTime())) {
+          this.availableDates = [dateObj.toISOString().split('T')[0]];
+        } else if (typeof navState.selectedDate === 'string') {
+          this.availableDates = [navState.selectedDate];
+        }
+      }
+
+      // Pre-select bookingDate if available
+      if (navState.selectedDate) {
+        const dateObj = new Date(navState.selectedDate);
+        if (!isNaN(dateObj.getTime())) {
+          this.bookingDate = dateObj.toISOString().split('T')[0];
+        } else if (typeof navState.selectedDate === 'string') {
+          this.bookingDate = navState.selectedDate;
+        }
+      } else if (this.availableDates.length > 0) {
+        this.bookingDate = this.availableDates[0];
+      }
+
+      if (navState.location) {
+        this.selectedLocation = navState.location;
+      }
+      if (
+        navState.availableCities &&
+        Array.isArray(navState.availableCities) &&
+        navState.availableCities.length > 0
+      ) {
+        if (!this.selectedLocation && navState.availableCities[0]?.name) {
+          this.selectedLocation = navState.availableCities[0].name;
+        }
+      }
+    }
 
     this.route.queryParams.subscribe(params => {
       this.selectedState = params['state'] || '';
@@ -152,7 +207,7 @@ export class BookingPageComponent implements OnInit {
   //       const cityNames: string[] = list
   //         .map((item: any) =>
   //           item?.cityName ??
-  //            item?.city_name ??   
+  //            item?.city_name ??
   //           item?.city ??
   //           item?.CityName ??
   //           item?.location?.cityName ??
@@ -210,7 +265,7 @@ export class BookingPageComponent implements OnInit {
               Array.isArray(windowItem?.allowed_duration) ? windowItem.allowed_duration : []
             );
           })
-          
+
           .filter((value: unknown): value is string => typeof value === 'string' && value.trim().length > 0)
           .map((value: string) => value.trim().toUpperCase());
 console.log('allowduration', allowedDurations);
@@ -228,7 +283,7 @@ console.log('minutes',minutes);
           minOption: minutes,
         };
         console.log('selecttime', this.selectTime);
-        
+
 
         this.selectedMin = undefined;
         this.slotBooking = [];
