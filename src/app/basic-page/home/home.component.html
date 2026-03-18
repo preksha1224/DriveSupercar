@@ -12,7 +12,7 @@
 
 <!-- Hero Section -->
 <section class="hero-section">
-  <video class="hero-video-bg" autoplay muted loop playsinline preload="auto">
+  <video #heroVideo class="hero-video-bg" autoplay muted loop playsinline preload="auto">
     <source src="assets/videos/cars3.mp4" type="video/mp4">
   </video>
   <div class="hero-overlay"></div>
@@ -257,9 +257,6 @@ x              <p>Click on dates to see which cities have cars available</p>
               <h4 class="calendar-month-title">
                 <i class="bi bi-calendar3 me-2"></i>{{ currentMonthYear }}
               </h4>
-              <div class="current-month-badge">
-                <i class="bi bi-dot"></i>CURRENT MONTH
-              </div>
             </div>
             
             <!-- Weekday Headers -->

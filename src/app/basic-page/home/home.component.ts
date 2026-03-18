@@ -14,6 +14,7 @@ import { EventService } from '../../services/event.service';
 })
 export class HomeComponent implements OnInit, AfterViewInit {
   @ViewChild('heroCard', { static: false }) heroCardRef!: ElementRef;
+  @ViewChild('heroVideo', { static: false }) heroVideoRef!: ElementRef;
   toastMessage: string = '';
   showToast: boolean = false;
   toastTimeout: any;
@@ -116,7 +117,8 @@ export class HomeComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit() {
-    // Calendar already generated in ngOnInit
+    // Force video to play after view init
+    this.playHeroVideo();
   }
 
   onHeroMouseMove(event: MouseEvent) {
@@ -302,5 +304,29 @@ export class HomeComponent implements OnInit, AfterViewInit {
 
     }
 
+  }
+
+  playHeroVideo() {
+    const video = this.heroVideoRef?.nativeElement;
+    if (video) {
+      // Reset and play video
+      video.muted = true;
+      video.load();
+      const playPromise = video.play();
+      
+      if (playPromise !== undefined) {
+        playPromise
+          .then(() => {
+            console.log('Hero video playing successfully');
+          })
+          .catch((error: any) => {
+            console.log('Video autoplay failed:', error);
+            // Retry playing on user interaction
+            document.addEventListener('click', () => {
+              video.play().catch((err: any) => console.log('Retry failed:', err));
+            }, { once: true });
+          });
+      }
+    }
   }
 }
