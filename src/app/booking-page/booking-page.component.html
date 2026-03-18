@@ -100,7 +100,7 @@
           <div class="time-slots-grid mini">
             <button
               type="button"
-              *ngFor="let slot of selectTime.minOption"
+           *ngFor="let slot of selectTime.minOption"
               class="time-slot-btn"
               [class.selected]="selectedMin === slot"
               (click)="selectMin(slot)"
@@ -120,17 +120,14 @@
           <div class="form-group">
             <label for="bookingDate"> PICKUP / DROP DATE <span class="required">*</span> </label>
             <div></div>
-            <select
+            <input
+              type="date"
               id="bookingDate"
               [(ngModel)]="bookingDate"
+              [min]="minPickupDate"
               (ngModelChange)="onBookingDateChange()"
               class="form-input"
-              [disabled]="!availableDates.length"
-            >
-              <option *ngFor="let date of availableDates" [value]="date">
-                {{ date }}
-              </option>
-            </select>
+            />
           </div>
         </div>
 
