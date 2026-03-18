@@ -279,7 +279,14 @@ export class HomeComponent implements OnInit, AfterViewInit {
           .filter((d) => d.isCurrentMonth && d.cities.some((c: any) => c.name === selectedCity))
           .map((d) => {
             if (d.date instanceof Date) {
-              return d.date.toISOString().split('T')[0];
+              // Format as local yyyy-mm-dd
+              return (
+                d.date.getFullYear() +
+                '-' +
+                String(d.date.getMonth() + 1).padStart(2, '0') +
+                '-' +
+                String(d.date.getDate()).padStart(2, '0')
+              );
             } else if (typeof d.date === 'string') {
               // fallback if date is already string
               return d.date;
@@ -290,13 +297,26 @@ export class HomeComponent implements OnInit, AfterViewInit {
       } else {
         // fallback: just the selected day
         availableDates = [
-          day.date instanceof Date ? day.date.toISOString().split('T')[0] : day.date,
+          day.date instanceof Date
+            ? day.date.getFullYear() +
+              '-' +
+              String(day.date.getMonth() + 1).padStart(2, '0') +
+              '-' +
+              String(day.date.getDate()).padStart(2, '0')
+            : day.date,
         ];
       }
 
       this.router.navigate(['/booking'], {
         state: {
-          selectedDate: day.date instanceof Date ? day.date.toISOString().split('T')[0] : day.date,
+          selectedDate:
+            day.date instanceof Date
+              ? day.date.getFullYear() +
+                '-' +
+                String(day.date.getMonth() + 1).padStart(2, '0') +
+                '-' +
+                String(day.date.getDate()).padStart(2, '0')
+              : day.date,
           availableCities: day.cities,
           availableDates: availableDates,
         },
@@ -315,7 +335,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
       video.muted = true;
       video.load();
       const playPromise = video.play();
-      
+
       if (playPromise !== undefined) {
         playPromise
           .then(() => {
@@ -324,9 +344,13 @@ export class HomeComponent implements OnInit, AfterViewInit {
           .catch((error: any) => {
             console.log('Video autoplay failed:', error);
             // Retry playing on user interaction
-            document.addEventListener('click', () => {
-              video.play().catch((err: any) => console.log('Retry failed:', err));
-            }, { once: true });
+            document.addEventListener(
+              'click',
+              () => {
+                video.play().catch((err: any) => console.log('Retry failed:', err));
+              },
+              { once: true },
+            );
           });
       }
     }
