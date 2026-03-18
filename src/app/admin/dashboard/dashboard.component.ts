@@ -218,7 +218,7 @@ export class DashboardComponent implements OnInit{
       this.rideForm.reset();
       this.timeSlots.clear();
       this.addTimeSlot();
-
+      this.dismissModel();
     } else {
       this.rideForm.markAllAsTouched();
     }

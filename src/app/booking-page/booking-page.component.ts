@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { CarService } from '../services/car.service';
-import { EventService } from '../services/event.service';
+import { EventService} from '../services/event.service';
 import { appConfig } from '../app.config';
 interface Booking {
   id: string;
@@ -37,7 +37,6 @@ interface MinOption {
   styleUrl: './booking-page.component.scss',
 })
 export class BookingPageComponent implements OnInit {
-  availableDates: string[] = [];
   currentStep: number = 1;
   readonly totalSteps: number = 4;
   readonly stepLabels: string[] = [
@@ -48,7 +47,7 @@ export class BookingPageComponent implements OnInit {
   ];
 
   // Form fields
-  carModel: string = '';
+  carModel: string = '';       
   bookingDate: string = '';
   selectTime: MinOption;
   selectedMin: number | undefined;
@@ -56,7 +55,7 @@ export class BookingPageComponent implements OnInit {
   validationMessage: string = '';
   cars: string[] = [];
   slotBooking: timeSlotBooking[] = [];
-  locations: string[] = [];
+  locations: string[] = [];         
   isLocationLoading: boolean = false;
   carOptions: string[] = [];
   isCarLoading: boolean = false;
@@ -69,18 +68,29 @@ export class BookingPageComponent implements OnInit {
     selected: true,
     available: true,
   };
-  minOption: MinOption = { minOption: [10, 20, 40, 60] };
+  minOption: MinOption = { minOption: [] };
   // Location info
   selectedState: string = '';
   selectedCity: string = '';
 
-  constructor(
-    private route: ActivatedRoute,
-    private carService: CarService,
-    private cdr: ChangeDetectorRef,
-    private event: EventService,
-  ) {
-    this.selectTime = this.minOption;
+  // Add durationMap for mapping allowed_duration keys to minutes
+  durationMap: { [key: string]: number } = {
+    'TEN': 10,
+    'TWENTY': 20,
+    'FORTY': 40,
+    'SIXTY': 60,
+    'DURATION_10_MIN': 10,
+    'DURATION_20_MIN': 20,
+    'DURATION_40_MIN': 40,
+    'DURATION_60_MIN': 60,
+    '10': 10,
+    '20': 20,
+    '40': 40,
+    '60': 60
+  };
+
+  constructor(private route: ActivatedRoute, private carService: CarService ,private cdr: ChangeDetectorRef, private event: EventService) {
+    this.selectTime = { minOption: [] };
   }
 
   ngOnInit(): void {
@@ -89,69 +99,13 @@ export class BookingPageComponent implements OnInit {
     this.carModel = '';
     this.getcar();
 
-    // Read navigation state for selected date, location, and available dates
-    const navState = window.history.state;
-    if (navState) {
-      // Handle available dates (from calendar selection)
-      if (navState.availableDates && Array.isArray(navState.availableDates)) {
-        // Dates as ISO strings or Date objects
-        this.availableDates = navState.availableDates.map((d: any) => {
-          const dateObj = new Date(d);
-          return !isNaN(dateObj.getTime()) ? dateObj.toISOString().split('T')[0] : d;
-        });
-      } else if (navState.availableCities && Array.isArray(navState.availableCities)) {
-        // If availableCities has date info, extract all unique dates
-        const dates: string[] = navState.availableCities
-          .map((city: any) => city.date)
-          .filter((d: any) => !!d)
-          .map((d: any) => {
-            const dateObj = new Date(d);
-            return !isNaN(dateObj.getTime()) ? dateObj.toISOString().split('T')[0] : d;
-          });
-        this.availableDates = Array.from(new Set(dates));
-      } else if (navState.selectedDate) {
-        // Fallback: single selected date
-        const dateObj = new Date(navState.selectedDate);
-        if (!isNaN(dateObj.getTime())) {
-          this.availableDates = [dateObj.toISOString().split('T')[0]];
-        } else if (typeof navState.selectedDate === 'string') {
-          this.availableDates = [navState.selectedDate];
-        }
-      }
-
-      // Pre-select bookingDate if available
-      if (navState.selectedDate) {
-        const dateObj = new Date(navState.selectedDate);
-        if (!isNaN(dateObj.getTime())) {
-          this.bookingDate = dateObj.toISOString().split('T')[0];
-        } else if (typeof navState.selectedDate === 'string') {
-          this.bookingDate = navState.selectedDate;
-        }
-      } else if (this.availableDates.length > 0) {
-        this.bookingDate = this.availableDates[0];
-      }
-
-      if (navState.location) {
-        this.selectedLocation = navState.location;
-      }
-      if (
-        navState.availableCities &&
-        Array.isArray(navState.availableCities) &&
-        navState.availableCities.length > 0
-      ) {
-        if (!this.selectedLocation && navState.availableCities[0]?.name) {
-          this.selectedLocation = navState.availableCities[0].name;
-        }
-      }
-    }
-
-    this.route.queryParams.subscribe((params) => {
+    this.route.queryParams.subscribe(params => {
       this.selectedState = params['state'] || '';
       this.selectedCity = params['city'] || '';
     });
 
-    this.route.queryParamMap.subscribe((params) => {
-      this.selectedLocation = params.get('location') ?? this.selectedLocation;
+    this.route.queryParamMap.subscribe(params => {
+      this.selectedLocation = params.get('location') ?? '';
     });
   }
 
@@ -168,9 +122,7 @@ export class BookingPageComponent implements OnInit {
             const car = item as { name?: unknown; make?: unknown; model?: unknown };
             return car.name ?? car.make ?? car.model;
           })
-          .filter(
-            (name: unknown): name is string => typeof name === 'string' && name.trim().length > 0,
-          );
+          .filter((name: unknown): name is string => typeof name === 'string' && name.trim().length > 0);
 
         this.carOptions = Array.from(new Set<string>(names));
         this.carModel = '';
@@ -182,50 +134,117 @@ export class BookingPageComponent implements OnInit {
         this.carModel = '';
         this.isCarLoading = false;
         this.cdr.detectChanges();
-      },
+      }
     });
   }
+  // getevent(): void {
+  //   this.isLocationLoading = true;
+
+  //   this.event.getEvent().subscribe({
+  //     next: (res: unknown): void => {
+  //       const root = res as any;
+  //       const list: any[] =
+  //         Array.isArray(root) ? root :
+  //         Array.isArray(root?.data) ? root.data :
+  //         Array.isArray(root?.data?.data) ? root.data.data :
+  //         [];
+
+  //       const cityNames: string[] = list
+  //         .map((item: any) =>
+  //           item?.cityName ??
+  //            item?.city_name ??   
+  //           item?.city ??
+  //           item?.CityName ??
+  //           item?.location?.cityName ??
+  //           item?.location?.city ??
+  //           item?.address?.cityName ??
+  //           item?.address?.city
+  //         )
+  //         .filter((city: unknown): city is string => typeof city === 'string' && city.trim().length > 0)
+  //         .map((city: string) => city.trim());
+
+  //       this.locations = Array.from(new Set(cityNames));
+  //       this.isLocationLoading = false;
+  //       this.cdr.detectChanges();
+  //     },
+  //     error: (err: unknown): void => {
+  //       console.error('Failed to load events', err);
+  //       this.locations = [];
+  //       this.isLocationLoading = false;
+  //       this.cdr.detectChanges();
+  //     }
+  //   });
+  // }
   getevent(): void {
     this.isLocationLoading = true;
 
     this.event.getEvent().subscribe({
       next: (res: unknown): void => {
         const root = res as any;
-        const list: any[] = Array.isArray(root)
-          ? root
-          : Array.isArray(root?.data)
-            ? root.data
-            : Array.isArray(root?.data?.data)
-              ? root.data.data
-              : [];
+        const list: any[] =
+          Array.isArray(root) ? root :
+          Array.isArray(root?.data) ? root.data :
+          Array.isArray(root?.data?.data) ? root.data.data :
+          [];
 
         const cityNames: string[] = list
-          .map(
-            (item: any) =>
-              item?.cityName ??
-              item?.city_name ??
-              item?.city ??
-              item?.CityName ??
-              item?.location?.cityName ??
-              item?.location?.city ??
-              item?.address?.cityName ??
-              item?.address?.city,
+          .map((item: any) =>
+            item?.cityName ??
+            item?.city_name ??
+            item?.city ??
+            item?.CityName ??
+            item?.location?.cityName ??
+            item?.location?.city ??
+            item?.address?.cityName ??
+            item?.address?.city
           )
-          .filter(
-            (city: unknown): city is string => typeof city === 'string' && city.trim().length > 0,
-          )
+          .filter((city: unknown): city is string => typeof city === 'string' && city.trim().length > 0)
           .map((city: string) => city.trim());
 
         this.locations = Array.from(new Set(cityNames));
+
+        const allowedDurations: string[] = list
+          .flatMap((eventItem: any) => {
+            const windows = Array.isArray(eventItem?.eventTimeWindows) ? eventItem.eventTimeWindows : [];
+            return windows.flatMap((windowItem: any) =>
+              Array.isArray(windowItem?.allowed_duration) ? windowItem.allowed_duration : []
+            );
+          })
+          
+          .filter((value: unknown): value is string => typeof value === 'string' && value.trim().length > 0)
+          .map((value: string) => value.trim().toUpperCase());
+console.log('allowduration', allowedDurations);
+
+        const minutes: number[] = Array.from(
+          new Set(
+            allowedDurations
+              .map((durationKey: string) => this.durationMap[durationKey])
+              .filter((value: number | undefined): value is number => typeof value === 'number')
+          )
+        ).sort((a: number, b: number) => a - b);
+console.log('minutes',minutes);
+
+        this.selectTime = {
+          minOption: minutes,
+        };
+        console.log('selecttime', this.selectTime);
+        
+
+        this.selectedMin = undefined;
+        this.slotBooking = [];
         this.isLocationLoading = false;
         this.cdr.detectChanges();
       },
+
       error: (err: unknown): void => {
         console.error('Failed to load events', err);
         this.locations = [];
+        this.selectTime = { minOption: [] };
+        this.selectedMin = undefined;
+        this.slotBooking = [];
         this.isLocationLoading = false;
         this.cdr.detectChanges();
-      },
+      }
     });
   }
 
@@ -299,7 +318,7 @@ export class BookingPageComponent implements OnInit {
       case 3:
         return !!this.selectedMin;
       case 4:
-        return !!this.bookingDate && this.slotBooking.some((slot) => slot.selected);
+        return !!this.bookingDate && this.slotBooking.some(slot => slot.selected);
       default:
         return false;
     }
@@ -323,7 +342,7 @@ export class BookingPageComponent implements OnInit {
   selectCar(car: string): void {
     // this.getcar();
     this.carModel = car;
-  }
+   }
 
   selectLocation(location: string): void {
     this.selectedLocation = location;
@@ -337,13 +356,13 @@ export class BookingPageComponent implements OnInit {
       this.bookingWindow.startTime,
       this.bookingWindow.endTime,
       min,
-      buffer,
+      buffer
     );
     this.validationMessage = '';
   }
 
   selectDividedSlot(selectedSlot: timeSlotBooking): void {
-    this.slotBooking = this.slotBooking.map((slot) => ({
+    this.slotBooking = this.slotBooking.map(slot => ({
       ...slot,
       selected: slot.start === selectedSlot.start && slot.end === selectedSlot.end,
     }));
@@ -355,7 +374,7 @@ export class BookingPageComponent implements OnInit {
   }
 
   submitBooking(): void {
-    const selectedTimeRange = this.slotBooking.find((slot) => slot.selected);
+    const selectedTimeRange = this.slotBooking.find(slot => slot.selected);
 
     if (
       !this.carModel ||
@@ -386,7 +405,6 @@ export class BookingPageComponent implements OnInit {
     this.carModel = '';
     this.bookingDate = '';
     this.selectedLocation = '';
-    this.selectTime = this.minOption;
     this.selectedMin = undefined;
     this.slotBooking = [];
     this.currentStep = 1;
