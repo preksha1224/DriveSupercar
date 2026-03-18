@@ -59,7 +59,7 @@
             class="select-card"
             *ngFor="let car of carOptions"
             [class.selected]="carModel === car"
-            (click)="selectCar(car)" 
+            (click)="selectCar(car)"
           >
             <span class="select-card-title">{{ car }}</span>
             <span class="slot-status" *ngIf="carModel === car">SELECTED</span>
@@ -120,14 +120,17 @@
           <div class="form-group">
             <label for="bookingDate"> PICKUP / DROP DATE <span class="required">*</span> </label>
             <div></div>
-            <input
-              type="date"
+                    <select
               id="bookingDate"
               [(ngModel)]="bookingDate"
-              [min]="minPickupDate"
               (ngModelChange)="onBookingDateChange()"
               class="form-input"
-            />
+              [disabled]="!availableDates.length"
+            >
+              <option *ngFor="let date of availableDates" [value]="date">
+                {{ date }}
+              </option>
+            </select>
           </div>
         </div>
 
