@@ -120,14 +120,17 @@
           <div class="form-group">
             <label for="bookingDate"> PICKUP / DROP DATE <span class="required">*</span> </label>
             <div></div>
-            <input
-              type="date"
+            <select
               id="bookingDate"
               [(ngModel)]="bookingDate"
-              [min]="minPickupDate"
               (ngModelChange)="onBookingDateChange()"
               class="form-input"
-            />
+              [disabled]="!availableDates.length"
+            >
+              <option *ngFor="let date of availableDates" [value]="date">
+                {{ date | date:'dd-MM-yyyy' }}
+              </option>
+            </select>
           </div>
         </div>
 
@@ -153,7 +156,6 @@
       </div>
 
 <div class="form-actions">
-
   <div class="actions-left">
     <button type="button" class="btn-secondary" (click)="resetForm()">
       RESET
