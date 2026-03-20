@@ -15,4 +15,8 @@ createBooking(req: any): Observable<any> {
 getBooking(Id: string): Observable<any> {
   return this.http.get(`/book/getBookings/${Id}`);
 }
+
+getallBooking(): Observable<any> {
+  return this.http.get(`book/getAllBookings`);
+}
 }
