@@ -69,7 +69,7 @@
   }
 
   .header-tagline {
-    font-family: 'Manrope', sans-serif;
+
     font-size: 0.72rem;
     letter-spacing: 0.45em;
     color: var(--accent);
@@ -80,7 +80,7 @@
   }
 
   .header-title {
-    font-family: 'Cinzel', serif;
+
     font-size: clamp(2.6rem, 6vw, 4.4rem);
     letter-spacing: 0.16em;
     margin: 0;
@@ -89,7 +89,7 @@
   }
 
   .subtitle {
-    font-family: 'Manrope', sans-serif;
+
     margin-top: 20px;
     color: rgba(255, 255, 255, 0.82);
     letter-spacing: 0.12em;
@@ -146,7 +146,7 @@
   }
 
   .location-text {
-    font-family: 'Manrope', sans-serif;
+
     font-size: 0.9rem;
     font-weight: 700;
     letter-spacing: 0.12em;
@@ -172,7 +172,7 @@
 
     .form-title {
       margin: 0;
-      font-family: 'Cinzel', serif;
+  
       letter-spacing: 0.16em;
       font-size: clamp(1.3rem, 2.6vw, 2rem);
       color: #fff;
@@ -181,7 +181,7 @@
     .form-subtitle {
       margin-top: 8px;
       color: var(--muted);
-      font-family: 'Manrope', sans-serif;
+  
     }
   }
 
@@ -217,14 +217,14 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    font-family: 'Manrope', sans-serif;
+
     font-size: 0.82rem;
     font-weight: 700;
     color: var(--text);
   }
 
   .step-label {
-    font-family: 'Manrope', sans-serif;
+
     font-size: 0.8rem;
     letter-spacing: 0.05em;
     color: rgba(255, 255, 255, 0.82);
@@ -253,7 +253,7 @@
   }
 
   .validation-alert {
-    font-family: 'Manrope', sans-serif;
+
     background: var(--danger-bg);
     border: 1px solid var(--danger-line);
     color: var(--danger-text);
@@ -271,7 +271,7 @@
   .section-title,
   .sub-title {
     margin: 0;
-    font-family: 'Manrope', sans-serif;
+
     color: var(--accent);
     letter-spacing: 0.14em;
     text-transform: uppercase;
@@ -281,7 +281,7 @@
   .section-subtitle {
     margin: 10px 0 0;
     color: var(--muted);
-    font-family: 'Manrope', sans-serif;
+
   }
 
   .sub-section {
@@ -352,7 +352,7 @@
 
   .select-card-title,
   .time-text {
-    font-family: 'Manrope', sans-serif;
+
     color: var(--text);
     font-weight: 600;
     letter-spacing: 0.02em;
@@ -360,12 +360,12 @@
 
   .slot-range {
     color: var(--muted);
-    font-family: 'Manrope', sans-serif;
+
     font-size: 0.88rem;
   }
 
   .slot-status {
-    font-family: 'Manrope', sans-serif;
+
     font-size: 0.7rem;
     letter-spacing: 0.18em;
     color: var(--accent);
@@ -389,7 +389,7 @@
   }
 
   .form-group label {
-    font-family: 'Manrope', sans-serif;
+
     font-size: 0.76rem;
     letter-spacing: 0.12em;
     color: var(--muted);
@@ -406,7 +406,7 @@
     background: rgba(16, 16, 16, 0.86);
     color: var(--text);
     padding: 13px 14px;
-    font-family: 'Manrope', sans-serif;
+
   }
 
   .form-input:focus {
@@ -420,7 +420,7 @@
     border-radius: var(--radius-sm);
     padding: 12px;
     color: var(--muted);
-    font-family: 'Manrope', sans-serif;
+
     font-size: 0.9rem;
     background: rgba(212, 175, 55, 0.05);
   }
@@ -449,7 +449,7 @@
     border: none;
     border-radius: 999px;
     padding: 12px 22px;
-    font-family: 'Manrope', sans-serif;
+
     letter-spacing: 0.12em;
     font-size: 0.72rem;
     cursor: pointer;
