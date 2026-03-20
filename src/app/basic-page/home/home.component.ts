@@ -26,6 +26,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
   showToast: boolean = false;
   toastTimeout: any;
   events: any[] = [];
+  carModel: string = ''; // Example property for selected car
 
   locations = [
     {
@@ -159,9 +160,26 @@ export class HomeComponent implements OnInit, AfterViewInit {
 
   bookingRedirect() {
     if (this.isLoggedIn) {
-      this.router.navigateByUrl('/booking');
+      this.router.navigate(['/booking'], {
+        state: {
+          selectedCar: this.carModel
+        }
+      });
     } else {
       this.alertMessage('Please login first to explore booking the car');
+    }
+  }
+
+  // Add new method to handle car selection from showcase
+  bookCarShowcase(carName: string) {
+    if (this.isLoggedIn) {
+      this.router.navigate(['/booking'], {
+        state: {
+          selectedCar: carName
+        }
+      });
+    } else {
+      this.alertMessage('Please login first to book ' + carName);
     }
   }
 
@@ -185,11 +203,17 @@ export class HomeComponent implements OnInit, AfterViewInit {
     console.log('Selected location:', location);
     // Navigate to booking page with location pre-selected
     if (this.isLoggedIn) {
-      this.router.navigateByUrl('/booking', { state: { location: location.city } });
+      this.router.navigate(['/booking'], { 
+        state: { 
+          location: location.city,
+          selectedCar: this.carModel // Pass the selected car
+        } 
+      });
     } else {
       this.alertMessage('Please login first to book a car at ' + location.city);
     }
   }
+
   generateCalendar() {
     const today = new Date();
     const year = today.getFullYear();
@@ -319,6 +343,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
               : day.date,
           availableCities: day.cities,
           availableDates: availableDates,
+          selectedCar: this.carModel // Pass the selected car
         },
       });
     } else {

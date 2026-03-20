@@ -97,10 +97,23 @@ export class BookingPageComponent implements OnInit {
   ngOnInit(): void {
     this.getevent();
     this.currentStep = 1;
-    this.carModel = '';
-    this.getcar();
-        const navState = window.history.state;
-    if (navState) {
+    
+    const navState = window.history.state;
+    let preselectedCar = '';
+    
+    // Handle selected car from home page BEFORE loading cars
+    if (navState && navState.selectedCar) {
+      preselectedCar = navState.selectedCar;
+      this.carModel = preselectedCar;
+    }
+    
+    this.getcar(preselectedCar);
+        if (navState) {
+      // Handle selected car from home page
+      if (navState.selectedCar) {
+        this.carModel = navState.selectedCar;
+      }
+
       // Handle available dates (from calendar selection)
       if (navState.availableDates && Array.isArray(navState.availableDates)) {
         // Dates as ISO strings or Date objects
@@ -164,7 +177,7 @@ export class BookingPageComponent implements OnInit {
     });
   }
 
-  getcar(): void {
+  getcar(preselectedCar: string = ''): void {
     this.isCarLoading = true;
 
     this.carService.getCar().subscribe({
@@ -180,56 +193,26 @@ export class BookingPageComponent implements OnInit {
           .filter((name: unknown): name is string => typeof name === 'string' && name.trim().length > 0);
 
         this.carOptions = Array.from(new Set<string>(names));
-        this.carModel = '';
+        
+        // Restore preselected car after loading options
+        if (preselectedCar) {
+          this.carModel = preselectedCar;
+        }
+        
         this.isCarLoading = false;
         this.cdr.detectChanges();
       },
       error: (err: unknown) => {
         console.error('Failed to load cars', err);
-        this.carModel = '';
+        if (!preselectedCar) {
+          this.carModel = '';
+        }
         this.isCarLoading = false;
         this.cdr.detectChanges();
       }
     });
   }
-  // getevent(): void {
-  //   this.isLocationLoading = true;
 
-  //   this.event.getEvent().subscribe({
-  //     next: (res: unknown): void => {
-  //       const root = res as any;
-  //       const list: any[] =
-  //         Array.isArray(root) ? root :
-  //         Array.isArray(root?.data) ? root.data :
-  //         Array.isArray(root?.data?.data) ? root.data.data :
-  //         [];
-
-  //       const cityNames: string[] = list
-  //         .map((item: any) =>
-  //           item?.cityName ??
-  //            item?.city_name ??
-  //           item?.city ??
-  //           item?.CityName ??
-  //           item?.location?.cityName ??
-  //           item?.location?.city ??
-  //           item?.address?.cityName ??
-  //           item?.address?.city
-  //         )
-  //         .filter((city: unknown): city is string => typeof city === 'string' && city.trim().length > 0)
-  //         .map((city: string) => city.trim());
-
-  //       this.locations = Array.from(new Set(cityNames));
-  //       this.isLocationLoading = false;
-  //       this.cdr.detectChanges();
-  //     },
-  //     error: (err: unknown): void => {
-  //       console.error('Failed to load events', err);
-  //       this.locations = [];
-  //       this.isLocationLoading = false;
-  //       this.cdr.detectChanges();
-  //     }
-  //   });
-  // }
   getevent(): void {
     this.isLocationLoading = true;
 
