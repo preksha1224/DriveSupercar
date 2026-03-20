@@ -6,6 +6,7 @@ import { HomeComponent } from './basic-page/home/home.component';
 import { DashboardComponent } from './admin/dashboard/dashboard.component';
 import { BookingPageComponent } from './booking-page/booking-page.component';
 import { DetailPageComponent } from './basic-page/detail-page/detail-page.component';
+import { BookingdetailspageComponent } from './bookingdetailspage/bookingdetailspage.component';
 export const routes: Routes = [
   { path: '', component: HomeComponent },
   { path: 'booking', component: BookingPageComponent },
@@ -30,10 +31,16 @@ export const routes: Routes = [
     canActivate:[AuthGuard],
     component:BookingPageComponent
   },
+
     {
     path: 'detail',
     canActivate:[AuthGuard],
     component:DetailPageComponent
+  },
+    {
+    path: 'Bookingdetail',
+    canActivate:[AuthGuard],
+    component:BookingdetailspageComponent
   },
 
   { path: '**', redirectTo: '' }
