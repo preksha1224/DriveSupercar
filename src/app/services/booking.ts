@@ -5,12 +5,12 @@ import { Observable } from 'rxjs';
 @Injectable({
   providedIn: 'root',
 })
-export class Booking {
+export class BookingService {
   constructor(private http: HttpClient){}
-
-  createBooking(req: any) : Observable<any>{
-    return this.http.post('/book/createBooking',req);
-  }
+  
+createBooking(req: any): Observable<any> {
+  return this.http.post('http://localhost:3000/book/createBooking', req);
+}
 
   getBooking() : Observable<any>{
     return this.http.get('/book/getBookings/id');
