@@ -175,6 +175,24 @@ export class BookingPageComponent implements OnInit {
     this.route.queryParamMap.subscribe(params => {
       this.selectedLocation = params.get('location') ?? '';
     });
+
+    // Ensure availableDates has dates even when navigating directly
+    if (!this.availableDates || this.availableDates.length === 0) {
+      // Generate next 30 days as available dates
+      const dates: string[] = [];
+      const today = new Date();
+      for (let i = 0; i < 30; i++) {
+        const date = new Date(today);
+        date.setDate(date.getDate() + i);
+        dates.push(date.toISOString().split('T')[0]);
+      }
+      this.availableDates = dates;
+    }
+
+    // Ensure bookingDate is set to first available date if not already set
+    if (!this.bookingDate && this.availableDates.length > 0) {
+      this.bookingDate = this.availableDates[0];
+    }
   }
 
   getcar(preselectedCar: string = ''): void {
@@ -409,6 +427,16 @@ console.log('minutes',minutes);
 
   onBookingDateChange(): void {
     this.validationMessage = '';
+    // Reset time slots when date changes
+    if (this.selectedMin) {
+      const buffer = this.selectedMin === 10 ? 5 : 10;
+      this.slotBooking = this.getTimeIntervals(
+        this.bookingWindow.startTime,
+        this.bookingWindow.endTime,
+        this.selectedMin,
+        buffer
+      );
+    }
   }
 
   submitBooking(): void {
