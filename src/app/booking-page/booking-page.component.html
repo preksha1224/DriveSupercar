@@ -29,7 +29,7 @@
   <div class="booking-form-section">
     <div class="form-header">
       <h2 class="form-title">BOOKING DETAILS</h2>
-      <p class="form-subtitle">A guided four-step booking experience</p>
+      <p class="form-subtitle">A guided five-step booking experience</p>
     </div>
 
     <div class="stepper" role="list" aria-label="Booking steps">
@@ -152,6 +152,59 @@
 
         <div *ngIf="!slotBooking.length" class="helper-note">
           Select min option in step 3 to view available time slots.
+        </div>
+      </div>
+
+      <div *ngIf="currentStep === 5" class="form-section">
+        <h3 class="section-title">STEP 5. AMOUNT & PAYMENT</h3>
+        <p class="section-subtitle">Review your summary and select a payment method</p>
+
+        <div class="summary-card">
+          <div class="summary-line">
+            <span class="label">Car Model:</span>
+            <span class="value">{{ carModel }}</span>
+          </div>
+          <div class="summary-line">
+            <span class="label">Duration:</span>
+            <span class="value">{{ selectedMin }} Minutes</span>
+          </div>
+          <div class="summary-line total">
+            <span class="label">Total Amount:</span>
+            <span class="value">${{ totalAmount }}</span>
+          </div>
+        </div>
+
+        <div class="payment-selection">
+          <h4 class="sub-title">Select Payment Method <span class="required">*</span></h4>
+          <div class="selection-grid">
+            <button
+              type="button"
+              class="select-card"
+              [class.selected]="paymentMethod === 'Credit Card'"
+              (click)="selectPaymentMethod('Credit Card')"
+            >
+              <span class="select-card-title">Credit Card</span>
+              <span class="slot-status" *ngIf="paymentMethod === 'Credit Card'">SELECTED</span>
+            </button>
+            <button
+              type="button"
+              class="select-card"
+              [class.selected]="paymentMethod === 'PayPal'"
+              (click)="selectPaymentMethod('PayPal')"
+            >
+              <span class="select-card-title">PayPal</span>
+              <span class="slot-status" *ngIf="paymentMethod === 'PayPal'">SELECTED</span>
+            </button>
+            <button
+              type="button"
+              class="select-card"
+              [class.selected]="paymentMethod === 'Apple Pay'"
+              (click)="selectPaymentMethod('Apple Pay')"
+            >
+              <span class="select-card-title">Apple Pay</span>
+              <span class="slot-status" *ngIf="paymentMethod === 'Apple Pay'">SELECTED</span>
+            </button>
+          </div>
         </div>
       </div>
 

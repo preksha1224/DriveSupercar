@@ -39,12 +39,13 @@ interface MinOption {
 })
 export class BookingPageComponent implements OnInit {
   currentStep: number = 1;
-  readonly totalSteps: number = 4;
+  readonly totalSteps: number = 5;
   readonly stepLabels: string[] = [
     'Select Car',
     'Choose Location',
     'Choose Minutes',
     'Date & Time Slot',
+    'Payment',
   ];
   availableDates: string[] = [];
 
@@ -64,6 +65,11 @@ export class BookingPageComponent implements OnInit {
   isLocationLoading: boolean = false;
   carOptions: string[] = [];
   isCarLoading: boolean = false;
+
+  // Payment mock data
+  totalAmount: number = 0;
+  paymentMethod: string = '';
+  readonly pricePerMinute: number = 15;
 
   // Time window and minute options
   readonly bookingWindow: TimeSlot = {
@@ -412,6 +418,8 @@ export class BookingPageComponent implements OnInit {
         return !!this.selectedMin;
       case 4:
         return !!this.bookingDate && this.slotBooking.some((slot) => slot.selected);
+      case 5:
+        return !!this.paymentMethod;
       default:
         return false;
     }
@@ -427,13 +435,14 @@ export class BookingPageComponent implements OnInit {
         return 'Please choose a minute option.';
       case 4:
         return 'Please select pickup/drop date and an available time slot.';
+      case 5:
+        return 'Please select a payment method.';
       default:
         return 'Please complete all required fields.';
     }
   }
 
   selectCar(car: string): void {
-    // this.getcar();
     console.log(car);
     this.carModel = car;
   }
@@ -445,6 +454,7 @@ export class BookingPageComponent implements OnInit {
 
   selectMin(min: number): void {
     this.selectedMin = min;
+    this.totalAmount = min * this.pricePerMinute;
     const buffer = min === 10 ? 5 : 10;
     this.slotBooking = this.getTimeIntervals(
       this.bookingWindow.startTime,
@@ -452,6 +462,11 @@ export class BookingPageComponent implements OnInit {
       min,
       buffer,
     );
+    this.validationMessage = '';
+  }
+
+  selectPaymentMethod(method: string): void {
+    this.paymentMethod = method;
     this.validationMessage = '';
   }
 
