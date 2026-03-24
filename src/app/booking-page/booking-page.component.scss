@@ -172,7 +172,7 @@
 
     .form-title {
       margin: 0;
-  
+
       letter-spacing: 0.16em;
       font-size: clamp(1.3rem, 2.6vw, 2rem);
       color: #fff;
@@ -181,7 +181,7 @@
     .form-subtitle {
       margin-top: 8px;
       color: var(--muted);
-  
+
     }
   }
 
@@ -406,7 +406,7 @@
     background: rgba(16, 16, 16, 0.86);
     color: var(--text);
     padding: 13px 14px;
-
+    margin-top: 18px;
   }
 
   .form-input:focus {
@@ -474,7 +474,7 @@
 
   .payment-selection {
     margin-top: 30px;
-    
+
     .sub-title {
       margin-bottom: 16px;
     }

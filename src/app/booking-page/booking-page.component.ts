@@ -4,8 +4,8 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { CarService } from '../services/car.service';
 import { EventService } from '../services/event.service';
-import { appConfig } from '../app.config';
 import { BookingService } from '../services/booking';
+import { Car } from '../model/cars.model';
 interface Booking {
   id: string;
   bookingDate: Date;
@@ -39,16 +39,16 @@ interface MinOption {
 })
 export class BookingPageComponent implements OnInit {
   currentStep: number = 1;
-  readonly totalSteps: number = 5;
+  readonly totalSteps: number = 4;
   readonly stepLabels: string[] = [
-    'Select Car',
-    'Choose Location',
+    'Select Car, Location & Date',
     'Choose Minutes',
-    'Date & Time Slot',
+    'Select Time Slot',
     'Payment',
   ];
   availableDates: string[] = [];
 
+  dateShow=false;
   // Form fields
   carModel: string = '';
   bookingDate: string = '';
@@ -59,12 +59,15 @@ export class BookingPageComponent implements OnInit {
   cars: string[] = [];
   selectedEventId: string = '';
   selectedEventCarId: string = '';
-  carsList: import('../model/cars.model').Car[] = [];
+  carsList: Car[] = [];
   slotBooking: timeSlotBooking[] = [];
-  locations: string[] = [];
+  locations: string[] = ['berlin', 'hamburg', 'munich'];
   isLocationLoading: boolean = false;
   carOptions: string[] = [];
   isCarLoading: boolean = false;
+  evenetData: any = null;
+  selectedEvents: any = null;
+  noEvent=false;
 
   // Payment mock data
   totalAmount: number = 0;
@@ -111,28 +114,23 @@ export class BookingPageComponent implements OnInit {
   }
 
   ngOnInit(): void {
+
     this.getevent();
     this.currentStep = 1;
     this.carModel = '';
-    this.getcar();
 
-    const navState = window.history.state;
+    // Use Angular's router navigation state
+    const navState = this.route.snapshot?.root?.queryParams && Object.keys(this.route.snapshot.root.queryParams).length === 0
+      ? history.state
+      : this.route.snapshot.root.queryParams;
     let preselectedCar = '';
 
-    // Handle selected car from home page BEFORE loading cars
     if (navState && navState.selectedCar) {
       preselectedCar = navState.selectedCar;
-      this.carModel = preselectedCar;
     }
 
     this.getcar(preselectedCar);
     if (navState) {
-      // Handle selected car from home page
-      if (navState.selectedCar) {
-        this.carModel = navState.selectedCar;
-        console.log(this.carModel);
-      }
-
       // Handle available dates (from calendar selection)
       if (navState.availableDates && Array.isArray(navState.availableDates)) {
         // Dates as ISO strings or Date objects
@@ -159,8 +157,6 @@ export class BookingPageComponent implements OnInit {
           this.availableDates = [navState.selectedDate];
         }
       }
-
-      // Pre-select bookingDate if available
       if (navState.selectedDate) {
         const dateObj = new Date(navState.selectedDate);
         if (!isNaN(dateObj.getTime())) {
@@ -173,72 +169,26 @@ export class BookingPageComponent implements OnInit {
       }
 
       if (navState.location) {
-        this.selectedLocation = navState.location;
-      }
-      if (
-        navState.availableCities &&
-        Array.isArray(navState.availableCities) &&
-        navState.availableCities.length > 0
-      ) {
-        if (!this.selectedLocation && navState.availableCities[0]?.name) {
-          this.selectedLocation = navState.availableCities[0].name;
-        }
+        this.selectedLocation = navState.location.toString().toLocaleLowerCase();
       }
     }
-
-    this.route.queryParams.subscribe((params) => {
-      this.selectedState = params['state'] || '';
-      this.selectedCity = params['city'] || '';
-    });
-
-    this.route.queryParamMap.subscribe((params) => {
-      this.selectedLocation = params.get('location') ?? '';
-    });
-
-    // Ensure availableDates has dates even when navigating directly
-    if (!this.availableDates || this.availableDates.length === 0) {
-      // Generate next 30 days as available dates
-      const dates: string[] = [];
-      const today = new Date();
-      for (let i = 0; i < 30; i++) {
-        const date = new Date(today);
-        date.setDate(date.getDate() + i);
-        dates.push(date.toISOString().split('T')[0]);
-      }
-      this.availableDates = dates;
-    }
-
-    // Ensure bookingDate is set to first available date if not already set
-    if (!this.bookingDate && this.availableDates.length > 0) {
-      this.bookingDate = this.availableDates[0];
-    }
+    console.log('Navigation state:', this.selectedLocation);
   }
 
   getcar(preselectedCar: string = ''): void {
+    console.log('Fetching cars with preselectedCar:', preselectedCar);
     this.isCarLoading = true;
     this.carService.getCar().subscribe({
-      next: (res: unknown): void => {
-        const api = res as
-          | { data?: import('../model/cars.model').Car[] }
-          | import('../model/cars.model').Car[];
-        const list: import('../model/cars.model').Car[] = Array.isArray(api)
-          ? api
-          : (api.data ?? []);
-
-        this.carsList = list;
-        const names: string[] = list
-          .map((car) => `${car.make} ${car.model}`)
-          .filter(
-            (name: unknown): name is string => typeof name === 'string' && name.trim().length > 0,
-          );
-
-        this.carOptions = Array.from(new Set<string>(names));
-
-        // Restore preselected car after loading options
-        if (preselectedCar) {
-          this.carModel = preselectedCar;
+      next: (res: any): void => {
+        console.log('Car data:', res);
+        this.carsList = res.data;
+        for (const car of this.carsList) {
+          const carDisplayName = `${car.make} ${car.model}`;
+          if (carDisplayName === preselectedCar) {
+            this.carModel = car.car_id;
+            break;
+          }
         }
-
         this.isCarLoading = false;
         this.cdr.detectChanges();
       },
@@ -254,90 +204,15 @@ export class BookingPageComponent implements OnInit {
   }
 
   getevent(): void {
-    this.isLocationLoading = true;
 
     this.event.getEvent().subscribe({
-      next: (res: unknown): void => {
-        const root = res as any;
-        const list: any[] = Array.isArray(root)
-          ? root
-          : Array.isArray(root?.data)
-            ? root.data
-            : Array.isArray(root?.data?.data)
-              ? root.data.data
-              : [];
-
-        // Set selectedEventId and selectedEventCarId from the first event if available
-        if (list.length > 0 && list[0].id) {
-          this.selectedEventId = list[0].id;
-          if (
-            Array.isArray(list[0].eventCars) &&
-            list[0].eventCars.length > 0 &&
-            list[0].eventCars[0].id
-          ) {
-            this.selectedEventCarId = list[0].eventCars[0].id;
-          }
-        }
-
-        const cityNames: string[] = list
-          .map(
-            (item: any) =>
-              item?.cityName ??
-              item?.city_name ??
-              item?.city ??
-              item?.CityName ??
-              item?.location?.cityName ??
-              item?.location?.city ??
-              item?.address?.cityName ??
-              item?.address?.city,
-          )
-          .filter(
-            (city: unknown): city is string => typeof city === 'string' && city.trim().length > 0,
-          )
-          .map((city: string) => city.trim());
-
-        this.locations = Array.from(new Set(cityNames));
-
-        const allowedDurations: string[] = list
-          .flatMap((eventItem: any) => {
-            const windows = Array.isArray(eventItem?.eventTimeWindows)
-              ? eventItem.eventTimeWindows
-              : [];
-            return windows.flatMap((windowItem: any) =>
-              Array.isArray(windowItem?.allowed_duration) ? windowItem.allowed_duration : [],
-            );
-          })
-
-          .filter(
-            (value: unknown): value is string =>
-              typeof value === 'string' && value.trim().length > 0,
-          )
-          .map((value: string) => value.trim().toUpperCase());
-        console.log('allowduration', allowedDurations);
-
-        const minutes: number[] = Array.from(
-          new Set(
-            allowedDurations
-              .map((durationKey: string) => this.durationMap[durationKey])
-              .filter((value: number | undefined): value is number => typeof value === 'number'),
-          ),
-        ).sort((a: number, b: number) => a - b);
-        console.log('minutes', minutes);
-
-        this.selectTime = {
-          minOption: minutes,
-        };
-        console.log('selecttime', this.selectTime);
-
-        this.selectedMin = undefined;
-        this.slotBooking = [];
-        this.isLocationLoading = false;
-        this.cdr.detectChanges();
+      next: (res: any): void => {
+        console.log('Event data:', res);
+        this.evenetData=res
       },
 
       error: (err: unknown): void => {
         console.error('Failed to load events', err);
-        this.locations = [];
         this.selectTime = { minOption: [] };
         this.selectedMin = undefined;
         this.slotBooking = [];
@@ -411,14 +286,12 @@ export class BookingPageComponent implements OnInit {
   isStepValid(step: number): boolean {
     switch (step) {
       case 1:
-        return !!this.carModel;
+        return !!this.carModel && !!this.selectedLocation && !!this.bookingDate;
       case 2:
-        return !!this.selectedLocation;
-      case 3:
         return !!this.selectedMin;
+      case 3:
+        return this.slotBooking.some((slot) => slot.selected);
       case 4:
-        return !!this.bookingDate && this.slotBooking.some((slot) => slot.selected);
-      case 5:
         return !!this.paymentMethod;
       default:
         return false;
@@ -428,14 +301,15 @@ export class BookingPageComponent implements OnInit {
   getStepValidationMessage(step: number): string {
     switch (step) {
       case 1:
-        return 'Please select a car to continue.';
+        if (!this.carModel) return 'Please select a car to continue.';
+        if (!this.selectedLocation) return 'Please select a location.';
+        if (!this.bookingDate) return 'Please select a date.';
+        return 'Please complete all required fields.';
       case 2:
-        return 'Please select a pickup location.';
-      case 3:
         return 'Please choose a minute option.';
+      case 3:
+        return 'Please select an available time slot.';
       case 4:
-        return 'Please select pickup/drop date and an available time slot.';
-      case 5:
         return 'Please select a payment method.';
       default:
         return 'Please complete all required fields.';
@@ -445,12 +319,51 @@ export class BookingPageComponent implements OnInit {
   selectCar(car: string): void {
     console.log(car);
     this.carModel = car;
+    this.getDate();
   }
 
   selectLocation(location: string): void {
     this.selectedLocation = location;
     this.validationMessage = '';
+    this.getDate();
   }
+
+  getDate(){
+    this.selectedEvents=null;
+    if(this.carModel!=='' && this.selectedLocation!=='' ){
+      console.log(this.evenetData);
+      this.selectedEvents=this.evenetData.filter((event: any) => {
+        return event.city_name===this.selectedLocation;
+      });
+      console.log(this.selectedEvents);
+      if(this.selectedEvents.length>0){
+        this.dateShow=true;
+        this.noEvent=false;
+        this.availableDates = this.generateAvailableDatesFromEvents(this.selectedEvents);
+      }else{
+        this.dateShow=true;
+        this.noEvent=true;
+      }
+    }else{
+      this.dateShow=false;
+    }
+  }
+
+  generateAvailableDatesFromEvents(events: any[]): string[] {
+  const allDates = new Set<string>();
+  events.forEach(event => {
+    const start = new Date(event.start_date);
+    const end = new Date(event.end_date);
+    for (
+      let d = new Date(start);
+      d <= end;
+      d.setDate(d.getDate() + 1)
+    ) {
+      allDates.add(d.toISOString().split('T')[0]);
+    }
+  });
+  return Array.from(allDates).sort();
+}
 
   selectMin(min: number): void {
     this.selectedMin = min;
@@ -504,7 +417,7 @@ export class BookingPageComponent implements OnInit {
       return;
     }
     if (!this.bookingDate) {
-      alert('Please select a booking date.');
+      alert('Please select a date.');
       return;
     }
     if (!this.selectedMin) {
