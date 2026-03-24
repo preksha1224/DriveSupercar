@@ -9,14 +9,14 @@ export class BookingService {
   constructor(private http: HttpClient){}
   
 createBooking(req: any): Observable<any> {
-  return this.http.post('/book/createBooking', req);
+  return this.http.post('/book', req);
 }
 
 getBooking(Id: string): Observable<any> {
-  return this.http.get(`/book/getBookings/${Id}`);
+  return this.http.get(`/book/${Id}`);
 }
 
 getallBooking(): Observable<any> {
-  return this.http.get(`book/getAllBookings`);
+  return this.http.get(`/book`);
 }
 }

@@ -29,7 +29,7 @@ export class AuthService {
   }
 
   updateUser(userId:string,userData: any): Observable<RegisterResponse> {
-    return this.http.patch<RegisterResponse>(`/auth/update-user/${userId}`, userData);
+    return this.http.patch<RegisterResponse>(`/auth/user/${userId}`, userData);
   }
 
   logout(): void {

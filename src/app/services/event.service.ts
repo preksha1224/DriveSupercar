@@ -10,10 +10,10 @@ export class EventService {
   constructor(private http: HttpClient) { }
 
   createEvent(req:any): Observable<any> {
-    return this.http.post('/event/create-event',req);
+    return this.http.post('/event',req);
   }
 
   getEvent(): Observable<any> {
-    return this.http.get('/event/get-event');
+    return this.http.get('/event');
   }
 }
