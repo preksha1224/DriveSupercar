@@ -170,6 +170,19 @@ export class HomeComponent implements OnInit, AfterViewInit {
     }
   }
 
+  bookingRedirectForGift() {
+    if (this.isLoggedIn) {
+      this.router.navigate(['/booking'], {
+        state: {
+          selectedCar: this.carModel,
+          isGiftVoucher: true
+        }
+      });
+    } else {
+      this.alertMessage('Please login to book a drive for a friend');
+    }
+  }
+
   // Add new method to handle car selection from showcase
   bookCarShowcase(carName: string) {
     if (this.isLoggedIn) {
@@ -180,6 +193,13 @@ export class HomeComponent implements OnInit, AfterViewInit {
       });
     } else {
       this.alertMessage('Please login first to book ' + carName);
+    }
+  }
+
+  scrollToGiftVoucher() {
+    const element = document.getElementById('gift-voucher-section');
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
   }
 

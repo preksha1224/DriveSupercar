@@ -22,9 +22,14 @@
       <div class="col-lg-6">
         <h1 class="hero-title">Drive Your Dream Supercar</h1>
         <p class="hero-subtitle">Experience the thrill of driving luxury supercars from €69/hour</p>
-        <button class="btn btn-hero" (click)="bookingRedirect()">
-          Book Now <i class="bi bi-arrow-right ms-2"></i>
-        </button>
+        <div class="hero-buttons">
+          <button class="btn btn-hero" (click)="bookingRedirect()">
+            Book Now <i class="bi bi-arrow-right ms-2"></i>
+          </button>
+          <button class="btn btn-hero-secondary" (click)="scrollToGiftVoucher()">
+            <i class="bi bi-gift me-2"></i>Gift a Friend
+          </button>
+        </div>
       </div>
     </div>
   </div>
@@ -358,6 +363,75 @@
               <button class="btn btn-view" (click)="bookCarShowcase('Audi R8')">Book Now</button>
             </div>
           </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Gift Voucher Section -->
+<section id="gift-voucher-section" class="gift-voucher-section py-5">
+  <div class="container">
+    <div class="section-header text-center mb-5">
+      <h2 class="section-title">Gift the Ultimate Driving Experience</h2>
+      <p class="section-subtitle">Give your loved ones an unforgettable supercar adventure</p>
+    </div>
+    
+    <div class="row g-4 align-items-stretch">
+      <!-- Left Side - Gift Image -->
+      <div class="col-lg-6">
+        <div class="gift-image-container">
+          <div class="gift-image-wrapper">
+            <img src="assets/videos/gift.jpg" alt="Gift Supercar Experience" class="gift-image">
+          </div>
+        </div>
+      </div>
+      
+      <!-- Right Side - Gift Message & CTA -->
+      <div class="col-lg-6">
+        <div class="gift-content">
+          <div class="gift-icon-large">
+            <i class="bi bi-gift-fill"></i>
+          </div>
+          
+          <h3 class="gift-main-title">Share the Thrill of Driving</h3>
+          
+          <p class="gift-message">
+            Give your friend or loved one the ultimate supercar driving experience. 
+            Our gift vouchers are the perfect way to celebrate special occasions, 
+            birthdays, or simply show someone you care. Let them choose their dream 
+            car and create memories that will last a lifetime.
+          </p>
+          
+          <div class="gift-highlights">
+            <div class="highlight-item">
+              <i class="bi bi-check-circle-fill"></i>
+              <span>Flexible booking dates for 12 months</span>
+            </div>
+            <div class="highlight-item">
+              <i class="bi bi-check-circle-fill"></i>
+              <span>Choose from our premium supercar fleet</span>
+            </div>
+            <div class="highlight-item">
+              <i class="bi bi-check-circle-fill"></i>
+              <span>Full insurance coverage included</span>
+            </div>
+            <div class="highlight-item">
+              <i class="bi bi-check-circle-fill"></i>
+              <span>Available at all 5 German locations</span>
+            </div>
+          </div>
+          
+          <button class="btn btn-gift-cta" (click)="bookingRedirectForGift()">
+            <i class="bi bi-gift me-2"></i>
+            Book a Drive for a Friend
+            <i class="bi bi-arrow-right ms-2"></i>
+          </button>
+          
+          <p class="gift-footer-text">
+            <i class="bi bi-info-circle me-2"></i>
+            Digital vouchers delivered instantly via email
+          </p>
         </div>
       </div>
     </div>

@@ -46,9 +46,15 @@ export class BookingPageComponent implements OnInit {
     'Select Time Slot',
     'Payment',
   ];
+
+  // Gift voucher fields
+  isGiftVoucher: boolean = false;
+  recipientName: string = '';
+  recipientEmail: string = '';
+
   availableDates: string[] = [];
 
-  dateShow=false;
+  dateShow = false;
   // Form fields
   carModel: string = '';
   bookingDate: string = '';
@@ -67,7 +73,7 @@ export class BookingPageComponent implements OnInit {
   isCarLoading: boolean = false;
   evenetData: any = null;
   selectedEvents: any = null;
-  noEvent=false;
+  noEvent = false;
 
   // Payment mock data
   totalAmount: number = 0;
@@ -114,12 +120,10 @@ export class BookingPageComponent implements OnInit {
   }
 
   ngOnInit(): void {
-
     this.getevent();
     this.currentStep = 1;
     this.carModel = '';
 
-    // Use Angular's router navigation state
     const navState = this.route.snapshot?.root?.queryParams && Object.keys(this.route.snapshot.root.queryParams).length === 0
       ? history.state
       : this.route.snapshot.root.queryParams;
@@ -127,6 +131,11 @@ export class BookingPageComponent implements OnInit {
 
     if (navState && navState.selectedCar) {
       preselectedCar = navState.selectedCar;
+    }
+
+    // Check if this is a gift voucher booking
+    if (navState && navState.isGiftVoucher) {
+      this.isGiftVoucher = true;
     }
 
     this.getcar(preselectedCar);
@@ -204,11 +213,10 @@ export class BookingPageComponent implements OnInit {
   }
 
   getevent(): void {
-
     this.event.getEvent().subscribe({
       next: (res: any): void => {
         console.log('Event data:', res);
-        this.evenetData=res
+        this.evenetData = res;
       },
 
       error: (err: unknown): void => {
@@ -286,6 +294,11 @@ export class BookingPageComponent implements OnInit {
   isStepValid(step: number): boolean {
     switch (step) {
       case 1:
+        // Add email validation for gift voucher
+        if (this.isGiftVoucher) {
+          return !!this.carModel && !!this.selectedLocation && !!this.bookingDate &&
+            !!this.recipientName && !!this.recipientEmail && this.isValidEmail(this.recipientEmail);
+        }
         return !!this.carModel && !!this.selectedLocation && !!this.bookingDate;
       case 2:
         return !!this.selectedMin;
@@ -304,6 +317,11 @@ export class BookingPageComponent implements OnInit {
         if (!this.carModel) return 'Please select a car to continue.';
         if (!this.selectedLocation) return 'Please select a location.';
         if (!this.bookingDate) return 'Please select a date.';
+        if (this.isGiftVoucher) {
+          if (!this.recipientName) return 'Please enter recipient name.';
+          if (!this.recipientEmail) return 'Please enter recipient email.';
+          if (!this.isValidEmail(this.recipientEmail)) return 'Please enter a valid email address.';
+        }
         return 'Please complete all required fields.';
       case 2:
         return 'Please choose a minute option.';
@@ -314,6 +332,11 @@ export class BookingPageComponent implements OnInit {
       default:
         return 'Please complete all required fields.';
     }
+  }
+
+  isValidEmail(email: string): boolean {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
   }
 
   selectCar(car: string): void {
@@ -328,42 +351,42 @@ export class BookingPageComponent implements OnInit {
     this.getDate();
   }
 
-  getDate(){
-    this.selectedEvents=null;
-    if(this.carModel!=='' && this.selectedLocation!=='' ){
+  getDate() {
+    this.selectedEvents = null;
+    if (this.carModel !== '' && this.selectedLocation !== '') {
       console.log(this.evenetData);
-      this.selectedEvents=this.evenetData.filter((event: any) => {
-        return event.city_name===this.selectedLocation;
+      this.selectedEvents = this.evenetData.filter((event: any) => {
+        return event.city_name === this.selectedLocation;
       });
       console.log(this.selectedEvents);
-      if(this.selectedEvents.length>0){
-        this.dateShow=true;
-        this.noEvent=false;
+      if (this.selectedEvents.length > 0) {
+        this.dateShow = true;
+        this.noEvent = false;
         this.availableDates = this.generateAvailableDatesFromEvents(this.selectedEvents);
-      }else{
-        this.dateShow=true;
-        this.noEvent=true;
+      } else {
+        this.dateShow = true;
+        this.noEvent = true;
       }
-    }else{
-      this.dateShow=false;
+    } else {
+      this.dateShow = false;
     }
   }
 
   generateAvailableDatesFromEvents(events: any[]): string[] {
-  const allDates = new Set<string>();
-  events.forEach(event => {
-    const start = new Date(event.start_date);
-    const end = new Date(event.end_date);
-    for (
-      let d = new Date(start);
-      d <= end;
-      d.setDate(d.getDate() + 1)
-    ) {
-      allDates.add(d.toISOString().split('T')[0]);
-    }
-  });
-  return Array.from(allDates).sort();
-}
+    const allDates = new Set<string>();
+    events.forEach(event => {
+      const start = new Date(event.start_date);
+      const end = new Date(event.end_date);
+      for (
+        let d = new Date(start);
+        d <= end;
+        d.setDate(d.getDate() + 1)
+      ) {
+        allDates.add(d.toISOString().split('T')[0]);
+      }
+    });
+    return Array.from(allDates).sort();
+  }
 
   selectMin(min: number): void {
     this.selectedMin = min;
@@ -406,7 +429,6 @@ export class BookingPageComponent implements OnInit {
   }
 
   submitBooking(): void {
-    // Find selected time slot
     const selectedTimeRange = this.slotBooking.find((slot) => slot.selected);
     if (!this.carModel) {
       alert('Please select a car.');
@@ -420,6 +442,16 @@ export class BookingPageComponent implements OnInit {
       alert('Please select a date.');
       return;
     }
+    if (this.isGiftVoucher) {
+      if (!this.recipientName) {
+        alert('Please enter recipient name.');
+        return;
+      }
+      if (!this.recipientEmail || !this.isValidEmail(this.recipientEmail)) {
+        alert('Please enter a valid recipient email.');
+        return;
+      }
+    }
     if (!this.selectedMin) {
       alert('Please select a minute option.');
       return;
@@ -429,14 +461,12 @@ export class BookingPageComponent implements OnInit {
       return;
     }
 
-    // Find the selected car object
     const selectedCar = this.carsList.find((car) => `${car.make} ${car.model}` === this.carModel);
     if (!selectedCar) {
       alert('Selected car not found.');
       return;
     }
 
-    // Get user_id from localStorage (set by AuthService)
     let user_id = '';
     try {
       const userStr = localStorage.getItem('user');
@@ -451,8 +481,8 @@ export class BookingPageComponent implements OnInit {
       alert('User not logged in. Please log in again.');
       return;
     }
-    // Construct booking payload
-    const bookingPayload = {
+
+    const bookingPayload: any = {
       user_id,
       eventCarId: this.selectedEventCarId,
       start_time: new Date(`${this.bookingDate}T${selectedTimeRange.start}:00`)
@@ -464,10 +494,21 @@ export class BookingPageComponent implements OnInit {
       amount: Number(this.selectedMin) || 0,
     };
 
+    // Add gift voucher fields if applicable
+    if (this.isGiftVoucher) {
+      bookingPayload.isGiftVoucher = true;
+      bookingPayload.recipientName = this.recipientName;
+      bookingPayload.recipientEmail = this.recipientEmail;
+    }
+
     console.log('Booking payload:', bookingPayload);
     this.booking.createBooking(bookingPayload).subscribe({
       next: (res) => {
-        alert('Booking submitted successfully!');
+        if (this.isGiftVoucher) {
+          alert(`Gift voucher sent successfully to ${this.recipientEmail}!`);
+        } else {
+          alert('Booking submitted successfully!');
+        }
         this.resetForm();
       },
       error: (err) => {
@@ -475,6 +516,7 @@ export class BookingPageComponent implements OnInit {
       },
     });
   }
+
   resetForm(): void {
     this.carModel = '';
     this.bookingDate = '';
@@ -483,6 +525,9 @@ export class BookingPageComponent implements OnInit {
     this.slotBooking = [];
     this.currentStep = 1;
     this.validationMessage = '';
+    this.recipientName = '';
+    this.recipientEmail = '';
+    this.isGiftVoucher = false;
   }
 
   getTimeIntervals(startTimeStr: string, endTimeStr: string, min: number, buffer: number) {

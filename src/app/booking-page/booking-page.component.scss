@@ -382,6 +382,12 @@
   .form-group {
     display: grid;
     gap: 8px;
+    margin-bottom: 1rem;
+
+    label {
+      display: block;
+      margin-bottom: 0.5rem;
+    }
   }
 
   .form-group.inline-field {
@@ -407,12 +413,23 @@
     color: var(--text);
     padding: 13px 14px;
     margin-top: 18px;
-  }
+    padding: 0.75rem 1rem;
+    background: rgba(26, 26, 26, 0.8);
+    border: 1px solid rgba(212, 175, 55, 0.2);
+    border-radius: 8px;
+    color: #ffffff;
+    font-size: 1rem;
+    transition: all 0.3s ease;
 
-  .form-input:focus {
-    outline: none;
-    border-color: var(--accent);
-    box-shadow: 0 0 0 3px var(--accent-soft);
+    &:focus {
+      outline: none;
+      border-color: #d4af37;
+      box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.1);
+    }
+
+    &::placeholder {
+      color: rgba(255, 255, 255, 0.4);
+    }
   }
 
   .helper-note {
@@ -423,6 +440,14 @@
 
     font-size: 0.9rem;
     background: rgba(212, 175, 55, 0.05);
+  }
+
+  .helper-text {
+    display: block;
+    margin-top: 0.5rem;
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.6);
+    font-style: italic;
   }
 
   .summary-card {
@@ -469,6 +494,31 @@
           font-weight: 800;
         }
       }
+    }
+  }
+
+  .gift-voucher-fields {
+    background: linear-gradient(135deg, rgba(212, 175, 55, 0.1) 0%, rgba(212, 175, 55, 0.05) 100%);
+    border: 2px solid rgba(212, 175, 55, 0.3);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+  }
+
+  .gift-badge {
+    display: inline-flex;
+    align-items: center;
+    background: linear-gradient(135deg, #d4af37 0%, #b38f1c 100%);
+    color: #0a0a0a;
+    font-size: 0.85rem;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+    padding: 0.6rem 1.2rem;
+    border-radius: 50px;
+    margin-bottom: 1rem;
+
+    i {
+      font-size: 1rem;
     }
   }
 
