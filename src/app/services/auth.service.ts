@@ -27,9 +27,12 @@ export class AuthService {
   register(userData: any): Observable<RegisterResponse> {
     return this.http.post<RegisterResponse>('/auth/registration', userData);
   }
-
+  
   updateUser(userId:string,userData: any): Observable<RegisterResponse> {
     return this.http.patch<RegisterResponse>(`/auth/user/${userId}`, userData);
+  }
+  getuser(userId:string): Observable<any> {
+    return this.http.get(`/auth/user/${userId}`);
   }
 
   logout(): void {
@@ -41,7 +44,7 @@ export class AuthService {
   isLoggedIn(): boolean {
     const user = localStorage.getItem('user');
     if (user) {
-      return true;
+      return true;    
     }else {
       return false;
     }
