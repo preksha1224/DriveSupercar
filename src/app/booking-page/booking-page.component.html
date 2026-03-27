@@ -60,7 +60,7 @@
             <i class="bi bi-gift-fill me-2"></i>
             GIFT VOUCHER BOOKING
           </div>
-          
+
           <div class="form-group mt-3">
             <label for="recipientName" class="sub-title">Recipient Name <span class="required">*</span></label>
             <input
@@ -72,7 +72,7 @@
               required
             />
           </div>
-          
+
           <div class="form-group mt-3">
             <label for="recipientEmail" class="sub-title">Recipient Email <span class="required">*</span></label>
             <input
@@ -159,11 +159,11 @@
               type="button"
               *ngFor="let slot of selectTime.minOption"
               class="time-slot-btn"
-              [class.selected]="selectedMin === slot"
+              [class.selected]="selectedMin === slot.label"
               (click)="selectMin(slot)"
             >
-              <span class="time-text">{{ slot }} min</span>
-              <span class="slot-status" *ngIf="selectedMin === slot">SELECTED</span>
+              <span class="time-text">{{ slot.value }} min</span>
+              <span class="slot-status" *ngIf="selectedMin === slot.label">SELECTED</span>
             </button>
           </div>
         </div>
@@ -194,8 +194,8 @@
         </div>
       </div>
 
-      <div *ngIf="currentStep === 5" class="form-section">
-        <h3 class="section-title">STEP 5. AMOUNT & PAYMENT</h3>
+      <div *ngIf="currentStep === 4" class="form-section">
+        <h3 class="section-title">STEP 4. AMOUNT & PAYMENT</h3>
         <p class="section-subtitle">Review your summary and select a payment method</p>
 
         <div class="summary-card">

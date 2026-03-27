@@ -58,8 +58,8 @@ export class BookingPageComponent implements OnInit {
   // Form fields
   carModel: string = '';
   bookingDate: string = '';
-  selectTime: MinOption;
-  selectedMin: number | undefined;
+  selectTime: any;
+  selectedMin: any | undefined;
   selectedLocation: string = '';
   validationMessage: string = '';
   cars: string[] = [];
@@ -74,20 +74,12 @@ export class BookingPageComponent implements OnInit {
   evenetData: any = null;
   selectedEvents: any = null;
   noEvent = false;
-
   // Payment mock data
   totalAmount: number = 0;
   paymentMethod: string = '';
   readonly pricePerMinute: number = 15;
+  finalEventData: any = null;
 
-  // Time window and minute options
-  readonly bookingWindow: TimeSlot = {
-    id: 'all',
-    startTime: '10:00',
-    endTime: '16:00',
-    selected: true,
-    available: true,
-  };
   minOption: MinOption = { minOption: [] };
   // Location info
   selectedState: string = '';
@@ -115,9 +107,7 @@ export class BookingPageComponent implements OnInit {
     private cdr: ChangeDetectorRef,
     private event: EventService,
     private booking: BookingService,
-  ) {
-    this.selectTime = { minOption: [] };
-  }
+  ) {}
 
   ngOnInit(): void {
     this.getevent();
@@ -221,7 +211,7 @@ export class BookingPageComponent implements OnInit {
 
       error: (err: unknown): void => {
         console.error('Failed to load events', err);
-        this.selectTime = { minOption: [] };
+        this.selectTime = null;
         this.selectedMin = undefined;
         this.slotBooking = [];
         this.isLocationLoading = false;
@@ -388,16 +378,21 @@ export class BookingPageComponent implements OnInit {
     return Array.from(allDates).sort();
   }
 
-  selectMin(min: number): void {
-    this.selectedMin = min;
-    this.totalAmount = min * this.pricePerMinute;
-    const buffer = min === 10 ? 5 : 10;
-    this.slotBooking = this.getTimeIntervals(
-      this.bookingWindow.startTime,
-      this.bookingWindow.endTime,
-      min,
-      buffer,
-    );
+  selectMin(slot: any): void {
+    console.log('Selected minutes:', slot.value);
+    this.selectedMin = slot.label;
+    this.totalAmount = slot.value * this.pricePerMinute;
+    let eventMatched: any = null;
+    const buffer = slot.value === 10 ? 5 : 10;
+    for (const event of this.finalEventData.eventTimeWindows) {
+      if (event.allowed_duration.includes(slot.label)) {
+        eventMatched=event;
+      }
+    }
+    console.log('Matched event for selected minutes:', eventMatched);
+     this.slotBooking = this.getTimeIntervals(eventMatched.start_time, eventMatched.end_time, slot.value, buffer);
+    console.log('Generated time slots:', this.slotBooking);
+
     this.validationMessage = '';
   }
 
@@ -411,25 +406,79 @@ export class BookingPageComponent implements OnInit {
       ...slot,
       selected: slot.start === selectedSlot.start && slot.end === selectedSlot.end,
     }));
+    console.log(this.slotBooking);
     this.validationMessage = '';
   }
 
   onBookingDateChange(): void {
-    this.validationMessage = '';
-    // Reset time slots when date changes
-    if (this.selectedMin) {
-      const buffer = this.selectedMin === 10 ? 5 : 10;
-      this.slotBooking = this.getTimeIntervals(
-        this.bookingWindow.startTime,
-        this.bookingWindow.endTime,
-        this.selectedMin,
-        buffer,
-      );
+    console.log('Selected booking date:', this.bookingDate);
+    console.log('Selected events:', this.selectedEvents);
+
+    if (!this.bookingDate || !this.selectedEvents || !Array.isArray(this.selectedEvents)) {
+      this.selectTime = null;
+      return;
     }
+
+    // Find the event where bookingDate is between start_date and end_date
+    const bookingDateObj = new Date(this.bookingDate);
+    const matchingEvent = this.selectedEvents.find((event: any) => {
+      const start = new Date(event.start_date);
+      const end = new Date(event.end_date);
+      // bookingDate should be >= start_date and <= end_date
+      return bookingDateObj >= start && bookingDateObj <= end;
+    });
+
+    if (!matchingEvent) {
+      this.selectTime = null;
+      this.finalEventData = null;
+      return;
+    }
+    this.finalEventData = matchingEvent;
+    console.log('Matching event for selected date:', matchingEvent);
+    const timeWindows = (matchingEvent.eventTimeWindows || [])
+    console.log('Time windows for selected date:', timeWindows);
+    const durationOrder = [
+      'TEN', 'TWENTY', 'FORTY', 'SIXTY',
+      'DURATION_10_MIN', 'DURATION_20_MIN', 'DURATION_40_MIN', 'DURATION_60_MIN',
+      '10', '20', '40', '60'
+    ];
+    let allowedSet = new Set<string>();
+    timeWindows.forEach((tw: any) => {
+      if (Array.isArray(tw.allowed_duration)) {
+        tw.allowed_duration.forEach((d: string) => {
+          if (Object.prototype.hasOwnProperty.call(this.durationMap, d)) {
+            allowedSet.add(d);
+          }
+        });
+      }
+    });
+    let minOptions: { label: string; value: number }[] = [];
+    durationOrder.forEach((key) => {
+      if (allowedSet.has(key)) {
+        const min = this.durationMap[key];
+        if (min && !minOptions.some(opt => opt.value === min && opt.label === key)) {
+          minOptions.push({ label: key, value: min });
+        }
+      }
+    });
+    this.selectTime = { minOption: minOptions };
+    if (!minOptions.some(opt => opt.label === this.selectedMin)) {
+      this.selectedMin = undefined;
+    }
+    // Optionally reset slotBooking
+    console.log('Updated minute options:', this.selectTime);
+    this.slotBooking = [];
   }
 
   submitBooking(): void {
     const selectedTimeRange = this.slotBooking.find((slot) => slot.selected);
+    console.log('Submitting booking with details:', {
+      carModel: this.carModel,
+      selectedLocation: this.selectedLocation,
+      bookingDate: this.bookingDate,
+      selectedMin: this.selectedMin,
+      selectedTimeRange,
+    });
     if (!this.carModel) {
       alert('Please select a car.');
       return;
@@ -442,16 +491,16 @@ export class BookingPageComponent implements OnInit {
       alert('Please select a date.');
       return;
     }
-    if (this.isGiftVoucher) {
-      if (!this.recipientName) {
-        alert('Please enter recipient name.');
-        return;
-      }
-      if (!this.recipientEmail || !this.isValidEmail(this.recipientEmail)) {
-        alert('Please enter a valid recipient email.');
-        return;
-      }
-    }
+    // if (this.isGiftVoucher) {
+    //   if (!this.recipientName) {
+    //     alert('Please enter recipient name.');
+    //     return;
+    //   }
+    //   if (!this.recipientEmail || !this.isValidEmail(this.recipientEmail)) {
+    //     alert('Please enter a valid recipient email.');
+    //     return;
+    //   }
+    // }
     if (!this.selectedMin) {
       alert('Please select a minute option.');
       return;
@@ -460,19 +509,13 @@ export class BookingPageComponent implements OnInit {
       alert('Please select a time slot.');
       return;
     }
-
-    const selectedCar = this.carsList.find((car) => `${car.make} ${car.model}` === this.carModel);
-    if (!selectedCar) {
-      alert('Selected car not found.');
-      return;
-    }
-
     let user_id = '';
     try {
       const userStr = localStorage.getItem('user');
       if (userStr) {
         const userObj = JSON.parse(userStr);
-        user_id = userObj.id || userObj._id || userObj.user_id || '';
+        user_id = userObj.id;
+        console.log('Extracted user_id from localStorage:', user_id);
       }
     } catch (e) {
       user_id = '';
@@ -482,16 +525,19 @@ export class BookingPageComponent implements OnInit {
       return;
     }
 
+    const gettingEventCarId = this.finalEventData?.eventCars.find((ec: any) => ec.car_id === this.carModel).id;
+    console.log('Event cars matching selected car:', gettingEventCarId);
+
     const bookingPayload: any = {
       user_id,
-      eventCarId: this.selectedEventCarId,
+      eventCarId: gettingEventCarId,
       start_time: new Date(`${this.bookingDate}T${selectedTimeRange.start}:00`)
         .toISOString()
         .replace('.000', ''),
       end_time: new Date(`${this.bookingDate}T${selectedTimeRange.end}:00`)
         .toISOString()
         .replace('.000', ''),
-      amount: Number(this.selectedMin) || 0,
+      amount: Number(this.totalAmount) || 0,
     };
 
     // Add gift voucher fields if applicable
@@ -504,6 +550,7 @@ export class BookingPageComponent implements OnInit {
     console.log('Booking payload:', bookingPayload);
     this.booking.createBooking(bookingPayload).subscribe({
       next: (res) => {
+        console.log(res);
         if (this.isGiftVoucher) {
           alert(`Gift voucher sent successfully to ${this.recipientEmail}!`);
         } else {
@@ -531,13 +578,24 @@ export class BookingPageComponent implements OnInit {
   }
 
   getTimeIntervals(startTimeStr: string, endTimeStr: string, min: number, buffer: number) {
+    console.log(`Generating time intervals from ${startTimeStr} to ${endTimeStr} with duration ${min} minutes and buffer ${buffer} minutes`);
     const intervals: timeSlotBooking[] = [];
-    const startTime = new Date();
-    const endTime = new Date();
-    const [startHours, startMinutes] = startTimeStr.split(':').map(Number);
-    const [endHours, endMinutes] = endTimeStr.split(':').map(Number);
-    startTime.setHours(startHours, startMinutes, 0, 0);
-    endTime.setHours(endHours, endMinutes, 0, 0);
+    // If input is ISO string, parse as date, else fallback to time string
+    let startTime: Date, endTime: Date;
+    if (startTimeStr.includes('T')) {
+      startTime = new Date(startTimeStr);
+    } else {
+      startTime = new Date();
+      const [startHours, startMinutes] = startTimeStr.split(':').map(Number);
+      startTime.setHours(startHours, startMinutes, 0, 0);
+    }
+    if (endTimeStr.includes('T')) {
+      endTime = new Date(endTimeStr);
+    } else {
+      endTime = new Date();
+      const [endHours, endMinutes] = endTimeStr.split(':').map(Number);
+      endTime.setHours(endHours, endMinutes, 0, 0);
+    }
     if (endTime <= startTime) {
       endTime.setDate(endTime.getDate() + 1);
     }
@@ -545,15 +603,13 @@ export class BookingPageComponent implements OnInit {
     while (currentStart < endTime) {
       let currentEnd = new Date(currentStart);
       currentEnd.setMinutes(currentEnd.getMinutes() + min);
-      if (currentEnd > endTime) {
-        break;
-      }
       const formattedStart = `${currentStart.getHours().toString().padStart(2, '0')}:${currentStart.getMinutes().toString().padStart(2, '0')}`;
       const formattedEnd = `${currentEnd.getHours().toString().padStart(2, '0')}:${currentEnd.getMinutes().toString().padStart(2, '0')}`;
       intervals.push({ start: formattedStart, end: formattedEnd, selected: false });
       // Advance to next slot: last end + buffer
       currentStart = new Date(currentEnd);
       currentStart.setMinutes(currentStart.getMinutes() + buffer);
+      console.log(`Added interval: ${formattedStart} - ${formattedEnd}, next start: ${currentStart.toTimeString().slice(0, 5)}`);
       if (currentStart > endTime) break;
     }
     return intervals;
