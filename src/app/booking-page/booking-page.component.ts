@@ -5,6 +5,7 @@ import { ActivatedRoute } from '@angular/router';
 import { CarService } from '../services/car.service';
 import { EventService } from '../services/event.service';
 import { BookingService } from '../services/booking';
+import { EmailService } from '../services/email.service';
 import { Car } from '../model/cars.model';
 interface Booking {
   id: string;
@@ -102,6 +103,7 @@ export class BookingPageComponent implements OnInit {
     private cdr: ChangeDetectorRef,
     private event: EventService,
     private booking: BookingService,
+    private emailService: EmailService
   ) {}
 
   ngOnInit(): void {
@@ -572,13 +574,106 @@ export class BookingPageComponent implements OnInit {
 
     console.log('Booking payload:', bookingPayload);
     this.booking.createBooking(bookingPayload).subscribe({
-      next: (res) => {
+      next: async (res) => {
         console.log(res);
-        if (this.isGiftVoucher) {
-          alert(`Gift voucher sent successfully to ${this.recipientEmail}!`);
-        } else {
-          alert('Booking submitted successfully!');
+        
+        // Get user details for email
+        let userEmail = '';
+        let userFirstName = '';
+        let userLastName = '';
+        try {
+          const userStr = localStorage.getItem('user');
+          if (userStr) {
+            const userObj = JSON.parse(userStr);
+            userEmail = userObj.email || '';
+            userFirstName = userObj.first_name || userObj.firstName || '';
+            userLastName = userObj.last_name || userObj.lastName || '';
+          }
+        } catch (e) {
+          console.error('Failed to get user details from localStorage:', e);
         }
+
+        // Get car name
+        const selectedCar = this.carsList.find(car => car.car_id === this.carModel);
+        const carName = selectedCar ? `${selectedCar.make} ${selectedCar.model}` : 'Selected Car';
+
+        // Send email if EmailJS is configured
+        if (this.emailService.isConfigured()) {
+          if (this.isGiftVoucher) {
+            // Send gift voucher email to recipient
+            try {
+              const voucherDetails = {
+                carName: carName,
+                bookingDate: this.bookingDate,
+                location: this.selectedLocation,
+                duration: `${this.selectedMin} minutes`,
+                timeSlot: `${selectedTimeRange.start} - ${selectedTimeRange.end}`,
+                totalAmount: this.totalAmount
+              };
+
+              const emailResult = await this.emailService.sendGiftVoucherEmail(
+                this.recipientEmail,
+                this.recipientName,
+                `${userFirstName} ${userLastName}`,
+                voucherDetails
+              );
+
+              if (emailResult.success) {
+                console.log('✓ Gift voucher email sent to:', this.recipientEmail);
+                alert(`Gift voucher sent successfully to ${this.recipientEmail}!`);
+              } else {
+                console.warn('⚠️  Failed to send gift voucher email:', emailResult.message);
+                alert(`Gift voucher created but email failed to send. Please contact the recipient manually.`);
+              }
+            } catch (emailError) {
+              console.error('⚠️  Gift voucher email error:', emailError);
+              alert(`Gift voucher created but email failed to send.`);
+            }
+          } else {
+            // Send booking confirmation email to user
+            if (userEmail) {
+              try {
+                const bookingDetails = {
+                  firstName: userFirstName,
+                  lastName: userLastName,
+                  carName: carName,
+                  bookingDate: this.bookingDate,
+                  location: this.selectedLocation,
+                  duration: `${this.selectedMin} minutes`,
+                  timeSlot: `${selectedTimeRange.start} - ${selectedTimeRange.end}`,
+                  totalAmount: this.totalAmount
+                };
+
+                const emailResult = await this.emailService.sendBookingConfirmationEmail(
+                  userEmail,
+                  bookingDetails
+                );
+
+                if (emailResult.success) {
+                  console.log('✓ Booking confirmation email sent to:', userEmail);
+                  alert('Booking submitted successfully! Check your email for confirmation.');
+                } else {
+                  console.warn('⚠️  Failed to send confirmation email:', emailResult.message);
+                  alert('Booking submitted successfully!');
+                }
+              } catch (emailError) {
+                console.error('⚠️  Booking confirmation email error:', emailError);
+                alert('Booking submitted successfully!');
+              }
+            } else {
+              alert('Booking submitted successfully!');
+            }
+          }
+        } else {
+          // EmailJS not configured
+          console.warn('⚠️  EmailJS not configured - skipping email notification');
+          if (this.isGiftVoucher) {
+            alert(`Gift voucher created successfully for ${this.recipientEmail}!`);
+          } else {
+            alert('Booking submitted successfully!');
+          }
+        }
+
         this.resetForm();
       },
       error: (err) => {

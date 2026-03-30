@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
+import { EmailService } from '../../services/email.service';
 import { Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { first } from 'rxjs';
@@ -24,6 +25,7 @@ export class RegistrationComponent implements OnInit {
   constructor(
     private formBuilder: FormBuilder,
     private authService: AuthService,
+    private emailService: EmailService,
     private router: Router
   ) {
     this.registrationForm = this.formBuilder.group({
@@ -98,8 +100,30 @@ export class RegistrationComponent implements OnInit {
 
     this.authService.register(userData)
       .subscribe({
-        next: (response) => {
+        next: async (response) => {
           if (response.success) {
+            // Send registration success email
+            if (this.emailService.isConfigured()) {
+              try {
+                const emailResult = await this.emailService.sendRegistrationSuccessEmail(
+                  userData.email,
+                  userData.first_name,
+                  userData.last_name
+                );
+                
+                if (emailResult.success) {
+                  console.log('✓ Welcome email sent to:', userData.email);
+                } else {
+                  console.warn('⚠️  Failed to send welcome email:', emailResult.message);
+                }
+              } catch (emailError) {
+                console.error('⚠️  Email sending error:', emailError);
+              }
+            } else {
+              console.warn('⚠️  EmailJS not configured - skipping welcome email');
+            }
+            
+            // Navigate to login regardless of email result
             this.router.navigate(['/user/login']);
           }
         },
