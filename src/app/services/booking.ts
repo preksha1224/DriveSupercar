@@ -7,16 +7,20 @@ import { Observable } from 'rxjs';
 })
 export class BookingService {
   constructor(private http: HttpClient){}
-  
-createBooking(req: any): Observable<any> {
-  return this.http.post('/book', req);
-}
 
-getBooking(Id: string): Observable<any> {
-  return this.http.get(`/book/${Id}`);
-}
+  createBooking(req: any): Observable<any> {
+    return this.http.post('/book', req);
+  }
 
-getallBooking(): Observable<any> {
-  return this.http.get(`/book`);
-}
+  getBooking(Id: string): Observable<any> {
+    return this.http.get(`/book/${Id}`);
+  }
+
+  getallBooking(): Observable<any> {
+    return this.http.get(`/book`);
+  }
+
+  getBookingAsPerDate(req: any): Observable<any> {
+    return this.http.get('/book/booking/by-event-car-date', { params: req });
+  }
 }

@@ -25,6 +25,7 @@ interface timeSlotBooking {
   start: string;
   end: string;
   selected: boolean;
+  disabled: boolean;
 }
 
 interface MinOption {
@@ -53,7 +54,7 @@ export class BookingPageComponent implements OnInit {
   recipientEmail: string = '';
 
   availableDates: string[] = [];
-
+  getBookedSlots: any[] = [];
   dateShow = false;
   // Form fields
   carModel: string = '';
@@ -62,25 +63,19 @@ export class BookingPageComponent implements OnInit {
   selectedMin: any | undefined;
   selectedLocation: string = '';
   validationMessage: string = '';
-  cars: string[] = [];
-  selectedEventId: string = '';
-  selectedEventCarId: string = '';
   carsList: Car[] = [];
   slotBooking: timeSlotBooking[] = [];
   locations: string[] = ['berlin', 'hamburg', 'munich'];
   isLocationLoading: boolean = false;
-  carOptions: string[] = [];
   isCarLoading: boolean = false;
   evenetData: any = null;
   selectedEvents: any = null;
   noEvent = false;
-  // Payment mock data
   totalAmount: number = 0;
   paymentMethod: string = '';
   readonly pricePerMinute: number = 15;
   finalEventData: any = null;
 
-  minOption: MinOption = { minOption: [] };
   // Location info
   selectedState: string = '';
   selectedCity: string = '';
@@ -344,11 +339,13 @@ export class BookingPageComponent implements OnInit {
   getDate() {
     this.selectedEvents = null;
     if (this.carModel !== '' && this.selectedLocation !== '') {
-      console.log(this.evenetData);
+      // Filter events by both city and car
       this.selectedEvents = this.evenetData.filter((event: any) => {
-        return event.city_name === this.selectedLocation;
+        // Check if event has eventCars and one matches the selected car
+        const hasCar = Array.isArray(event.eventCars) && event.eventCars.some((ec: any) => ec.car_id === this.carModel);
+        return event.city_name === this.selectedLocation && hasCar;
       });
-      console.log(this.selectedEvents);
+      console.log('Filtered events for car and location:', this.selectedEvents);
       if (this.selectedEvents.length > 0) {
         this.dateShow = true;
         this.noEvent = false;
@@ -356,6 +353,7 @@ export class BookingPageComponent implements OnInit {
       } else {
         this.dateShow = true;
         this.noEvent = true;
+        this.availableDates = [];
       }
     } else {
       this.dateShow = false;
@@ -427,16 +425,22 @@ export class BookingPageComponent implements OnInit {
       // bookingDate should be >= start_date and <= end_date
       return bookingDateObj >= start && bookingDateObj <= end;
     });
-
-    if (!matchingEvent) {
+    this.finalEventData = matchingEvent;
+    console.log('Matching event for selected date:', matchingEvent);
+    const gettingEventCarId = this.finalEventData?.eventCars.find((ec: any) => ec.car_id === this.carModel)?.id;
+    console.log('Event cars matching selected car:', gettingEventCarId);
+    if (!matchingEvent || !gettingEventCarId) {
       this.selectTime = null;
       this.finalEventData = null;
       return;
     }
-    this.finalEventData = matchingEvent;
-    console.log('Matching event for selected date:', matchingEvent);
-    const timeWindows = (matchingEvent.eventTimeWindows || [])
-    console.log('Time windows for selected date:', timeWindows);
+
+    // Only use time windows for the selected car (eventCarId)
+    const timeWindows = (matchingEvent.eventTimeWindows || []).filter((tw: any) => {
+      // If eventCarId is present on the time window, match it; otherwise, include all
+      return !tw.eventCarId || tw.eventCarId === gettingEventCarId;
+    });
+    console.log('Time windows for selected car and date:', timeWindows);
     const durationOrder = [
       'TEN', 'TWENTY', 'FORTY', 'SIXTY',
       'DURATION_10_MIN', 'DURATION_20_MIN', 'DURATION_40_MIN', 'DURATION_60_MIN',
@@ -467,6 +471,25 @@ export class BookingPageComponent implements OnInit {
     }
     // Optionally reset slotBooking
     console.log('Updated minute options:', this.selectTime);
+    console.log('EventCariD:', gettingEventCarId);
+    console.log('Date:', this.bookingDate);
+
+    if(gettingEventCarId && this.bookingDate){
+      const requestbody = {
+        eventCarId: gettingEventCarId,
+        date: this.bookingDate.toString(),
+      };
+      console.log('Request body for fetching bookings by date:', requestbody);
+      this.booking.getBookingAsPerDate(requestbody).subscribe({
+        next: (res: any): void => {
+          console.log('Bookings for date:', res);
+          this.getBookedSlots = res.data;
+        },
+        error: (err: Error): void => {
+          console.error('Failed to load bookings for date', err);
+        },
+      })
+    }
     this.slotBooking = [];
   }
 
@@ -605,11 +628,24 @@ export class BookingPageComponent implements OnInit {
       currentEnd.setMinutes(currentEnd.getMinutes() + min);
       const formattedStart = `${currentStart.getHours().toString().padStart(2, '0')}:${currentStart.getMinutes().toString().padStart(2, '0')}`;
       const formattedEnd = `${currentEnd.getHours().toString().padStart(2, '0')}:${currentEnd.getMinutes().toString().padStart(2, '0')}`;
-      intervals.push({ start: formattedStart, end: formattedEnd, selected: false });
-      // Advance to next slot: last end + buffer
+      let disabled = false;
+      if (Array.isArray(this.getBookedSlots) && this.getBookedSlots.length > 0) {
+        const slotStart = new Date(`${this.bookingDate}T${formattedStart}:00`);
+        const slotEnd = new Date(`${this.bookingDate}T${formattedEnd}:00`);
+        for (const booked of this.getBookedSlots) {
+          let bookedStart = new Date(booked.start_time);
+          let bookedEnd = new Date(booked.end_time);
+          bookedStart = new Date(bookedStart.getTime() - buffer * 60000);
+          bookedEnd = new Date(bookedEnd.getTime() + buffer * 60000);
+          if (slotStart < bookedEnd && slotEnd > bookedStart) {
+            disabled = true;
+            break;
+          }
+        }
+      }
+      intervals.push({ start: formattedStart, end: formattedEnd, selected: false, disabled });
       currentStart = new Date(currentEnd);
       currentStart.setMinutes(currentStart.getMinutes() + buffer);
-      console.log(`Added interval: ${formattedStart} - ${formattedEnd}, next start: ${currentStart.toTimeString().slice(0, 5)}`);
       if (currentStart > endTime) break;
     }
     return intervals;

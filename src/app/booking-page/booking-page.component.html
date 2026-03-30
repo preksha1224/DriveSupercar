@@ -182,6 +182,7 @@
               class="time-slot-btn"
               [class.selected]="slot.selected"
               (click)="selectDividedSlot(slot)"
+              [disabled]="slot.disabled"
             >
               <span class="time-text">{{ slot.start }}</span>
               <span class="slot-status" *ngIf="slot.selected">SELECTED</span>
