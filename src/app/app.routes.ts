@@ -7,6 +7,7 @@ import { DashboardComponent } from './admin/dashboard/dashboard.component';
 import { BookingPageComponent } from './booking-page/booking-page.component';
 import { DetailPageComponent } from './basic-page/detail-page/detail-page.component';
 import { BookingdetailspageComponent } from './bookingdetailspage/bookingdetailspage.component';
+import { ShowBookingUserComponent } from './show-booking-user/show-booking-user.component';
 export const routes: Routes = [
   { path: '', component: HomeComponent },
   { path: 'booking', component: BookingPageComponent },
@@ -41,6 +42,11 @@ export const routes: Routes = [
     path: 'Bookingdetail',
     canActivate:[AuthGuard],
     component:BookingdetailspageComponent
+  },
+   {
+    path: 'ShowBookingUser',
+    canActivate:[AuthGuard],
+    component:ShowBookingUserComponent
   },
 
   { path: '**', redirectTo: '' }

@@ -23,4 +23,10 @@ export class BookingService {
   getBookingAsPerDate(req: any): Observable<any> {
     return this.http.get('/book/booking/by-event-car-date', { params: req });
   }
+  
+  getBookingByUserId(id: string): Observable<any> {
+    return this.http.get(`/book/user/${id}`);
+  }
+
 }
+
