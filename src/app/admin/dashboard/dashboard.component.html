@@ -1,3 +1,4 @@
+
 <div class="admin-hero text-center py-5 position-relative overflow-hidden">
   <div class="container position-relative" style="z-index:2;">
     <div class="row">
@@ -57,7 +58,21 @@
                   </div>
                 </div>
               }
-              <div class="text-end"><button class="btn btn-link text-golden">Show your booking</button></div>
+              <hr>
+              <div class="d-flex gap-2 justify-content-between">
+                <button class="btn btn-link text-golden">Show your booking</button>
+                <div class="d-flex gap-2">
+                  <button type="button" class="btn btn-warning btn-sm" 
+                        (click)="editRide(ride, $index)" 
+                        data-bs-toggle="modal" 
+                        data-bs-target="#editRideModal">
+                    <i class="bi bi-pencil"></i> Edit
+                  </button>
+                  <button type="button" class="btn btn-danger btn-sm" (click)="deleteRide(ride.id, $index)">
+                    <i class="bi bi-trash"></i> Delete
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -136,7 +151,6 @@
   </div>
 </div>
 
-<!-- Modal -->
 <div class="modal fade" id="exampleModal" tabindex="-1">
   <div class="modal-dialog">
     <div class="modal-content">
@@ -145,7 +159,7 @@
         <h5 class="modal-title">Add Ride</h5>
         <button type="button" class="btn-close" (click)="dismissModel()"></button>
       </div>
-      <form [formGroup]="rideForm" >
+      <form [formGroup]="rideForm">
 
         <div class="modal-body">
 
@@ -212,9 +226,9 @@
                   *ngIf="rideForm.get('endDate')?.touched && rideForm.get('endDate')?.invalid">
                 End date is required
               </div>
-            <div class="text-danger" *ngIf="rideForm.errors?.['endBlocked']">
-              This date is already booked
-            </div>
+              <div class="text-danger" *ngIf="rideForm.errors?.['endBlocked']">
+                This date is already booked
+              </div>
             </div>
 
           </div>
@@ -324,6 +338,183 @@
           </button>
           <button type="submit" class="btn btn-primary" (click)="onSubmit()">
             Save Ride
+          </button>
+        </div>
+
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Ride Modal -->
+<div class="modal fade" id="editRideModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+
+      <div class="modal-header">
+        <h5 class="modal-title">Edit Ride</h5>
+        <button type="button" class="btn-close" (click)="editdismissModel()"></button>
+      </div>
+
+      <form [formGroup]="rideForm">
+
+        <div class="modal-body">
+
+          <!-- Select Cars -->
+          <div class="mb-3">
+            <label class="form-label fw-bold">Select Cars</label>
+            <div class="row">
+              <div class="col-md-6" *ngFor="let car of cars">
+                <div class="form-check">
+                  <input
+                    class="form-check-input"
+                    type="checkbox"
+                    [checked]="carsFormArray.value?.includes(car.car_id)"
+                    (change)="onCarChange($event, car.car_id)">
+                  <label class="form-check-label">
+                    {{ car.make }} - {{ car.model }}
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Location -->
+          <div class="mb-3">
+            <label class="form-label">Location</label>
+            <select class="form-select" aria-label="Location" formControlName="location" required>
+              <option selected disabled>Select Location</option>
+              <option value="berlin">Berlin</option>
+              <option value="hamburg">Hamburg</option>
+              <option value="munich">Munich</option>
+            </select>
+          </div>
+
+          <div class="row">
+            <!-- Start Date -->
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Start Date</label>
+              <input type="date"
+                    class="form-control"
+                    formControlName="startDate">
+              <div class="text-danger"
+                  *ngIf="rideForm.get('startDate')?.touched && rideForm.get('startDate')?.invalid">
+                Start date is required
+              </div>
+              <div class="text-danger" *ngIf="rideForm.errors?.['startBlocked']">
+                This date is already booked
+              </div>
+            </div>
+
+            <!-- End Date -->
+            <div class="col-md-6 mb-3">
+              <label class="form-label">End Date</label>
+              <input type="date"
+                    class="form-control"
+                    formControlName="endDate">
+              <div class="text-danger"
+                  *ngIf="rideForm.get('endDate')?.touched && rideForm.get('endDate')?.invalid">
+                End date is required
+              </div>
+              <div class="text-danger" *ngIf="rideForm.errors?.['endBlocked']">
+                This date is already booked
+              </div>
+            </div>
+          </div>
+
+          <!-- Date Range Validation -->
+          <div class="text-danger"
+              *ngIf="rideForm.errors?.['invalidDateRange']">
+            End date must be after Start date
+          </div>
+
+          <!-- Time Duration -->
+          <div class="mb-3">
+            <label class="form-label fw-bold">Time Duration (24-Hour)</label>
+
+            <div formArrayName="timeSlots">
+              <div class="border p-3 mb-3"
+                  *ngFor="let slot of timeSlots.controls; let i = index"
+                  [formGroupName]="i">
+
+                <div class="row">
+
+                  <!-- Start Time -->
+                  <div class="col-md-4">
+                    <label class="form-label">Start Time</label>
+                    <input type="time"
+                          class="form-control"
+                          formControlName="startTime"
+                          step="60">
+                    <div class="text-danger"
+                        *ngIf="slot.get('startTime')?.touched && slot.get('startTime')?.invalid">
+                      Start time required
+                    </div>
+                  </div>
+
+                  <!-- End Time -->
+                  <div class="col-md-4">
+                    <label class="form-label">End Time</label>
+                    <input type="time"
+                          class="form-control"
+                          formControlName="endTime"
+                          step="60">
+                    <div class="text-danger"
+                        *ngIf="slot.get('endTime')?.touched && slot.get('endTime')?.invalid">
+                      End time required
+                    </div>
+                  </div>
+
+                  <!-- Remove Button -->
+                  <div class="col-md-4 d-flex align-items-end">
+                    <button type="button"
+                            class="btn btn-danger w-100"
+                            (click)="removeTimeSlot(i)"
+                            *ngIf="timeSlots.length > 1">
+                      Remove
+                    </button>
+                  </div>
+
+                </div>
+
+                <!-- Checkbox Options -->
+                <div class="mt-3">
+                  <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="checkbox" formControlName="tenMin">
+                    <label class="form-check-label">10 mins</label>
+                  </div>
+                  <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="checkbox" formControlName="twentyMin">
+                    <label class="form-check-label">20 mins</label>
+                  </div>
+                  <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="checkbox" formControlName="fortyMin">
+                    <label class="form-check-label">40 mins</label>
+                  </div>
+                  <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="checkbox" formControlName="sixtyMin">
+                    <label class="form-check-label">60 mins</label>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+
+            <!-- Add Time Slot Button -->
+            <button type="button" class="btn btn-success" (click)="addTimeSlot()">
+              + Add Time Slot
+            </button>
+
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" (click)="editdismissModel()">
+            Close
+          </button>
+          <button type="submit" class="btn btn-warning" (click)="onEditSubmit()" [disabled]="isUpdating">
+            <span *ngIf="isUpdating" class="spinner-border spinner-border-sm me-2"></span>
+            {{ isUpdating ? 'Updating...' : 'Update Ride' }}
           </button>
         </div>
 

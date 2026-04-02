@@ -16,4 +16,11 @@ export class EventService {
   getEvent(): Observable<any> {
     return this.http.get('/event');
   }
+
+  updateEvent(eventId:string,req:any): Observable<any> {
+    return this.http.put(`/event/${eventId}`,req);
+  }
+  deleteEvent(eventId:string): Observable<any> {
+    return this.http.delete(`/event/${eventId}`);
+}
 }

@@ -39,7 +39,9 @@ export class DashboardComponent implements OnInit {
   private userNameCache = new Map<string, string>();
   private eventCityCache = new Map<string, string>();
   private eventRangeCache = new Map<string, { startDate: string; endDate: string }>();
-
+editRideForm!: FormGroup;
+isUpdating = false;
+selectedRideIndex: number = -1;
   durationMap: any = {
     tenMin: 'TEN',
     twentyMin: 'TWENTY',
@@ -81,6 +83,24 @@ export class DashboardComponent implements OnInit {
     this.getEvent();
     this.bookinglist();
   }
+
+  get editCarsFormArray(): FormArray {
+  return this.editRideForm.get('cars') as FormArray;
+}
+
+get editTimeSlots(): FormArray {
+  return this.editRideForm.get('timeSlots') as FormArray;
+}
+initEditRideForm(): void {
+  this.editRideForm = this.fb.group({
+    cars: this.fb.array([]),
+    location: ['', Validators.required],
+    startDate: ['', Validators.required],
+    endDate: ['', Validators.required],
+    timeSlots: this.fb.array([this.createTimeSlot()])
+  });
+}
+
 
   bookinglist() {
     this.isBookingLoading = true;
@@ -537,6 +557,15 @@ export class DashboardComponent implements OnInit {
         this.setDefaultCars();
     }
   }
+  editdismissModel() {
+    const modal = document.getElementById('editRideModal');
+    if (modal) {
+      const modalInstance = (window as any).bootstrap.Modal.getInstance(modal);
+      this.rideForm.reset();
+      modalInstance?.hide();
+      this.setDefaultCars();
+    }
+  }
 
   onSubmit() {
     if (this.rideForm.valid) {
@@ -674,6 +703,168 @@ export class DashboardComponent implements OnInit {
   }
 
   private applyFilters(): void {
+  }
+    selectedRide: any = null;
+
+
+  editRide(ride: any, index: number): void {
+    this.selectedRide = ride;
+    this.selectedRideIndex = index;
+
+    // Use the existing rideForm instead of creating a new one
+    this.rideForm.patchValue({
+      location: ride.city_name,
+      startDate: this.formatDateForInput(ride.start_date),
+      endDate: this.formatDateForInput(ride.end_date)
+    });
+
+    // Patch cars array
+    const carArray = this.carsFormArray;
+    carArray.clear();
+    
+    // Check for car_id in eventCars or cars
+    const carIds = (ride.eventCars || ride.cars || [])
+      .map((c: any) => typeof c === 'object' ? String(c.car_id || c.id) : String(c))
+      .filter((id: string) => id && id !== 'undefined');
+
+    carIds.forEach((id: string) => {
+      carArray.push(this.fb.control(id));
+    });
+
+    // Patch time slots
+    const timeSlotsArray = this.timeSlots;
+    timeSlotsArray.clear();
+    if (ride.eventTimeWindows && Array.isArray(ride.eventTimeWindows)) {
+      ride.eventTimeWindows.forEach((slot: any) => {
+        timeSlotsArray.push(this.fb.group({
+          startTime: [this.extractTimeFromISO(slot.start_time), Validators.required],
+          endTime: [this.extractTimeFromISO(slot.end_time), Validators.required],
+          tenMin: [slot.allowed_duration?.includes('TEN') || false],
+          twentyMin: [slot.allowed_duration?.includes('TWENTY') || false],
+          fortyMin: [slot.allowed_duration?.includes('FORTY') || false],
+          sixtyMin: [slot.allowed_duration?.includes('SIXTY') || false]
+        }));
+      });
+    } else {
+      timeSlotsArray.push(this.createTimeSlot());
+    }
+  }
+
+  updateRide(): void {
+    if (this.rideForm.valid && this.selectedRide) {
+      this.isUpdating = true;
+      const rideData = this.rideForm.value;
+      const startDate = new Date(rideData.startDate);
+      const endDate = new Date(rideData.endDate);
+
+      const time_windows = rideData.timeSlots.map((slot: any) => {
+        const start = this.convertTimeToTimestamp(slot.startTime, rideData.startDate);
+        const end = this.convertTimeToTimestamp(slot.endTime, rideData.startDate);
+
+        const allowedDurations = Object.keys(this.durationMap)
+          .filter(key => slot[key])
+          .map(key => this.durationMap[key]);
+
+        return {
+          start_time: start,
+          end_time: end,
+          allowed_duration: allowedDurations
+        };
+      });
+
+      const requestData: any = {
+        city_name: rideData.location,
+        venue: "parking",
+        start_date: startDate,
+        end_date: endDate,
+        cars: rideData.cars,
+        time_windows: time_windows
+      };
+
+      const rideId = this.selectedRide.id || this.selectedRide._id;
+      this.eventService.updateEvent(rideId, requestData).subscribe({
+        next: (data) => {
+          console.log('Update success:', data);
+          this.isUpdating = false;
+          this.getEvent();
+          this.editdismissModel();
+        },
+        error: (err) => {
+          console.log('Update error:', err);
+          this.isUpdating = false;
+        }
+      });
+    } else {
+      this.rideForm.markAllAsTouched();
+    }
+  }
+
+private formatDateForInput(dateStr: string): string {
+  if (!dateStr) return '';
+  const date = new Date(dateStr);
+  return !isNaN(date.getTime()) ? date.toISOString().split('T')[0] : '';
+}
+
+  private extractTimeFromISO(isoStr: string): string {
+    if (!isoStr) return '';
+    const date = new Date(isoStr);
+    if (isNaN(date.getTime())) return '';
+    const hours = date.getHours().toString().padStart(2, '0');
+    const minutes = date.getMinutes().toString().padStart(2, '0');
+    return `${hours}:${minutes}`;
+  }
+
+  onEditCarChange(event: any, carId: any): void {
+    const carIdStr = String(carId);
+    if (event.target.checked) {
+      if (!this.editCarsFormArray.value.includes(carIdStr)) {
+        this.editCarsFormArray.push(this.fb.control(carIdStr));
+      }
+    } else {
+      const index = this.editCarsFormArray.value.indexOf(carIdStr);
+      if (index !== -1) this.editCarsFormArray.removeAt(index);
+    }
+  }
+
+  isCarSelectedForEdit(carId: any): boolean {
+    return this.editCarsFormArray.value.includes(String(carId));
+  }
+
+  addEditTimeSlot(): void {
+    this.editTimeSlots.push(this.createTimeSlot());
+  }
+
+  removeEditTimeSlot(index: number): void {
+    this.editTimeSlots.removeAt(index);
+  }
+
+  dismissEditModel(): void {
+    const modal = document.getElementById('editRideModal');
+    if (modal) {
+      const bsModal = (window as any).bootstrap.Modal.getInstance(modal);
+      bsModal?.hide();
+    }
+  }
+
+  onEditSubmit(): void {
+    this.updateRide();
+  }
+
+  deleteRide(rideId: string, index: number): void {
+    console.log('rideid', rideId);
+
+    const confirmed = window.confirm('Are you sure you want to delete this ride?');
+
+    if (!confirmed) {
+      return;
+    }
+
+    this.eventService.deleteEvent(rideId).subscribe({
+      next: () => {
+        this.getEvent(); 
+      },
+      error: (err: any) => console.log(err)
+    });
   }
 }
 
