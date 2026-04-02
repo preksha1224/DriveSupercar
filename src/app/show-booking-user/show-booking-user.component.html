@@ -1,0 +1,169 @@
+<div class="booking-dashboard">
+
+  <!-- HEADER -->
+  <div class="dashboard-header">
+
+    <div class="header-left">
+      <div class="title-group">
+        <h1 class="header-title">My Bookings</h1>
+        <p class="header-subtitle">
+          Manage, reschedule or cancel your luxury rides
+        </p>
+      </div>
+    </div>
+
+    <div class="header-right">
+
+      <!-- SEARCH -->
+      <div class="search-box">
+        <i class="bi bi-search search-icon"></i>
+        <input
+          type="text"
+          placeholder="Search bookings..."
+          (input)="onSearch($event)"
+        />
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- TABLE -->
+  <div class="table-container">
+
+    <!-- LOADING OVERLAY -->
+    <div  class="loading-overlay" *ngIf="isLoading">
+      <div class="spinner-group">
+        <div class="spinner"></div>
+        <p>Fetching your luxury rides...</p>
+      </div>
+    </div>
+
+    <table class="booking-table">
+      <thead>
+        <tr>
+          <th>Car</th>
+          <th>City</th>
+          <th>Date</th>
+          <th>Time</th>
+          <th>Amount</th>
+          <th>Status</th>
+          <th class="text-center">Action</th>
+        </tr>
+      </thead>
+
+      <tbody>
+
+        <!-- EMPTY -->
+        <tr *ngIf="paginatedBookings.length === 0">
+          <td colspan="7" class="text-center">No bookings found</td>
+        </tr>
+
+        <!-- DATA -->
+        <tr *ngFor="let booking of paginatedBookings" [class.table-loading]="isLoading">
+          <td>{{ booking?.eventCar?.car?.make }} {{ booking?.eventCar?.car?.model }}</td>
+          <td>{{ booking?.eventCar?.event?.city_name | titlecase }}</td>
+
+          <td>{{ booking?.start_time | date:'mediumDate' }}</td>
+
+          <td>
+            {{ booking?.start_time | date:'shortTime' }} -
+            {{ booking?.end_time | date:'shortTime' }}
+          </td>
+
+          <td> € {{ booking.amount }}</td>
+
+          <td>
+            <span
+              class="status-badge"
+              [ngClass]="getStatusClass(booking.status)"
+            >
+              {{ booking.status }}
+            </span>
+          </td>
+
+          <td class="text-center">
+
+            <div class="dropdown">
+
+              <span
+                class="menu-trigger"
+                (click)="toggleMenu(booking.id); $event.stopPropagation()"
+              >
+                ⋮
+              </span>
+
+              <div
+                class="dropdown-menu"
+                *ngIf="activeMenu === booking.id"
+                (click)="$event.stopPropagation()"
+              >
+
+                <button (click)="viewDetails(booking)">
+                  View Details
+                </button>
+
+                <button (click)="rescheduleBooking(booking)">
+                  Reschedule
+                </button>
+
+                <div class="divider"></div>
+
+                <button
+                  class="danger"
+                  (click)="cancelBooking(booking)"
+                >
+                  Cancel Ride
+                </button>
+
+              </div>
+
+            </div>
+
+          </td>
+        </tr>
+
+      </tbody>
+    </table>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="dashboard-footer">
+
+<div class="footer-info">
+  Showing <span>{{ currentPage }}</span> of <span>{{ filteredBookings.length }} </span> bookings
+</div>
+    <div class="pagination">
+
+      <button
+        class="page-btn"
+        [disabled]="currentPage === 1"
+        (click)="prevPage()"
+      >
+        Previous
+      </button>
+
+      <div class="page-numbers">
+        <button
+          class="page-num"
+          *ngFor="let page of totalPagesArray"
+          [class.active]="page === currentPage"
+          (click)="goToPage(page)"
+        >
+          {{ page }}
+        </button>
+      </div>
+
+      <button
+        class="page-btn"
+        [disabled]="currentPage === totalPages"
+        (click)="nextPage()"
+      >
+        Next
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
