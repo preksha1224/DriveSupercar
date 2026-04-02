@@ -1,0 +1,55 @@
+<div class="success-container">
+  <div class="success-card">
+    <div class="success-icon">
+      <svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="40" cy="40" r="40" fill="#4CAF50"/>
+        <path d="M25 40L35 50L55 30" stroke="white" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+
+    <h1 class="success-title">Payment Successful!</h1>
+    <p class="success-message" *ngIf="!isGiftVoucher">
+      Your booking has been confirmed. We've sent a confirmation email with all the details.
+    </p>
+    <p class="success-message" *ngIf="isGiftVoucher">
+      Your gift voucher has been purchased successfully! A confirmation has been sent to {{ recipientEmail }}.
+    </p>
+
+    <div class="booking-details">
+      <h3>Booking Details</h3>
+      <div class="detail-row">
+        <span class="label">Booking ID:</span>
+        <span class="value">{{ bookingId }}</span>
+      </div>
+      <div class="detail-row">
+        <span class="label">Car:</span>
+        <span class="value">{{ carName }}</span>
+      </div>
+      <div class="detail-row">
+        <span class="label">Date:</span>
+        <span class="value">{{ bookingDate | date: 'fullDate' }}</span>
+      </div>
+      <div class="detail-row">
+        <span class="label">Time Slot:</span>
+        <span class="value">{{ timeSlot }}</span>
+      </div>
+      <div class="detail-row">
+        <span class="label">Amount Paid:</span>
+        <span class="value amount">€{{ amount | number: '1.2-2' }}</span>
+      </div>
+      <div class="detail-row" *ngIf="paymentIntentId">
+        <span class="label">Payment ID:</span>
+        <span class="value">{{ paymentIntentId }}</span>
+      </div>
+    </div>
+
+    <div class="action-buttons">
+      <button class="btn btn-primary" (click)="goToBookingDetails()">
+        View My Bookings
+      </button>
+      <button class="btn btn-secondary" (click)="goToHome()">
+        Back to Home
+      </button>
+    </div>
+  </div>
+</div>

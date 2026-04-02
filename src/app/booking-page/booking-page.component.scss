@@ -550,6 +550,68 @@
   gap: 10px;
 }
 
+/* PAYMENT SECTION - Stripe Card Element */
+.payment-section {
+  margin-top: 32px;
+  
+  .sub-title {
+    margin-bottom: 16px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    color: var(--gold);
+  }
+  
+  .card-element-container {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 12px;
+    transition: all 0.3s ease;
+    
+    &:focus-within {
+      border-color: var(--gold);
+      box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.15);
+    }
+  }
+  
+  .stripe-card-element {
+    min-height: 40px;
+  }
+  
+  .payment-error {
+    color: #ff4444;
+    font-size: 0.875rem;
+    margin-top: 12px;
+    padding: 8px 12px;
+    background: rgba(255, 68, 68, 0.1);
+    border-radius: 4px;
+    border-left: 3px solid #ff4444;
+  }
+  
+  .payment-loading {
+    color: var(--gold);
+    font-size: 0.875rem;
+    text-align: center;
+    padding: 12px;
+  }
+  
+  .payment-info-text {
+    small {
+      color: rgba(255, 255, 255, 0.6);
+      font-size: 0.8rem;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      
+      i {
+        color: var(--gold);
+      }
+    }
+  }
+}
+
   .form-actions button {
     border: none;
     border-radius: 999px;

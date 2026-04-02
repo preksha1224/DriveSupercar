@@ -197,12 +197,38 @@
 
       <div *ngIf="currentStep === 4" class="form-section">
         <h3 class="section-title">STEP 4. AMOUNT & PAYMENT</h3>
-        <p class="section-subtitle">Review your summary and select a payment method</p>
+        <p class="section-subtitle">Review your summary and enter payment details</p>
 
         <div class="summary-card">
           <div class="summary-line">
             <span class="label">Car Model:</span>
-            <span class="value">{{ carModel }}</span>
+            <span class="value">
+              {{ selectedCar?.make }} {{ selectedCar?.model }}
+            </span>
+          </div>
+          <div class="summary-line">
+            <span class="label">Email:</span>
+            <span class="value">{{ recipientEmail || (userEmail) }}</span>
+          </div>
+          <div class="summary-line">
+            <span class="label">Phone:</span>
+            <span class="value">{{ userPhone }}</span>
+          </div>
+          <div class="summary-line">
+            <span class="label">City:</span>
+            <span class="value">{{ selectedCity }}</span>
+          </div>
+          <div class="summary-line">
+            <span class="label">Date:</span>
+            <span class="value">{{ bookingDate }}</span>
+          </div>
+          <div class="summary-line">
+            <span class="label">Start Time:</span>
+            <span class="value">{{ selectedSlot?.start }}</span>
+          </div>
+          <div class="summary-line">
+            <span class="label">End Time:</span>
+            <span class="value">{{ selectedSlot?.end }}</span>
           </div>
           <div class="summary-line">
             <span class="label">Duration:</span>
@@ -214,38 +240,22 @@
           </div>
         </div>
 
-        <div class="payment-selection">
-          <h4 class="sub-title">Select Payment Method <span class="required">*</span></h4>
-          <div class="selection-grid">
-            <button
-              type="button"
-              class="select-card"
-              [class.selected]="paymentMethod === 'Credit Card'"
-              (click)="selectPaymentMethod('Credit Card')"
-            >
-              <span class="select-card-title">Credit Card</span>
-              <span class="slot-status" *ngIf="paymentMethod === 'Credit Card'">SELECTED</span>
-            </button>
-            <button
-              type="button"
-              class="select-card"
-              [class.selected]="paymentMethod === 'PayPal'"
-              (click)="selectPaymentMethod('PayPal')"
-            >
-              <span class="select-card-title">PayPal</span>
-              <span class="slot-status" *ngIf="paymentMethod === 'PayPal'">SELECTED</span>
-            </button>
-            <button
-              type="button"
-              class="select-card"
-              [class.selected]="paymentMethod === 'Apple Pay'"
-              (click)="selectPaymentMethod('Apple Pay')"
-            >
-              <span class="select-card-title">Apple Pay</span>
-              <span class="slot-status" *ngIf="paymentMethod === 'Apple Pay'">SELECTED</span>
-            </button>
+        <!-- Payment Card Section -->
+        <div class="payment-section mt-4">
+          <h4 class="sub-title">Payment Information <span class="required">*</span></h4>
+          <div class="card-element-container">
+            <div id="card-element" class="stripe-card-element"></div>
+            <div *ngIf="paymentError" class="payment-error">{{ paymentError }}</div>
+            <div *ngIf="!stripeLoaded" class="payment-loading">Loading payment system...</div>
+          </div>
+          <div class="payment-info-text">
+            <small>
+              <i class="bi bi-lock-fill"></i>
+              Your payment is secure and encrypted. We use Stripe for payment processing.
+            </small>
           </div>
         </div>
+
       </div>
 
 <div class="form-actions">
@@ -279,10 +289,11 @@
       type="button"
       class="btn-primary"
       *ngIf="currentStep === totalSteps"
-      [disabled]="!canSubmit"
+      [disabled]="!canSubmit || isProcessingPayment"
       (click)="submitBooking()"
     >
-      CONFIRM RESERVATION
+      <span *ngIf="!isProcessingPayment">CONFIRM RESERVATION</span>
+      <span *ngIf="isProcessingPayment">PROCESSING PAYMENT...</span>
     </button>
 
   </div>

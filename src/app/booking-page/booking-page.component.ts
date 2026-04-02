@@ -1,12 +1,15 @@
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { CarService } from '../services/car.service';
 import { EventService } from '../services/event.service';
 import { BookingService } from '../services/booking';
 import { EmailService } from '../services/email.service';
+import { PaymentService } from '../services/payment.service';
 import { Car } from '../model/cars.model';
+// Stripe types (for TypeScript)
+declare var Stripe: any;
 interface Booking {
   id: string;
   bookingDate: Date;
@@ -40,6 +43,13 @@ interface MinOption {
   styleUrl: './booking-page.component.scss',
 })
 export class BookingPageComponent implements OnInit {
+  userEmail: string = '';
+  userPhone: string = '';
+  stripeLoaded = false;
+  stripe: any = null;
+  cardElement: any = null;
+  isProcessingPayment = false;
+  paymentError: string = '';
   currentStep: number = 1;
   readonly totalSteps: number = 4;
   readonly stepLabels: string[] = [
@@ -99,21 +109,39 @@ export class BookingPageComponent implements OnInit {
 
   constructor(
     private route: ActivatedRoute,
+    private router: Router,
     private carService: CarService,
     private cdr: ChangeDetectorRef,
     private event: EventService,
     private booking: BookingService,
-    private emailService: EmailService
+    private emailService: EmailService,
+    private paymentService: PaymentService,
   ) {}
 
   ngOnInit(): void {
+    this.loadStripe();
+    // Dynamically load Stripe.js
     this.getevent();
     this.currentStep = 1;
     this.carModel = '';
+    // Get user email and phone from localStorage if available
+    try {
+      const userStr = localStorage.getItem('user');
+      if (userStr) {
+        const userObj = JSON.parse(userStr);
+        this.userEmail = userObj.email || '';
+        this.userPhone = userObj.phone || '';
+      }
+    } catch (e) {
+      this.userEmail = '';
+      this.userPhone = '';
+    }
 
-    const navState = this.route.snapshot?.root?.queryParams && Object.keys(this.route.snapshot.root.queryParams).length === 0
-      ? history.state
-      : this.route.snapshot.root.queryParams;
+    const navState =
+      this.route.snapshot?.root?.queryParams &&
+      Object.keys(this.route.snapshot.root.queryParams).length === 0
+        ? history.state
+        : this.route.snapshot.root.queryParams;
     let preselectedCar = '';
 
     if (navState && navState.selectedCar) {
@@ -169,6 +197,71 @@ export class BookingPageComponent implements OnInit {
       }
     }
     console.log('Navigation state:', this.selectedLocation);
+  }
+  loadStripe() {
+    if (this.stripeLoaded) return;
+    const script = document.createElement('script');
+    script.src = 'https://js.stripe.com/v3/';
+    script.onload = () => {
+      this.stripeLoaded = true;
+      // Stripe publishable key (safe to use in frontend)
+      const stripeKey =
+        'pk_test_51TFWe68fSwJ7kpHqQNe1eUmVNiFcJrZkomxChFtCKgsAqrMUUjNurWcmojkhPMMtcTuQQOw0Jm2pcB7ClnyWWdyG00wzEVmVXx';
+      this.stripe = (window as any).Stripe(stripeKey);
+      console.log('✓ Stripe loaded successfully');
+
+      // Initialize Stripe Elements
+      setTimeout(() => this.mountCardElement(), 100);
+    };
+    script.onerror = () => {
+      console.error('Failed to load Stripe.js');
+      alert('Payment system failed to load. Please refresh the page.');
+    };
+    document.body.appendChild(script);
+  }
+
+  /**
+   * Mount Stripe card element when user reaches payment step
+   */
+  mountCardElement() {
+    if (!this.stripe || this.cardElement) return;
+
+    // Wait until we're on step 4 and the card element container exists
+    const cardElementContainer = document.getElementById('card-element');
+    if (!cardElementContainer) {
+      return; // Will be called again when step 4 is reached
+    }
+
+    const elements = this.stripe.elements();
+    this.cardElement = elements.create('card', {
+      hidePostalCode: true, // Disable postal code requirement
+      style: {
+        base: {
+          fontSize: '16px',
+          color: '#424770',
+          '::placeholder': {
+            color: '#aab7c4',
+          },
+        },
+        invalid: {
+          color: '#9e2146',
+        },
+      },
+    });
+
+    this.cardElement.mount('#card-element');
+
+    // Listen for errors
+    this.cardElement.on('change', (event: any) => {
+      if (event.error) {
+        this.paymentError = event.error.message;
+      } else {
+        this.paymentError = '';
+      }
+      this.cdr.detectChanges();
+    });
+
+    console.log('✓ Card element mounted');
   }
 
   getcar(preselectedCar: string = ''): void {
@@ -268,6 +361,11 @@ export class BookingPageComponent implements OnInit {
     if (this.currentStep < this.totalSteps) {
       this.currentStep += 1;
       this.validationMessage = '';
+
+      // Mount card element when reaching payment step
+      if (this.currentStep === 4) {
+        setTimeout(() => this.mountCardElement(), 100);
+      }
     }
   }
 
@@ -283,8 +381,14 @@ export class BookingPageComponent implements OnInit {
       case 1:
         // Add email validation for gift voucher
         if (this.isGiftVoucher) {
-          return !!this.carModel && !!this.selectedLocation && !!this.bookingDate &&
-            !!this.recipientName && !!this.recipientEmail && this.isValidEmail(this.recipientEmail);
+          return (
+            !!this.carModel &&
+            !!this.selectedLocation &&
+            !!this.bookingDate &&
+            !!this.recipientName &&
+            !!this.recipientEmail &&
+            this.isValidEmail(this.recipientEmail)
+          );
         }
         return !!this.carModel && !!this.selectedLocation && !!this.bookingDate;
       case 2:
@@ -292,7 +396,8 @@ export class BookingPageComponent implements OnInit {
       case 3:
         return this.slotBooking.some((slot) => slot.selected);
       case 4:
-        return !!this.paymentMethod;
+        // Payment step is valid when card element is mounted
+        return this.stripeLoaded && !!this.cardElement;
       default:
         return false;
     }
@@ -315,7 +420,7 @@ export class BookingPageComponent implements OnInit {
       case 3:
         return 'Please select an available time slot.';
       case 4:
-        return 'Please select a payment method.';
+        return 'Payment information is required.';
       default:
         return 'Please complete all required fields.';
     }
@@ -344,7 +449,9 @@ export class BookingPageComponent implements OnInit {
       // Filter events by both city and car
       this.selectedEvents = this.evenetData.filter((event: any) => {
         // Check if event has eventCars and one matches the selected car
-        const hasCar = Array.isArray(event.eventCars) && event.eventCars.some((ec: any) => ec.car_id === this.carModel);
+        const hasCar =
+          Array.isArray(event.eventCars) &&
+          event.eventCars.some((ec: any) => ec.car_id === this.carModel);
         return event.city_name === this.selectedLocation && hasCar;
       });
       console.log('Filtered events for car and location:', this.selectedEvents);
@@ -364,14 +471,10 @@ export class BookingPageComponent implements OnInit {
 
   generateAvailableDatesFromEvents(events: any[]): string[] {
     const allDates = new Set<string>();
-    events.forEach(event => {
+    events.forEach((event) => {
       const start = new Date(event.start_date);
       const end = new Date(event.end_date);
-      for (
-        let d = new Date(start);
-        d <= end;
-        d.setDate(d.getDate() + 1)
-      ) {
+      for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
         allDates.add(d.toISOString().split('T')[0]);
       }
     });
@@ -386,11 +489,16 @@ export class BookingPageComponent implements OnInit {
     const buffer = slot.value === 10 ? 5 : 10;
     for (const event of this.finalEventData.eventTimeWindows) {
       if (event.allowed_duration.includes(slot.label)) {
-        eventMatched=event;
+        eventMatched = event;
       }
     }
     console.log('Matched event for selected minutes:', eventMatched);
-     this.slotBooking = this.getTimeIntervals(eventMatched.start_time, eventMatched.end_time, slot.value, buffer);
+    this.slotBooking = this.getTimeIntervals(
+      eventMatched.start_time,
+      eventMatched.end_time,
+      slot.value,
+      buffer,
+    );
     console.log('Generated time slots:', this.slotBooking);
 
     this.validationMessage = '';
@@ -429,7 +537,9 @@ export class BookingPageComponent implements OnInit {
     });
     this.finalEventData = matchingEvent;
     console.log('Matching event for selected date:', matchingEvent);
-    const gettingEventCarId = this.finalEventData?.eventCars.find((ec: any) => ec.car_id === this.carModel)?.id;
+    const gettingEventCarId = this.finalEventData?.eventCars.find(
+      (ec: any) => ec.car_id === this.carModel,
+    )?.id;
     console.log('Event cars matching selected car:', gettingEventCarId);
     if (!matchingEvent || !gettingEventCarId) {
       this.selectTime = null;
@@ -444,9 +554,18 @@ export class BookingPageComponent implements OnInit {
     });
     console.log('Time windows for selected car and date:', timeWindows);
     const durationOrder = [
-      'TEN', 'TWENTY', 'FORTY', 'SIXTY',
-      'DURATION_10_MIN', 'DURATION_20_MIN', 'DURATION_40_MIN', 'DURATION_60_MIN',
-      '10', '20', '40', '60'
+      'TEN',
+      'TWENTY',
+      'FORTY',
+      'SIXTY',
+      'DURATION_10_MIN',
+      'DURATION_20_MIN',
+      'DURATION_40_MIN',
+      'DURATION_60_MIN',
+      '10',
+      '20',
+      '40',
+      '60',
     ];
     let allowedSet = new Set<string>();
     timeWindows.forEach((tw: any) => {
@@ -462,13 +581,13 @@ export class BookingPageComponent implements OnInit {
     durationOrder.forEach((key) => {
       if (allowedSet.has(key)) {
         const min = this.durationMap[key];
-        if (min && !minOptions.some(opt => opt.value === min && opt.label === key)) {
+        if (min && !minOptions.some((opt) => opt.value === min && opt.label === key)) {
           minOptions.push({ label: key, value: min });
         }
       }
     });
     this.selectTime = { minOption: minOptions };
-    if (!minOptions.some(opt => opt.label === this.selectedMin)) {
+    if (!minOptions.some((opt) => opt.label === this.selectedMin)) {
       this.selectedMin = undefined;
     }
     // Optionally reset slotBooking
@@ -476,7 +595,7 @@ export class BookingPageComponent implements OnInit {
     console.log('EventCariD:', gettingEventCarId);
     console.log('Date:', this.bookingDate);
 
-    if(gettingEventCarId && this.bookingDate){
+    if (gettingEventCarId && this.bookingDate) {
       const requestbody = {
         eventCarId: gettingEventCarId,
         date: this.bookingDate.toString(),
@@ -490,20 +609,13 @@ export class BookingPageComponent implements OnInit {
         error: (err: Error): void => {
           console.error('Failed to load bookings for date', err);
         },
-      })
+      });
     }
     this.slotBooking = [];
   }
 
-  submitBooking(): void {
+  async submitBooking(): Promise<void> {
     const selectedTimeRange = this.slotBooking.find((slot) => slot.selected);
-    console.log('Submitting booking with details:', {
-      carModel: this.carModel,
-      selectedLocation: this.selectedLocation,
-      bookingDate: this.bookingDate,
-      selectedMin: this.selectedMin,
-      selectedTimeRange,
-    });
     if (!this.carModel) {
       alert('Please select a car.');
       return;
@@ -516,16 +628,6 @@ export class BookingPageComponent implements OnInit {
       alert('Please select a date.');
       return;
     }
-    // if (this.isGiftVoucher) {
-    //   if (!this.recipientName) {
-    //     alert('Please enter recipient name.');
-    //     return;
-    //   }
-    //   if (!this.recipientEmail || !this.isValidEmail(this.recipientEmail)) {
-    //     alert('Please enter a valid recipient email.');
-    //     return;
-    //   }
-    // }
     if (!this.selectedMin) {
       alert('Please select a minute option.');
       return;
@@ -534,15 +636,26 @@ export class BookingPageComponent implements OnInit {
       alert('Please select a time slot.');
       return;
     }
+
+    // Verify Stripe is loaded
+    if (!this.stripeLoaded || !this.stripe) {
+      alert('Payment system is still loading. Please try again in a moment.');
+      return;
+    }
+
     let user_id = '';
     try {
       const userStr = localStorage.getItem('user');
       if (userStr) {
         const userObj = JSON.parse(userStr);
-        user_id = userObj.id;
-        console.log('Extracted user_id from localStorage:', user_id);
+        console.log('User object from localStorage:', userObj);
+
+        // Try different possible user ID field names
+        user_id = userObj.id || userObj.user_id || userObj.userId || userObj._id || '';
+        console.log('Extracted user_id:', user_id);
       }
     } catch (e) {
+      console.error('Error parsing user from localStorage:', e);
       user_id = '';
     }
     if (!user_id) {
@@ -550,11 +663,22 @@ export class BookingPageComponent implements OnInit {
       return;
     }
 
-    const gettingEventCarId = this.finalEventData?.eventCars.find((ec: any) => ec.car_id === this.carModel).id;
+    console.log('Using user_id for booking:', user_id);
+
+    // Start processing payment
+    this.isProcessingPayment = true;
+
+    const gettingEventCarId = this.finalEventData?.eventCars.find(
+      (ec: any) => ec.car_id === this.carModel,
+    ).id;
     console.log('Event cars matching selected car:', gettingEventCarId);
 
+    // Convert user_id to number if it's a numeric string (for database compatibility)
+    const userId = isNaN(Number(user_id)) ? user_id : Number(user_id);
+    console.log('Converted user_id for database:', userId, typeof userId);
+
     const bookingPayload: any = {
-      user_id,
+      user_id: userId,
       eventCarId: gettingEventCarId,
       start_time: new Date(`${this.bookingDate}T${selectedTimeRange.start}:00`)
         .toISOString()
@@ -573,111 +697,211 @@ export class BookingPageComponent implements OnInit {
     }
 
     console.log('Booking payload:', bookingPayload);
-    this.booking.createBooking(bookingPayload).subscribe({
-      next: async (res) => {
-        console.log(res);
-        
-        // Get user details for email
-        let userEmail = '';
-        let userFirstName = '';
-        let userLastName = '';
-        try {
-          const userStr = localStorage.getItem('user');
-          if (userStr) {
-            const userObj = JSON.parse(userStr);
-            userEmail = userObj.email || '';
-            userFirstName = userObj.first_name || userObj.firstName || '';
-            userLastName = userObj.last_name || userObj.lastName || '';
-          }
-        } catch (e) {
-          console.error('Failed to get user details from localStorage:', e);
-        }
 
-        // Get car name
-        const selectedCar = this.carsList.find(car => car.car_id === this.carModel);
-        const carName = selectedCar ? `${selectedCar.make} ${selectedCar.model}` : 'Selected Car';
+    // Process payment with Stripe Payment Intents before creating booking
+    try {
+      await this.processStripePayment(bookingPayload);
+    } catch (error: any) {
+      this.isProcessingPayment = false;
+      console.error('Payment processing error:', error);
 
-        // Send email if EmailJS is configured
-        if (this.emailService.isConfigured()) {
-          if (this.isGiftVoucher) {
-            // Send gift voucher email to recipient
-            try {
-              const voucherDetails = {
-                carName: carName,
-                bookingDate: this.bookingDate,
-                location: this.selectedLocation,
-                duration: `${this.selectedMin} minutes`,
-                timeSlot: `${selectedTimeRange.start} - ${selectedTimeRange.end}`,
-                totalAmount: this.totalAmount
-              };
+      // Check for specific error types
+      if (error.message && error.message.includes('user_id_fkey')) {
+        this.paymentError = 'Invalid user account. Please logout and login again.';
+      } else if (error.message && error.message.includes('Foreign key constraint')) {
+        this.paymentError = 'Database error: Invalid reference data. Please contact support.';
+      } else {
+        this.paymentError = error.message || 'Payment processing failed. Please try again.';
+      }
 
-              const emailResult = await this.emailService.sendGiftVoucherEmail(
-                this.recipientEmail,
-                this.recipientName,
-                `${userFirstName} ${userLastName}`,
-                voucherDetails
-              );
+      alert(this.paymentError);
+    }
+  }
 
-              if (emailResult.success) {
-                console.log('✓ Gift voucher email sent to:', this.recipientEmail);
-                alert(`Gift voucher sent successfully to ${this.recipientEmail}!`);
-              } else {
-                console.warn('⚠️  Failed to send gift voucher email:', emailResult.message);
-                alert(`Gift voucher created but email failed to send. Please contact the recipient manually.`);
-              }
-            } catch (emailError) {
-              console.error('⚠️  Gift voucher email error:', emailError);
-              alert(`Gift voucher created but email failed to send.`);
-            }
-          } else {
-            // Send booking confirmation email to user
-            if (userEmail) {
-              try {
-                const bookingDetails = {
-                  firstName: userFirstName,
-                  lastName: userLastName,
-                  carName: carName,
-                  bookingDate: this.bookingDate,
-                  location: this.selectedLocation,
-                  duration: `${this.selectedMin} minutes`,
-                  timeSlot: `${selectedTimeRange.start} - ${selectedTimeRange.end}`,
-                  totalAmount: this.totalAmount
-                };
+  /**
+   * Process payment through Stripe Payment Intents API
+   */
+  async processStripePayment(bookingPayload: any): Promise<void> {
+    if (!this.cardElement) {
+      throw new Error('Card information is required');
+    }
 
-                const emailResult = await this.emailService.sendBookingConfirmationEmail(
-                  userEmail,
-                  bookingDetails
-                );
+    // Get car details for payment description
+    const selectedCar = this.carsList.find((car) => car.car_id === this.carModel);
+    const carName = selectedCar ? `${selectedCar.make} ${selectedCar.model}` : 'Car';
+    const selectedTimeRange = this.slotBooking.find((slot) => slot.selected);
 
-                if (emailResult.success) {
-                  console.log('✓ Booking confirmation email sent to:', userEmail);
-                  alert('Booking submitted successfully! Check your email for confirmation.');
-                } else {
-                  console.warn('⚠️  Failed to send confirmation email:', emailResult.message);
-                  alert('Booking submitted successfully!');
-                }
-              } catch (emailError) {
-                console.error('⚠️  Booking confirmation email error:', emailError);
-                alert('Booking submitted successfully!');
-              }
+    try {
+      // Step 1: Create booking first to get booking_id
+      console.log('Creating booking first...');
+      const bookingResponse: any = await this.booking.createBooking(bookingPayload).toPromise();
+
+      if (!bookingResponse?.data?.id) {
+        throw new Error('Failed to create booking');
+      }
+
+      const bookingId = bookingResponse.data.id;
+      console.log('✓ Booking created:', bookingId);
+
+      // Step 2: Create payment intent with booking_id and amount (matching Postman format)
+      const paymentIntentData = {
+        booking_id: bookingId,
+        amount: Math.round(this.totalAmount * 100), // Convert to cents
+      };
+
+      console.log('Creating payment intent with data:', paymentIntentData);
+
+      const paymentIntentResponse: any = await this.paymentService
+        .createPaymentIntent(paymentIntentData)
+        .toPromise();
+
+      console.log('Payment intent response:', paymentIntentResponse);
+
+      if (!paymentIntentResponse?.data?.clientSecret) {
+        throw new Error('Failed to create payment intent');
+      }
+
+      console.log('✓ Payment intent created');
+
+      // Step 2: Confirm payment with Stripe.js
+      const { error, paymentIntent } = await this.stripe.confirmCardPayment(
+        paymentIntentResponse.data.clientSecret,
+        {
+          payment_method: {
+            card: this.cardElement,
+            billing_details: {
+              email: this.isGiftVoucher ? this.recipientEmail : this.userEmail,
+            },
+          },
+        },
+      );
+
+      if (error) {
+        throw new Error(error.message);
+      }
+
+      if (paymentIntent.status !== 'succeeded') {
+        throw new Error('Payment was not successful');
+      }
+
+      console.log('✓ Payment confirmed:', paymentIntent.id);
+
+      // Step 3: Confirm payment on backend (update booking with payment info)
+      const confirmData = {
+        paymentIntentId: paymentIntent.id,
+        bookingId: bookingId,
+      };
+
+      await this.paymentService.confirmPayment(confirmData).toPromise();
+      console.log('✓ Payment confirmed on backend');
+
+      // Step 4: Send confirmation email and complete
+      this.sendBookingConfirmation(bookingId, paymentIntent.id);
+    } catch (error: any) {
+      console.error('Payment error:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Send booking confirmation email after successful payment
+   */
+  private sendBookingConfirmation(bookingId: string, paymentIntentId: string): void {
+    // Get selected time slot
+    const selectedTimeRange = this.slotBooking.find((slot) => slot.selected);
+
+    this.isProcessingPayment = false;
+
+    // Get user details for email
+    let userEmail = '';
+    let userFirstName = '';
+    let userLastName = '';
+    try {
+      const userStr = localStorage.getItem('user');
+      if (userStr) {
+        const userObj = JSON.parse(userStr);
+        userEmail = userObj.email || '';
+        userFirstName = userObj.first_name || userObj.firstName || '';
+        userLastName = userObj.last_name || userObj.lastName || '';
+      }
+    } catch (e) {
+      console.error('Failed to get user details from localStorage:', e);
+    }
+
+    // Get car name
+    const selectedCar = this.carsList.find((car) => car.car_id === this.carModel);
+    const carName = selectedCar ? `${selectedCar.make} ${selectedCar.model}` : 'Selected Car';
+
+    // Send email if EmailJS is configured (async, don't wait for it)
+    if (this.emailService.isConfigured()) {
+      if (this.isGiftVoucher) {
+        // Send gift voucher email to recipient
+        this.emailService
+          .sendGiftVoucherEmail(
+            this.recipientEmail,
+            this.recipientName,
+            `${userFirstName} ${userLastName}`,
+            {
+              carName: carName,
+              bookingDate: this.bookingDate,
+              location: this.selectedLocation,
+              duration: `${this.selectedMin} minutes`,
+              timeSlot: `${selectedTimeRange?.start || 'N/A'} - ${selectedTimeRange?.end || 'N/A'}`,
+              totalAmount: this.totalAmount,
+            },
+          )
+          .then((emailResult) => {
+            if (emailResult.success) {
+              console.log('✓ Gift voucher email sent to:', this.recipientEmail);
             } else {
-              alert('Booking submitted successfully!');
+              console.warn('⚠️  Failed to send gift voucher email:', emailResult.message);
             }
-          }
-        } else {
-          // EmailJS not configured
-          console.warn('⚠️  EmailJS not configured - skipping email notification');
-          if (this.isGiftVoucher) {
-            alert(`Gift voucher created successfully for ${this.recipientEmail}!`);
-          } else {
-            alert('Booking submitted successfully!');
-          }
+          })
+          .catch((emailError) => {
+            console.error('⚠️  Gift voucher email error:', emailError);
+          });
+      } else {
+        // Send booking confirmation email to user
+        if (userEmail) {
+          this.emailService
+            .sendBookingConfirmationEmail(userEmail, {
+              firstName: userFirstName,
+              lastName: userLastName,
+              carName: carName,
+              bookingDate: this.bookingDate,
+              location: this.selectedLocation,
+              duration: `${this.selectedMin} minutes`,
+              timeSlot: `${selectedTimeRange?.start || 'N/A'} - ${selectedTimeRange?.end || 'N/A'}`,
+              totalAmount: this.totalAmount,
+            })
+            .then((emailResult) => {
+              if (emailResult.success) {
+                console.log('✓ Booking confirmation email sent to:', userEmail);
+              } else {
+                console.warn('⚠️  Failed to send confirmation email:', emailResult.message);
+              }
+            })
+            .catch((emailError) => {
+              console.error('⚠️  Booking confirmation email error:', emailError);
+            });
         }
+      }
+    } else {
+      // EmailJS not configured
+      console.warn('⚠️  EmailJS not configured - skipping email notification');
+    }
 
-        this.resetForm();
-      },
-      error: (err) => {
-        alert('Booking failed: ' + (err?.message || err));
+    // Navigate to success page with booking details
+    this.router.navigate(['/booking-success'], {
+      queryParams: {
+        bookingId: bookingId,
+        paymentIntentId: paymentIntentId,
+        carName: carName,
+        bookingDate: this.bookingDate,
+        timeSlot: `${selectedTimeRange?.start || 'N/A'} - ${selectedTimeRange?.end || 'N/A'}`,
+        amount: this.totalAmount,
+        isGiftVoucher: this.isGiftVoucher,
+        recipientEmail: this.recipientEmail,
       },
     });
   }
@@ -693,10 +917,18 @@ export class BookingPageComponent implements OnInit {
     this.recipientName = '';
     this.recipientEmail = '';
     this.isGiftVoucher = false;
+    this.isProcessingPayment = false;
+    this.paymentError = '';
+
+    // Clear and unmount Stripe card element
+    if (this.cardElement) {
+      this.cardElement.clear();
+      this.cardElement.unmount();
+      this.cardElement = null;
+    }
   }
 
   getTimeIntervals(startTimeStr: string, endTimeStr: string, min: number, buffer: number) {
-    console.log(`Generating time intervals from ${startTimeStr} to ${endTimeStr} with duration ${min} minutes and buffer ${buffer} minutes`);
     const intervals: timeSlotBooking[] = [];
     // If input is ISO string, parse as date, else fallback to time string
     let startTime: Date, endTime: Date;
@@ -744,5 +976,12 @@ export class BookingPageComponent implements OnInit {
       if (currentStart > endTime) break;
     }
     return intervals;
+  }
+
+  get selectedCar() {
+    return this.carsList.find((car) => car.car_id === this.carModel);
+  }
+  get selectedSlot() {
+    return this.slotBooking.find((slot) => slot.selected);
   }
 }
