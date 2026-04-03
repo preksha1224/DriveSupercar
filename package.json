@@ -31,8 +31,10 @@
     "@angular/router": "^21.1.0",
     "@emailjs/browser": "^4.4.1",
     "@imgly/background-removal": "^1.7.0",
+    "@stripe/stripe-js": "^9.0.0",
     "bootstrap": "^5.3.8",
     "rxjs": "~7.8.0",
+    "stripe": "^21.0.1",
     "tslib": "^2.3.0"
   },
   "devDependencies": {
