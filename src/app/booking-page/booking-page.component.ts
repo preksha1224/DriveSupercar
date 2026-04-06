@@ -8,6 +8,7 @@ import { BookingService } from '../services/booking';
 import { EmailService } from '../services/email.service';
 import { PaymentService } from '../services/payment.service';
 import { Car } from '../model/cars.model';
+import { environment } from '../../environments/environment.development';
 // Stripe types (for TypeScript)
 declare var Stripe: any;
 interface Booking {
@@ -204,9 +205,8 @@ export class BookingPageComponent implements OnInit {
     script.src = 'https://js.stripe.com/v3/';
     script.onload = () => {
       this.stripeLoaded = true;
-      // Stripe publishable key (safe to use in frontend)
-      const stripeKey =
-        'pk_test_51TFWe68fSwJ7kpHqQNe1eUmVNiFcJrZkomxChFtCKgsAqrMUUjNurWcmojkhPMMtcTuQQOw0Jm2pcB7ClnyWWdyG00wzEVmVXx';
+      // Stripe publishable key from environment configuration
+      const stripeKey = environment.stripePublishableKey;
       this.stripe = (window as any).Stripe(stripeKey);
       console.log('✓ Stripe loaded successfully');
 
