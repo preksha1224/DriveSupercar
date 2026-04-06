@@ -181,4 +181,40 @@ export class EmailService {
     // Credentials are configured
     return true;
   }
+
+  /**
+   * Send a test email to verify EmailJS configuration
+   * @param testEmail - Email address to send test to
+   * @returns Promise with send result
+   */
+  async sendTestEmail(testEmail: string): Promise<{ success: boolean; message: string }> {
+    try {
+      const templateParams = {
+        to_email: testEmail,
+        to_name: 'Test User',
+        first_name: 'Test',
+        last_name: 'User',
+        subject: 'EmailJS Configuration Test',
+        reply_to: 'noreply@rentalcar.com'
+      };
+
+      const response = await emailjs.send(
+        this.SERVICE_ID,
+        this.REGISTRATION_TEMPLATE_ID,
+        templateParams
+      );
+
+      console.log('✓ Test email sent successfully to:', testEmail, response);
+      return {
+        success: true,
+        message: `Test email sent successfully to ${testEmail}`
+      };
+    } catch (error: any) {
+      console.error('✗ Failed to send test email:', error);
+      return {
+        success: false,
+        message: error?.text || 'Failed to send test email'
+      };
+    }
+  }
 }
