@@ -4,7 +4,7 @@ pipeline {
     stages {
         stage('Clone') {
             steps {
-                echo 'Repository already checked out'
+                echo 'Repository already checked out '
             }
         }
 
