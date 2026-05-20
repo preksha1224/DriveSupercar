@@ -8,10 +8,12 @@ pipeline {
             }
         }
 
-        stage('Deploy to Apache') {
+        stage('Deploy') {
             steps {
                 sh '''
-                scp -o StrictHostKeyChecking=no -r * root@212.227.61.112:/var/www/html/
+                scp -i /var/lib/jenkins/jenkins \
+                -o StrictHostKeyChecking=no \
+                -r * root@212.227.61.112:/var/www/html/
                 '''
             }
         }
