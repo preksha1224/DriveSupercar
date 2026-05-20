@@ -2,9 +2,9 @@ pipeline {
     agent any
 
     stages {
-        stage('Clone') {
+        stage('Checkout') {
             steps {
-                echo 'Repository already checked out '
+                checkout scm
             }
         }
 
@@ -17,4 +17,3 @@ pipeline {
         }
     }
 }
-

@@ -5,6 +5,21 @@
 
 This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.1.0.
 
+## Getting Started
+
+### Environment Setup (Important!)
+
+Before running the application, you need to configure your environment variables (Stripe keys, etc.):
+
+1. Copy the environment template:
+   ```bash
+   cp src/environments/environment.template.ts src/environments/environment.development.ts
+   ```
+
+2. Add your Stripe test key to `src/environments/environment.development.ts`
+
+📖 **For detailed setup instructions, see [ENVIRONMENT_SETUP.md](./ENVIRONMENT_SETUP.md)**
+
 ## Development server
 
 To start a local development server, run:
