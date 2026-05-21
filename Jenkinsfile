@@ -11,9 +11,8 @@ pipeline {
         stage('Deploy') {
             steps {
                 sh '''
-                scp -i /var/lib/jenkins/jenkins \
-                -o StrictHostKeyChecking=no \
-                -r * root@212.227.61.112:/var/www/html/
+                scp -o StrictHostKeyChecking=no -r * \
+                ubuntu@217.154.175.105:/var/www/html/
                 '''
             }
         }
