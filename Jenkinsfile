@@ -2,7 +2,9 @@ pipeline {
     agent any
 
     environment {
-        PATH = "/usr/bin:/bin:/usr/local/bin:${env.PATH}"
+        // Force absolute binaries (CRITICAL FIX)
+        NODE = "/usr/bin/node"
+        NPM  = "/usr/bin/npm"
 
         DEPLOY_HOST = "31.70.64.211"
         DEPLOY_USER = "root"
@@ -28,13 +30,14 @@ pipeline {
             steps {
                 sh '''
                     set -e
-                    echo "PATH: $PATH"
 
-                    which node || exit 1
-                    which npm || exit 1
+                    echo "Checking Node via absolute path..."
 
-                    node -v
-                    npm -v
+                    $NODE -v
+                    $NPM -v
+
+                    echo "Node Path: $NODE"
+                    echo "NPM Path: $NPM"
                 '''
             }
         }
@@ -45,8 +48,8 @@ pipeline {
                     set -e
                     echo "Installing dependencies..."
 
-                    npm cache clean --force || true
-                    npm ci
+                    $NPM cache clean --force || true
+                    $NPM ci
                 '''
             }
         }
@@ -57,7 +60,7 @@ pipeline {
                     set -e
                     echo "Building project..."
 
-                    npm run build
+                    $NPM run build
                 '''
             }
         }
