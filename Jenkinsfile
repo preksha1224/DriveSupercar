@@ -12,7 +12,12 @@ pipeline {
             steps {
                 sh '''
                 scp -o StrictHostKeyChecking=no -r * \
-                ubuntu@217.154.175.105:/var/www/html/
+                root@31.70.64.211:/var/www/html/
+
+                ssh -o StrictHostKeyChecking=no \
+                root@31.70.64.211 "
+                systemctl restart apache2
+                "
                 '''
             }
         }
