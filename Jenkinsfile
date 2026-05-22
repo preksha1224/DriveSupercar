@@ -3,10 +3,16 @@ pipeline {
 
     environment {
         PATH = "/usr/bin:/bin:/usr/local/bin:${env.PATH}"
+
         DEPLOY_HOST = "31.70.64.211"
         DEPLOY_USER = "root"
         DEPLOY_KEY = "/var/lib/jenkins/.ssh/jenkins_deploy_key"
         REMOTE_PATH = "/var/www/html"
+    }
+
+    options {
+        timestamps()
+        disableConcurrentBuilds()
     }
 
     stages {
@@ -18,10 +24,15 @@ pipeline {
             }
         }
 
-        stage('Verify Node') {
+        stage('Verify Environment') {
             steps {
                 sh '''
+                    set -e
                     echo "PATH: $PATH"
+
+                    which node || exit 1
+                    which npm || exit 1
+
                     node -v
                     npm -v
                 '''
@@ -31,8 +42,11 @@ pipeline {
         stage('Install Dependencies') {
             steps {
                 sh '''
-                    npm cache clean --force
-                    npm install
+                    set -e
+                    echo "Installing dependencies..."
+
+                    npm cache clean --force || true
+                    npm ci
                 '''
             }
         }
@@ -40,21 +54,34 @@ pipeline {
         stage('Build Project') {
             steps {
                 sh '''
+                    set -e
+                    echo "Building project..."
+
                     npm run build
                 '''
             }
         }
 
-        stage('Check Build Output') {
+        stage('Validate Build') {
             steps {
                 sh '''
+                    set -e
+
+                    echo "Checking build output..."
+
                     ls -lah
-                    test -d dist || (echo "Build folder not found!" && exit 1)
+
+                    if [ ! -d "dist" ]; then
+                        echo "❌ Build failed: dist folder missing"
+                        exit 1
+                    fi
+
+                    echo "✅ Build verified"
                 '''
             }
         }
 
-        stage('Deploy to Apache Server') {
+        stage('Deploy') {
             steps {
                 sh '''
                     set -e
@@ -64,7 +91,7 @@ pipeline {
                         rm -rf $REMOTE_PATH/*
                     "
 
-                    echo "Copying build files..."
+                    echo "Copying files..."
                     scp -i $DEPLOY_KEY -o StrictHostKeyChecking=no -r dist/* \
                         $DEPLOY_USER@$DEPLOY_HOST:$REMOTE_PATH/
 
@@ -72,6 +99,8 @@ pipeline {
                     ssh -i $DEPLOY_KEY -o StrictHostKeyChecking=no $DEPLOY_USER@$DEPLOY_HOST "
                         systemctl restart apache2
                     "
+
+                    echo "Deployment completed successfully"
                 '''
             }
         }
@@ -79,10 +108,15 @@ pipeline {
 
     post {
         success {
-            echo "✅ Deployment Successful"
+            echo "✅ SUCCESS: Deployment completed"
         }
+
         failure {
-            echo "❌ Pipeline Failed - check logs"
+            echo "❌ FAILURE: Check logs for details"
+        }
+
+        always {
+            echo "📌 Pipeline finished"
         }
     }
 }
