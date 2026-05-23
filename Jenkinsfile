@@ -2,7 +2,6 @@ pipeline {
     agent any
 
     environment {
-        // Force absolute binaries (CRITICAL FIX)
         NODE = "/usr/bin/node"
         NPM  = "/usr/bin/npm"
 
@@ -30,14 +29,10 @@ pipeline {
             steps {
                 sh '''
                     set -e
-
-                    echo "Checking Node via absolute path..."
-
+                    echo "Node version:"
                     $NODE -v
+                    echo "NPM version:"
                     $NPM -v
-
-                    echo "Node Path: $NODE"
-                    echo "NPM Path: $NPM"
                 '''
             }
         }
@@ -47,63 +42,64 @@ pipeline {
                 sh '''
                     set -e
                     echo "Installing dependencies..."
-
-                    $NPM cache clean --force || true
-                    $NPM ci
+                    $NPM ci || $NPM install
                 '''
             }
         }
 
-        stage('Build Project') {
+        stage('Build Angular App') {
             steps {
                 sh '''
                     set -e
-                    echo "Building project..."
+                    echo "Building Angular project..."
 
-                    $NPM run build
+                    $NPM run build -- --configuration=production
                 '''
             }
         }
 
-        stage('Validate Build') {
+        stage('Locate Build Output') {
             steps {
                 sh '''
                     set -e
+                    echo "Checking dist folder..."
 
-                    echo "Checking build output..."
+                    ls -lah dist
 
-                    ls -lah
+                    APP_DIR=$(ls dist | head -n 1)
 
-                    if [ ! -d "dist" ]; then
-                        echo "❌ Build failed: dist folder missing"
+                    if [ -z "$APP_DIR" ]; then
+                        echo "❌ No build output found"
                         exit 1
                     fi
 
-                    echo "✅ Build verified"
+                    echo "App directory: $APP_DIR"
+                    echo $APP_DIR > app_dir.txt
                 '''
             }
         }
 
-        stage('Deploy') {
+        stage('Deploy to Apache') {
             steps {
                 sh '''
                     set -e
 
-                    echo "Cleaning remote server..."
+                    APP_DIR=$(cat app_dir.txt)
+
+                    echo "Deploying $APP_DIR..."
+
                     ssh -i $DEPLOY_KEY -o StrictHostKeyChecking=no $DEPLOY_USER@$DEPLOY_HOST "
                         rm -rf $REMOTE_PATH/*
                     "
 
-                    echo "Copying files..."
-                    scp -i $DEPLOY_KEY -o StrictHostKeyChecking=no -r dist/* \
+                    scp -i $DEPLOY_KEY -o StrictHostKeyChecking=no -r dist/$APP_DIR/* \
                         $DEPLOY_USER@$DEPLOY_HOST:$REMOTE_PATH/
 
-                    echo "Restarting Apache..."
                     ssh -i $DEPLOY_KEY -o StrictHostKeyChecking=no $DEPLOY_USER@$DEPLOY_HOST "
                         systemctl restart apache2
                     "
 
-                    echo "Deployment completed successfully"
+                    echo "✅ Deployment successful"
                 '''
             }
         }
@@ -111,13 +107,11 @@ pipeline {
 
     post {
         success {
-            echo "✅ SUCCESS: Deployment completed"
+            echo "✅ SUCCESS: Website deployed"
         }
-
         failure {
-            echo "❌ FAILURE: Check logs for details"
+            echo "❌ FAILURE: Check Jenkins logs"
         }
-
         always {
             echo "📌 Pipeline finished"
         }
