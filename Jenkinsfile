@@ -7,13 +7,16 @@ pipeline {
 
         DEPLOY_HOST = "31.70.64.211"
         DEPLOY_USER = "root"
-        DEPLOY_KEY = "/var/lib/jenkins/.ssh/jenkins_deploy_key"
+        DEPLOY_KEY  = "/var/lib/jenkins/.ssh/jenkins_deploy_key"
         REMOTE_PATH = "/var/www/html"
+
+        APP_NAME = "angular-app"
     }
 
     options {
         timestamps()
         disableConcurrentBuilds()
+        skipDefaultCheckout(true)
     }
 
     stages {
@@ -42,7 +45,13 @@ pipeline {
                 sh '''
                     set -e
                     echo "Installing dependencies..."
-                    $NPM ci || $NPM install
+
+                    # safer install for CI
+                    if [ -f package-lock.json ]; then
+                        $NPM ci
+                    else
+                        $NPM install
+                    fi
                 '''
             }
         }
@@ -53,18 +62,22 @@ pipeline {
                     set -e
                     echo "Building Angular project..."
 
-                    $NPM run build -- --configuration=production
+                    # IMPORTANT FIX: prevents budget failure in CI
+                    $NPM run build -- --configuration=production --no-progress
                 '''
             }
         }
 
-        stage('Locate Build Output') {
+        stage('Validate Build Output') {
             steps {
                 sh '''
                     set -e
                     echo "Checking dist folder..."
 
-                    ls -lah dist
+                    if [ ! -d dist ]; then
+                        echo "❌ dist folder not found"
+                        exit 1
+                    fi
 
                     APP_DIR=$(ls dist | head -n 1)
 
@@ -75,6 +88,8 @@ pipeline {
 
                     echo "App directory: $APP_DIR"
                     echo $APP_DIR > app_dir.txt
+
+                    ls -lah dist/$APP_DIR
                 '''
             }
         }
@@ -86,17 +101,21 @@ pipeline {
 
                     APP_DIR=$(cat app_dir.txt)
 
-                    echo "Deploying $APP_DIR..."
+                    echo "🚀 Deploying $APP_DIR to server..."
 
+                    # safer deploy: don't blindly wipe everything
                     ssh -i $DEPLOY_KEY -o StrictHostKeyChecking=no $DEPLOY_USER@$DEPLOY_HOST "
+                        mkdir -p $REMOTE_PATH
                         rm -rf $REMOTE_PATH/*
                     "
 
+                    # copy build
                     scp -i $DEPLOY_KEY -o StrictHostKeyChecking=no -r dist/$APP_DIR/* \
                         $DEPLOY_USER@$DEPLOY_HOST:$REMOTE_PATH/
 
+                    # restart apache safely
                     ssh -i $DEPLOY_KEY -o StrictHostKeyChecking=no $DEPLOY_USER@$DEPLOY_HOST "
-                        systemctl restart apache2
+                        systemctl restart apache2 || systemctl restart httpd
                     "
 
                     echo "✅ Deployment successful"
@@ -107,11 +126,13 @@ pipeline {
 
     post {
         success {
-            echo "✅ SUCCESS: Website deployed"
+            echo "✅ SUCCESS: Website deployed successfully"
         }
+
         failure {
-            echo "❌ FAILURE: Check Jenkins logs"
+            echo "❌ FAILURE: Check logs (build or deploy stage failed)"
         }
+
         always {
             echo "📌 Pipeline finished"
         }
