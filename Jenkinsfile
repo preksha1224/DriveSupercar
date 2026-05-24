@@ -6,7 +6,7 @@ pipeline {
         DEPLOY_PATH = "/var/www/html"
         APP_NAME = "rental_car"
         DIST_PATH = "dist/rental_car/browser"
-        SSH_CRED = "my-server-key"
+        SSH_CRED = "my-server-login"
     }
 
     stages {
