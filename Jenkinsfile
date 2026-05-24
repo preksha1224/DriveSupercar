@@ -44,16 +44,16 @@ pipeline {
                     sh '''
                     set -e
 
-                    echo "Cleaning server directory..."
+                    echo "Deploying to server..."
 
-                    ssh -i $KEY -o StrictHostKeyChecking=no -o IdentitiesOnly=yes $USER@${SERVER_IP} "
+                    # Clean server
+                    ssh -i $KEY -o StrictHostKeyChecking=no $USER@${SERVER_IP} "
                         sudo rm -rf ${DEPLOY_PATH}/* &&
                         sudo mkdir -p ${DEPLOY_PATH}
                     "
 
-                    echo "Copying files..."
-
-                    scp -i $KEY -o StrictHostKeyChecking=no -o IdentitiesOnly=yes \
+                    # Copy build files
+                    scp -i $KEY -o StrictHostKeyChecking=no \
                         -r dist/${APP_NAME}/browser/* \
                         $USER@${SERVER_IP}:${DEPLOY_PATH}/
                     '''
@@ -70,7 +70,7 @@ pipeline {
                 )]) {
 
                     sh '''
-                    ssh -i $KEY -o StrictHostKeyChecking=no -o IdentitiesOnly=yes $USER@${SERVER_IP} "
+                    ssh -i $KEY -o StrictHostKeyChecking=no $USER@${SERVER_IP} "
                         sudo systemctl restart apache2
                     "
                     '''
