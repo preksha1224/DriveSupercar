@@ -5,60 +5,44 @@ pipeline {
         SERVER_IP = "87.106.48.159"
         DEPLOY_PATH = "/var/www/html"
         APP_NAME = "rental_car"
-        DIST_PATH = "dist/rental_car/browser"
-        SSH_CRED = "my-server-login"
     }
 
     stages {
 
         stage('Checkout') {
             steps {
-                echo "Pulling latest code..."
                 checkout scm
             }
         }
 
         stage('Install Dependencies') {
             steps {
-                echo "Installing dependencies..."
                 sh 'npm ci'
             }
         }
 
         stage('Build Angular App') {
             steps {
-                echo "Building Angular project (production)..."
                 sh 'npm run build -- --configuration production'
             }
         }
 
         stage('Verify Build Output') {
             steps {
-                echo "Checking build output structure..."
-                sh "ls -R dist"
+                sh 'ls -R dist'
             }
         }
 
-        stage('Deploy to Server') {
+        stage('Deploy') {
             steps {
-                echo "Deploying build to server..."
-
-                withCredentials([sshUserPrivateKey(
-                    credentialsId: "${SSH_CRED}",
-                    keyFileVariable: 'KEY'
-                )]) {
-
+                sshagent(['my-server-key']) {
                     sh """
-                    set -e
+                    ssh -o StrictHostKeyChecking=no root@${SERVER_IP} '
+                        rm -rf ${DEPLOY_PATH}/* &&
+                        mkdir -p ${DEPLOY_PATH}
+                    '
 
-                    echo "Cleaning server directory..."
-                    ssh -i $KEY -o StrictHostKeyChecking=no root@${SERVER_IP} "
-                        sudo rm -rf ${DEPLOY_PATH}/* &&
-                        sudo mkdir -p ${DEPLOY_PATH}
-                    "
-
-                    echo "Copying files..."
-                    scp -i $KEY -o StrictHostKeyChecking=no -r ${DIST_PATH}/* root@${SERVER_IP}:${DEPLOY_PATH}/
+                    scp -o StrictHostKeyChecking=no -r dist/${APP_NAME}/browser/* root@${SERVER_IP}:${DEPLOY_PATH}/
                     """
                 }
             }
@@ -66,17 +50,11 @@ pipeline {
 
         stage('Restart Apache') {
             steps {
-                echo "Restarting Apache..."
-
-                withCredentials([sshUserPrivateKey(
-                    credentialsId: "${SSH_CRED}",
-                    keyFileVariable: 'KEY'
-                )]) {
-
+                sshagent(['my-server-key']) {
                     sh """
-                    ssh -i $KEY -o StrictHostKeyChecking=no root@${SERVER_IP} "
-                        sudo systemctl restart apache2
-                    "
+                    ssh -o StrictHostKeyChecking=no root@${SERVER_IP} '
+                        systemctl restart apache2
+                    '
                     """
                 }
             }
@@ -85,11 +63,10 @@ pipeline {
 
     post {
         success {
-            echo "🚀 Deployment successful! Angular app is live."
+            echo "🚀 Deployment successful!"
         }
-
         failure {
-            echo "❌ Deployment failed. Check logs."
+            echo "❌ Deployment failed"
         }
     }
 }
