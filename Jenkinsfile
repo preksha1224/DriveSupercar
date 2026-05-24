@@ -35,14 +35,26 @@ pipeline {
 
         stage('Deploy') {
             steps {
-                sshagent(['my-server-key']) {
-                    sh """
-                    ssh -o StrictHostKeyChecking=no root@${SERVER_IP} '
-                        rm -rf ${DEPLOY_PATH}/* &&
-                        mkdir -p ${DEPLOY_PATH}
-                    '
+                sshagent(['my-server-login']) {
 
-                    scp -o StrictHostKeyChecking=no -r dist/${APP_NAME}/browser/* root@${SERVER_IP}:${DEPLOY_PATH}/
+                    sh """
+                    set -e
+
+                    echo "Cleaning server directory..."
+
+                    ssh -o StrictHostKeyChecking=no \
+                        -o IdentitiesOnly=yes \
+                        root@${SERVER_IP} "
+                        sudo rm -rf ${DEPLOY_PATH}/* &&
+                        sudo mkdir -p ${DEPLOY_PATH}
+                    "
+
+                    echo "Copying files to server..."
+
+                    scp -o StrictHostKeyChecking=no \
+                        -o IdentitiesOnly=yes \
+                        -r dist/${APP_NAME}/browser/* \
+                        root@${SERVER_IP}:${DEPLOY_PATH}/
                     """
                 }
             }
@@ -50,11 +62,13 @@ pipeline {
 
         stage('Restart Apache') {
             steps {
-                sshagent(['my-server-key']) {
+                sshagent(['my-server-login']) {
                     sh """
-                    ssh -o StrictHostKeyChecking=no root@${SERVER_IP} '
-                        systemctl restart apache2
-                    '
+                    ssh -o StrictHostKeyChecking=no \
+                        -o IdentitiesOnly=yes \
+                        root@${SERVER_IP} "
+                        sudo systemctl restart apache2
+                    "
                     """
                 }
             }
