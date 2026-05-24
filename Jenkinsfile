@@ -35,41 +35,45 @@ pipeline {
 
         stage('Deploy') {
             steps {
-                sshagent(['my-server-login']) {
+                withCredentials([sshUserPrivateKey(
+                    credentialsId: 'my-server-login',
+                    keyFileVariable: 'KEY',
+                    usernameVariable: 'USER'
+                )]) {
 
-                    sh """
+                    sh '''
                     set -e
 
                     echo "Cleaning server directory..."
 
-                    ssh -o StrictHostKeyChecking=no \
-                        -o IdentitiesOnly=yes \
-                        root@${SERVER_IP} "
+                    ssh -i $KEY -o StrictHostKeyChecking=no -o IdentitiesOnly=yes $USER@${SERVER_IP} "
                         sudo rm -rf ${DEPLOY_PATH}/* &&
                         sudo mkdir -p ${DEPLOY_PATH}
                     "
 
-                    echo "Copying files to server..."
+                    echo "Copying files..."
 
-                    scp -o StrictHostKeyChecking=no \
-                        -o IdentitiesOnly=yes \
+                    scp -i $KEY -o StrictHostKeyChecking=no -o IdentitiesOnly=yes \
                         -r dist/${APP_NAME}/browser/* \
-                        root@${SERVER_IP}:${DEPLOY_PATH}/
-                    """
+                        $USER@${SERVER_IP}:${DEPLOY_PATH}/
+                    '''
                 }
             }
         }
 
         stage('Restart Apache') {
             steps {
-                sshagent(['my-server-login']) {
-                    sh """
-                    ssh -o StrictHostKeyChecking=no \
-                        -o IdentitiesOnly=yes \
-                        root@${SERVER_IP} "
+                withCredentials([sshUserPrivateKey(
+                    credentialsId: 'my-server-login',
+                    keyFileVariable: 'KEY',
+                    usernameVariable: 'USER'
+                )]) {
+
+                    sh '''
+                    ssh -i $KEY -o StrictHostKeyChecking=no -o IdentitiesOnly=yes $USER@${SERVER_IP} "
                         sudo systemctl restart apache2
                     "
-                    """
+                    '''
                 }
             }
         }
