@@ -5,6 +5,8 @@ pipeline {
         SERVER_IP = "87.106.48.159"
         DEPLOY_PATH = "/var/www/html"
         APP_NAME = "rental_car"
+        DIST_PATH = "dist/rental_car/browser"
+        SSH_CRED = "my-server-key"
     }
 
     stages {
@@ -19,7 +21,7 @@ pipeline {
         stage('Install Dependencies') {
             steps {
                 echo "Installing dependencies..."
-                sh 'npm install'
+                sh 'npm ci'
             }
         }
 
@@ -42,18 +44,21 @@ pipeline {
                 echo "Deploying build to server..."
 
                 withCredentials([sshUserPrivateKey(
-                    credentialsId: 'my-server-key',
+                    credentialsId: "${SSH_CRED}",
                     keyFileVariable: 'KEY'
                 )]) {
 
                     sh """
-                    # Remove old files on server
+                    set -e
+
+                    echo "Cleaning server directory..."
                     ssh -i $KEY -o StrictHostKeyChecking=no ubuntu@${SERVER_IP} "
-                        sudo rm -rf ${DEPLOY_PATH}/*
+                        sudo rm -rf ${DEPLOY_PATH}/* &&
+                        sudo mkdir -p ${DEPLOY_PATH}
                     "
 
-                    # Copy Angular build files (Angular v17+ uses /browser)
-                    scp -i $KEY -o StrictHostKeyChecking=no -r dist/${APP_NAME}/browser/* ubuntu@${SERVER_IP}:${DEPLOY_PATH}/
+                    echo "Copying files..."
+                    scp -i $KEY -o StrictHostKeyChecking=no -r ${DIST_PATH}/* ubuntu@${SERVER_IP}:${DEPLOY_PATH}/
                     """
                 }
             }
@@ -64,7 +69,7 @@ pipeline {
                 echo "Restarting Apache..."
 
                 withCredentials([sshUserPrivateKey(
-                    credentialsId: 'my-server-key',
+                    credentialsId: "${SSH_CRED}",
                     keyFileVariable: 'KEY'
                 )]) {
 
@@ -80,10 +85,11 @@ pipeline {
 
     post {
         success {
-            echo "🚀 Deployment successful! Your Angular app is live."
+            echo "🚀 Deployment successful! Angular app is live."
         }
+
         failure {
-            echo "❌ Pipeline failed. Check logs above for errors."
+            echo "❌ Deployment failed. Check logs."
         }
     }
 }
