@@ -2,11 +2,19 @@ pipeline {
     agent any
 
     environment {
-        SERVER_IP = "YOUR_SERVER_IP"
+        SERVER_IP = "87.106.48.159"
         DEPLOY_PATH = "/var/www/html"
+        APP_NAME = "DriveSupercar"   
     }
 
     stages {
+
+        stage('Checkout') {
+            steps {
+                echo "Pulling latest code..."
+                checkout scm
+            }
+        }
 
         stage('Install Dependencies') {
             steps {
@@ -15,10 +23,17 @@ pipeline {
             }
         }
 
-        stage('Build') {
+        stage('Build Angular App') {
             steps {
-                echo "Building Angular project..."
+                echo "Building project..."
                 sh 'npm run build'
+            }
+        }
+
+        stage('Verify Build Output') {
+            steps {
+                echo "Checking build output..."
+                sh "ls -l dist/${APP_NAME}"
             }
         }
 
@@ -33,10 +48,12 @@ pipeline {
 
                     sh """
                     # clean server folder
-                    ssh -i $KEY -o StrictHostKeyChecking=no root@${SERVER_IP} "rm -rf ${DEPLOY_PATH}/*"
+                    ssh -i $KEY -o StrictHostKeyChecking=no ubuntu@${SERVER_IP} "
+                        sudo rm -rf ${DEPLOY_PATH}/*
+                    "
 
-                    # copy dist folder (Angular output)
-                    scp -i $KEY -o StrictHostKeyChecking=no -r dist/* root@${SERVER_IP}:${DEPLOY_PATH}/
+                    # deploy build
+                    scp -i $KEY -o StrictHostKeyChecking=no -r dist/${APP_NAME}/* ubuntu@${SERVER_IP}:${DEPLOY_PATH}/
                     """
                 }
             }
@@ -52,7 +69,9 @@ pipeline {
                 )]) {
 
                     sh """
-                    ssh -i $KEY -o StrictHostKeyChecking=no root@${SERVER_IP} "systemctl restart apache2"
+                    ssh -i $KEY -o StrictHostKeyChecking=no ubuntu@${SERVER_IP} "
+                        sudo systemctl restart apache2
+                    "
                     """
                 }
             }
@@ -61,7 +80,7 @@ pipeline {
 
     post {
         success {
-            echo "✅ Deployment successful!"
+            echo "🚀 Deployment successful! Your app is live."
         }
         failure {
             echo "❌ Pipeline failed. Check logs."
