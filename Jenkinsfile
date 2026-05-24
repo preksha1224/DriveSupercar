@@ -52,13 +52,13 @@ pipeline {
                     set -e
 
                     echo "Cleaning server directory..."
-                    ssh -i $KEY -o StrictHostKeyChecking=no ubuntu@${SERVER_IP} "
+                    ssh -i $KEY -o StrictHostKeyChecking=no root@${SERVER_IP} "
                         sudo rm -rf ${DEPLOY_PATH}/* &&
                         sudo mkdir -p ${DEPLOY_PATH}
                     "
 
                     echo "Copying files..."
-                    scp -i $KEY -o StrictHostKeyChecking=no -r ${DIST_PATH}/* ubuntu@${SERVER_IP}:${DEPLOY_PATH}/
+                    scp -i $KEY -o StrictHostKeyChecking=no -r ${DIST_PATH}/* root@${SERVER_IP}:${DEPLOY_PATH}/
                     """
                 }
             }
@@ -74,7 +74,7 @@ pipeline {
                 )]) {
 
                     sh """
-                    ssh -i $KEY -o StrictHostKeyChecking=no ubuntu@${SERVER_IP} "
+                    ssh -i $KEY -o StrictHostKeyChecking=no root@${SERVER_IP} "
                         sudo systemctl restart apache2
                     "
                     """
