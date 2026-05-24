@@ -4,7 +4,7 @@ pipeline {
     environment {
         SERVER_IP = "87.106.48.159"
         DEPLOY_PATH = "/var/www/html"
-        APP_NAME = "DriveSupercar"   
+        APP_NAME = "rental_car"
     }
 
     stages {
@@ -25,15 +25,15 @@ pipeline {
 
         stage('Build Angular App') {
             steps {
-                echo "Building project..."
-                sh 'npm run build'
+                echo "Building Angular project (production)..."
+                sh 'npm run build -- --configuration production'
             }
         }
 
         stage('Verify Build Output') {
             steps {
-                echo "Checking build output..."
-                sh "ls -l dist/${APP_NAME}"
+                echo "Checking build output structure..."
+                sh "ls -R dist"
             }
         }
 
@@ -47,13 +47,13 @@ pipeline {
                 )]) {
 
                     sh """
-                    # clean server folder
+                    # Remove old files on server
                     ssh -i $KEY -o StrictHostKeyChecking=no ubuntu@${SERVER_IP} "
                         sudo rm -rf ${DEPLOY_PATH}/*
                     "
 
-                    # deploy build
-                    scp -i $KEY -o StrictHostKeyChecking=no -r dist/${APP_NAME}/* ubuntu@${SERVER_IP}:${DEPLOY_PATH}/
+                    # Copy Angular build files (Angular v17+ uses /browser)
+                    scp -i $KEY -o StrictHostKeyChecking=no -r dist/${APP_NAME}/browser/* ubuntu@${SERVER_IP}:${DEPLOY_PATH}/
                     """
                 }
             }
@@ -80,10 +80,10 @@ pipeline {
 
     post {
         success {
-            echo "🚀 Deployment successful! Your app is live."
+            echo "🚀 Deployment successful! Your Angular app is live."
         }
         failure {
-            echo "❌ Pipeline failed. Check logs."
+            echo "❌ Pipeline failed. Check logs above for errors."
         }
     }
 }
