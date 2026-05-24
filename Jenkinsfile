@@ -44,16 +44,26 @@ pipeline {
                     sh '''
                     set -e
 
-                    echo "Deploying to server..."
+                    echo "Starting deployment..."
 
-                    # Clean server
-                    ssh -i $KEY -o StrictHostKeyChecking=no $USER@${SERVER_IP} "
-                        sudo rm -rf ${DEPLOY_PATH}/* &&
-                        sudo mkdir -p ${DEPLOY_PATH}
-                    "
+                    # Remove SSH key conflicts
+                    export GIT_SSH_COMMAND="ssh -i $KEY -o IdentitiesOnly=yes -o StrictHostKeyChecking=no"
 
-                    # Copy build files
-                    scp -i $KEY -o StrictHostKeyChecking=no \
+                    echo "Cleaning server directory..."
+
+                    ssh -i $KEY \
+                        -o IdentitiesOnly=yes \
+                        -o StrictHostKeyChecking=no \
+                        $USER@${SERVER_IP} "
+                            sudo rm -rf ${DEPLOY_PATH}/* &&
+                            sudo mkdir -p ${DEPLOY_PATH}
+                        "
+
+                    echo "Uploading build..."
+
+                    scp -i $KEY \
+                        -o IdentitiesOnly=yes \
+                        -o StrictHostKeyChecking=no \
                         -r dist/${APP_NAME}/browser/* \
                         $USER@${SERVER_IP}:${DEPLOY_PATH}/
                     '''
@@ -70,9 +80,12 @@ pipeline {
                 )]) {
 
                     sh '''
-                    ssh -i $KEY -o StrictHostKeyChecking=no $USER@${SERVER_IP} "
-                        sudo systemctl restart apache2
-                    "
+                    ssh -i $KEY \
+                        -o IdentitiesOnly=yes \
+                        -o StrictHostKeyChecking=no \
+                        $USER@${SERVER_IP} "
+                            sudo systemctl restart apache2
+                        "
                     '''
                 }
             }
